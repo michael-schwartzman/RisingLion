@@ -47,7 +47,7 @@ class OperationRisingLion {
                 destroyed: false,
                 name: 'Nataz Facility'
             },
-            bohaser: {
+            bohasher: {
                 x: 1050,
                 y: 350,
                 width: 60,
@@ -86,25 +86,38 @@ class OperationRisingLion {
     
     init() {
         // Wait for DOM to be fully loaded before setting up event listeners
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                this.setupEventListeners();
-                this.showScreen('mainMenu');
-                this.gameLoop();
-            });
-        } else {
+        console.log('Initializing game elements...');
+        try {
+            // Always set up the event listeners
             this.setupEventListeners();
+            console.log('Event listeners set up');
+            
+            // Show main menu
             this.showScreen('mainMenu');
+            console.log('Main menu displayed');
+            
+            // Start the game loop
             this.gameLoop();
+            console.log('Game loop started');
+        } catch (error) {
+            console.error('Error during initialization:', error);
         }
     }
     
     setupEventListeners() {
         try {
-            // Menu buttons - with null checks
+            console.log('Setting up event listeners...');
+            
+            // Menu buttons - with more robust null checks
             const startGameBtn = document.getElementById('startGame');
             if (startGameBtn) {
-                startGameBtn.addEventListener('click', () => {
+                console.log('Start game button found, adding click listener');
+                // Remove any existing listeners to prevent duplicates
+                const newStartBtn = startGameBtn.cloneNode(true);
+                startGameBtn.parentNode.replaceChild(newStartBtn, startGameBtn);
+                
+                newStartBtn.addEventListener('click', (event) => {
+                    event.preventDefault();
                     console.log('Start game button clicked');
                     this.startGame();
                 });
@@ -171,11 +184,38 @@ class OperationRisingLion {
             this.timeLeft = 180;
             this.stats = { shotsFired: 0, hits: 0, targetsDestroyed: 0 };
             
-            // Reset targets
-            Object.values(this.targets).forEach(target => {
-                target.health = target.maxHealth;
-                target.destroyed = false;
-            });
+            // Ensure targets are properly initialized
+            if (!this.targets || !this.targets.nataz || !this.targets.bohasher) {
+                console.log('Targets not properly initialized, reinitializing...');
+                this.targets = {
+                    nataz: {
+                        x: 950,
+                        y: 400,
+                        width: 80,
+                        height: 120,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Nataz Facility'
+                    },
+                    bohasher: {
+                        x: 1050,
+                        y: 350,
+                        width: 60,
+                        height: 100,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Bohasher Complex'
+                    }
+                };
+            } else {
+                // Reset targets
+                Object.values(this.targets).forEach(target => {
+                    target.health = target.maxHealth;
+                    target.destroyed = false;
+                });
+            }
             
             // Reset weapons
             this.weapons.guided.count = 5;
@@ -192,7 +232,7 @@ class OperationRisingLion {
             
             this.showScreen('gameScreen');
             this.startTimer();
-            this.updateHUD();
+            this.safelyUpdateHUD();
             console.log('Game started successfully');
         } catch (error) {
             console.error('Error starting game:', error);
@@ -202,7 +242,7 @@ class OperationRisingLion {
     startTimer() {
         this.gameTimer = setInterval(() => {
             this.timeLeft--;
-            this.updateHUD();
+            this.safelyUpdateHUD();
             
             if (this.timeLeft <= 0) {
                 this.endGame();
@@ -303,7 +343,7 @@ class OperationRisingLion {
             weapon.count--;
         }
         
-        this.updateHUD();
+        this.safelyUpdateHUD();
         this.createLaunchEffect();
     }
     
@@ -544,9 +584,18 @@ class OperationRisingLion {
     }
     
     checkCollisions() {
+        // Ensure targets exist before checking collisions
+        if (!this.targets || !this.targets.nataz || !this.targets.bohasher) {
+            return;
+        }
+        
         // Projectile vs Target collisions - use reverse loop to avoid index issues
         for (let pIndex = this.projectiles.length - 1; pIndex >= 0; pIndex--) {
+            if (pIndex >= this.projectiles.length || pIndex < 0) continue;
+            
             const projectile = this.projectiles[pIndex];
+            if (!projectile) continue;
+            
             let projectileHit = false;
             
             Object.values(this.targets).forEach(target => {
@@ -616,6 +665,8 @@ class OperationRisingLion {
     }
     
     hitTarget(target, projectile) {
+        if (!target || !projectile) return;
+        
         const damage = this.calculateDamage(projectile.type);
         target.health -= damage;
         
@@ -632,7 +683,7 @@ class OperationRisingLion {
             this.createExplosion(projectile.x, projectile.y, 40);
         }
         
-        this.updateHUD();
+        this.safelyUpdateHUD();
     }
     
     calculateDamage(weaponType) {
@@ -826,18 +877,32 @@ class OperationRisingLion {
         const natazHealth = document.getElementById('natazHealth');
         const bohasherHealth = document.getElementById('bohasherHealth');
         
-        const natazPercent = (this.targets.nataz.health / this.targets.nataz.maxHealth) * 100;
-        const bohasherPercent = (this.targets.bohasher.health / this.targets.bohasher.maxHealth) * 100;
+        // Add null checks to prevent errors
+        if (this.targets && this.targets.nataz && natazHealth) {
+            const natazPercent = (this.targets.nataz.health / this.targets.nataz.maxHealth) * 100;
+            natazHealth.style.width = natazPercent + '%';
+            this.updateHealthBarColor(natazHealth, natazPercent);
+        }
         
-        natazHealth.style.width = natazPercent + '%';
-        bohasherHealth.style.width = bohasherPercent + '%';
-        
-        // Update health bar colors
-        this.updateHealthBarColor(natazHealth, natazPercent);
-        this.updateHealthBarColor(bohasherHealth, bohasherPercent);
+        if (this.targets && this.targets.bohasher && bohasherHealth) {
+            const bohasherPercent = (this.targets.bohasher.health / this.targets.bohasher.maxHealth) * 100;
+            bohasherHealth.style.width = bohasherPercent + '%';
+            this.updateHealthBarColor(bohasherHealth, bohasherPercent);
+        }
         
         // Update weapon select
         this.updateWeaponSelect();
+    }
+    
+    safelyUpdateHUD() {
+        try {
+            // Only update HUD if game is in playing state
+            if (this.gameState === 'playing') {
+                this.updateHUD();
+            }
+        } catch (error) {
+            console.warn('Error in safelyUpdateHUD:', error);
+        }
     }
     
     updateHealthBarColor(healthBar, percent) {
@@ -851,11 +916,15 @@ class OperationRisingLion {
     
     updateWeaponSelect() {
         const select = document.getElementById('weaponType');
+        if (!select) return;
+        
         select.value = this.currentWeapon;
         
         // Update option text with counts
         Array.from(select.options).forEach(option => {
             const weapon = this.weapons[option.value];
+            if (!weapon) return;
+            
             const count = weapon.count === Infinity ? '∞' : weapon.count;
             option.textContent = `${weapon.name} (${count})`;
             option.disabled = weapon.count <= 0;
@@ -1621,15 +1690,66 @@ class OperationRisingLion {
 }
 
 // Initialize game when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing game...');
+function initGame() {
+    console.log('Initializing game...');
     try {
         window.game = new OperationRisingLion();
+        
+        // Perform a validation check on critical game objects
+        if (!window.game.targets || !window.game.targets.nataz || !window.game.targets.bohasher) {
+            console.warn('Game targets not properly initialized, attempting to fix...');
+            window.game.targets = {
+                nataz: {
+                    x: 950,
+                    y: 400,
+                    width: 80,
+                    height: 120,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Nataz Facility'
+                },
+                bohasher: {
+                    x: 1050,
+                    y: 350,
+                    width: 60,
+                    height: 100,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Bohasher Complex'
+                }
+            };
+        }
+        
         console.log('Game initialized successfully');
     } catch (error) {
         console.error('Error initializing game:', error);
     }
-});
+}
+
+// Check if the DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGame);
+} else {
+    // DOM is already loaded, initialize immediately
+    initGame();
+}
+
+// Additional safety check - attach click handler directly to the button after a delay
+setTimeout(() => {
+    console.log('Running final safety check for start button...');
+    const startBtn = document.getElementById('startGame');
+    if (startBtn) {
+        console.log('Start button found in safety check, ensuring it has a click handler');
+        startBtn.onclick = function(event) {
+            console.log('Start button clicked via direct onclick handler');
+            if (window.game) {
+                window.game.startGame();
+            }
+        };
+    }
+}, 500); // Give everything time to initialize
 
 // Debug function to test if buttons work
 window.testStartButton = function() {
@@ -1650,5 +1770,41 @@ window.forceStartGame = function() {
         window.game.startGame();
     } else {
         console.error('Game instance not found!');
+    }
+};
+
+// Implement Sara Netanyahu image loading with proper fallback
+OperationRisingLion.prototype.loadSaraImage = function() {
+    console.log('Loading Sara Netanyahu image...');
+    try {
+        // Create a new image object
+        this.saraImage = new Image();
+        
+        // Set up success handler
+        this.saraImage.onload = () => {
+            console.log('Sara Netanyahu image loaded successfully');
+        };
+        
+        // Set up error handler with fallback
+        this.saraImage.onerror = (error) => {
+            console.warn('Failed to load Sara Netanyahu image, will use drawn portrait fallback', error);
+            // Keep saraImage as null to trigger fallback
+            this.saraImage = null;
+        };            // Base64 string for the Sara Netanyahu photo
+            // Replace this with your actual base64 string generated from image-converter.html
+            // Example: const base64String = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBD...";
+            const base64String = ""; // Empty for now, user needs to add their own image
+        
+        // Only attempt to load if there's actually a base64 string
+        if (base64String && base64String.length > 0) {
+            this.saraImage.src = base64String.startsWith('data:image') ? 
+                base64String : 'data:image/jpeg;base64,' + base64String;
+        } else {
+            console.log('No base64 string provided for Sara Netanyahu image, using fallback');
+            this.saraImage = null;
+        }
+    } catch (error) {
+        console.error('Error in loadSaraImage:', error);
+        this.saraImage = null;
     }
 };
