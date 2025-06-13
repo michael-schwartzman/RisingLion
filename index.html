@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation Rising Lion</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- Main Menu -->
+        <div id="mainMenu" class="screen">
+            <div class="menu-content">
+                <h1>Operation Rising Lion</h1>
+                <div class="flag-container">
+                    <div class="flag israeli-flag"></div>
+                    <div class="vs">VS</div>
+                    <div class="flag iranian-flag"></div>
+                </div>
+                <div class="menu-buttons">
+                    <button id="startGame" class="btn-primary">Start Mission</button>
+                    <button id="showInstructions" class="btn-secondary">Instructions</button>
+                    <button id="showSettings" class="btn-secondary">Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Screen -->
+        <div id="instructionsScreen" class="screen hidden">
+            <div class="screen-content">
+                <h2>Mission Briefing</h2>
+                <div class="instructions-content">
+                    <div class="objective">
+                        <h3>Primary Objectives:</h3>
+                        <ul>
+                            <li>Destroy Nataz Nuclear Facility</li>
+                            <li>Destroy Bohasher Nuclear Complex</li>
+                        </ul>
+                    </div>
+                    <div class="controls">
+                        <h3>Controls:</h3>
+                        <ul>
+                            <li><strong>Mouse:</strong> Aim and fire missiles</li>
+                            <li><strong>Click & Drag:</strong> Set power and trajectory</li>
+                            <li><strong>Space:</strong> Deploy aircraft</li>
+                            <li><strong>1-4:</strong> Select weapon type</li>
+                        </ul>
+                    </div>
+                    <div class="strategy">
+                        <h3>Strategy Tips:</h3>
+                        <ul>
+                            <li>Watch for enemy interceptor missiles</li>
+                            <li>Use aircraft for precise strikes</li>
+                            <li>Aim for direct hits for maximum damage</li>
+                            <li>Complete mission quickly for time bonus</li>
+                        </ul>
+                    </div>
+                </div>
+                <button id="backToMenu" class="btn-secondary">Back to Menu</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen hidden">
+            <!-- HUD -->
+            <div id="gameHUD">
+                <div class="hud-left">
+                    <div class="flag-mini israeli-flag-mini"></div>
+                    <div class="stats">
+                        <div>Score: <span id="score">0</span></div>
+                        <div>Time: <span id="timer">180</span>s</div>
+                    </div>
+                </div>
+                
+                <div class="hud-center">
+                    <div class="target-status">
+                        <div class="target">
+                            <span>Nataz</span>
+                            <div class="health-bar">
+                                <div id="natazHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                        <div class="target">
+                            <span>Bohasher</span>
+                            <div class="health-bar">
+                                <div id="bohasherHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hud-right">
+                    <div class="flag-mini iranian-flag-mini"></div>
+                    <div class="weapon-select">
+                        <div>Weapon:</div>
+                        <select id="weaponType">
+                            <option value="missile">Missile (∞)</option>
+                            <option value="guided">Guided Missile (5)</option>
+                            <option value="aircraft">Aircraft (3)</option>
+                            <option value="cruise">Cruise Missile (2)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Canvas -->
+            <canvas id="gameCanvas" width="1200" height="700"></canvas>
+            
+            <!-- Power Meter -->
+            <div id="powerMeter" class="hidden">
+                <div class="power-label">Launch Power</div>
+                <div class="power-bar">
+                    <div id="powerFill" class="power-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen hidden">
+            <div class="screen-content">
+                <h2 id="gameOverTitle">Mission Status</h2>
+                <div id="gameOverContent">
+                    <div class="mission-results">
+                        <div class="result-item">
+                            <span>Final Score:</span>
+                            <span id="finalScore">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Targets Destroyed:</span>
+                            <span id="targetsDestroyed">0/2</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Accuracy:</span>
+                            <span id="accuracy">0%</span>
+                        </div>
+                        <div class="result-item">
+                            <span>Time Bonus:</span>
+                            <span id="timeBonus">0</span>
+                        </div>
+                    </div>
+                    <div id="missionResult" class="mission-status"></div>
+                </div>
+                <div class="game-over-buttons">
+                    <button id="playAgain" class="btn-primary">New Mission</button>
+                    <button id="backToMainMenu" class="btn-secondary">Main Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>

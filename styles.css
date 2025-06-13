@@ -1,0 +1,524 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    color: #333;
+    overflow: hidden;
+    height: 100vh;
+}
+
+#gameContainer {
+    height: 100vh;
+    position: relative;
+}
+
+/* Screen Management */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.screen.hidden {
+    display: none;
+}
+
+/* Main Menu Styles */
+#mainMenu {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+}
+
+.menu-content {
+    text-align: center;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    border: 3px solid #e74c3c;
+}
+
+.menu-content h1 {
+    font-size: 3rem;
+    color: #e74c3c;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Flag Styles */
+.flag-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px 0;
+    gap: 30px;
+}
+
+.flag {
+    width: 120px;
+    height: 80px;
+    border: 2px solid #333;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Israeli Flag */
+.israeli-flag {
+    background: white;
+}
+
+.israeli-flag::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: #0038b8;
+}
+
+.israeli-flag::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: #0038b8;
+}
+
+/* Star of David for Israeli flag */
+.israeli-flag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.israeli-flag:not(.israeli-flag-mini)::before {
+    content: '✡';
+    position: absolute;
+    font-size: 24px;
+    color: #0038b8;
+    z-index: 2;
+}
+
+/* Iranian Flag */
+.iranian-flag {
+    background: linear-gradient(to bottom, #239f40 33%, white 33%, white 66%, #da0000 66%);
+}
+
+/* Mini flags for HUD */
+.flag-mini {
+    width: 40px;
+    height: 24px;
+    border: 1px solid #333;
+    margin-right: 10px;
+}
+
+.israeli-flag-mini {
+    background: white;
+    position: relative;
+}
+
+.israeli-flag-mini::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #0038b8;
+}
+
+.israeli-flag-mini::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #0038b8;
+}
+
+.iranian-flag-mini {
+    background: linear-gradient(to bottom, #239f40 33%, white 33%, white 66%, #da0000 66%);
+}
+
+.vs {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #e74c3c;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Button Styles */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #c0392b, #e74c3c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #34495e, #2c3e50);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(45deg, #2c3e50, #34495e);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(52, 73, 94, 0.4);
+}
+
+/* Instructions Screen */
+#instructionsScreen, #gameOverScreen {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.screen-content {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 15px;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 3px solid #e74c3c;
+}
+
+.screen-content h2 {
+    color: #e74c3c;
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.instructions-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.objective, .controls, .strategy {
+    background: rgba(52, 73, 94, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.objective {
+    grid-column: span 2;
+}
+
+.instructions-content h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.instructions-content ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.instructions-content li {
+    margin: 8px 0;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    border-left: 4px solid #e74c3c;
+}
+
+/* Game Screen */
+#gameScreen {
+    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+}
+
+/* HUD */
+#gameHUD {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 100;
+    border-bottom: 3px solid #e74c3c;
+}
+
+.hud-left, .hud-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.hud-right {
+    justify-content: flex-end;
+}
+
+.hud-center {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+}
+
+.stats {
+    color: white;
+    font-size: 1.1rem;
+    display: flex;
+    gap: 20px;
+}
+
+.stats div {
+    background: rgba(231, 76, 60, 0.3);
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #e74c3c;
+}
+
+.target-status {
+    display: flex;
+    gap: 30px;
+}
+
+.target {
+    color: white;
+    text-align: center;
+    font-weight: bold;
+}
+
+.health-bar {
+    width: 100px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 5px;
+    border: 1px solid #333;
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    transition: width 0.5s ease;
+    width: 100%;
+}
+
+.health-fill.damaged {
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.health-fill.critical {
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.weapon-select {
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.weapon-select select {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid #e74c3c;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.weapon-select option {
+    background: #2c3e50;
+    color: white;
+}
+
+/* Game Canvas */
+#gameCanvas {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    border: 2px solid #e74c3c;
+    cursor: crosshair;
+    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+}
+
+/* Power Meter */
+#powerMeter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: 2px solid #e74c3c;
+    color: white;
+    text-align: center;
+    min-width: 200px;
+}
+
+.power-label {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.power-bar {
+    width: 180px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+.power-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #f39c12, #e74c3c);
+    transition: width 0.1s ease;
+    width: 0%;
+}
+
+/* Game Over Screen */
+.mission-results {
+    background: rgba(52, 73, 94, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.mission-status {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.mission-status.victory {
+    background: rgba(39, 174, 96, 0.2);
+    color: #27ae60;
+    border: 2px solid #27ae60;
+}
+
+.mission-status.defeat {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+}
+
+.game-over-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Animations */
+@keyframes explosion {
+    0% { transform: scale(0); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes missile-trail {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.explosion {
+    animation: explosion 0.8s ease-out;
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .menu-content h1 {
+        font-size: 2rem;
+    }
+    
+    .flag {
+        width: 80px;
+        height: 53px;
+    }
+    
+    .instructions-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .objective {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    #gameCanvas {
+        width: 100vw;
+        height: calc(100vh - 80px);
+    }
+    
+    .hud-left, .hud-center, .hud-right {
+        flex: 1;
+    }
+    
+    .stats {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .target-status {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

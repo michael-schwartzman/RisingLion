@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Base64 Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .upload-area:hover {
+            background-color: #f9f9f9;
+        }
+        .upload-area.dragover {
+            border-color: #007cba;
+            background-color: #e3f2fd;
+        }
+        #imageInput {
+            display: none;
+        }
+        .preview {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result {
+            margin: 20px 0;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            resize: vertical;
+        }
+        .btn {
+            background: #007cba;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #005a87;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .instructions h3 {
+            color: #1565c0;
+            margin-top: 0;
+        }
+        .instructions ol {
+            margin: 10px 0;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Convert Sara Netanyahu Image to Base64</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Upload the Sara Netanyahu image using the area below</li>
+                <li>The image will be automatically converted to base64</li>
+                <li>Copy the base64 code from the text area</li>
+                <li>Replace the placeholder in the game code</li>
+            </ol>
+        </div>
+        
+        <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+            <p>📁 Click here or drag and drop the Sara Netanyahu image</p>
+            <p style="color: #666; font-size: 14px;">Supported formats: JPG, PNG, GIF</p>
+        </div>
+        
+        <input type="file" id="imageInput" accept="image/*">
+        
+        <div class="preview" id="preview" style="display: none;">
+            <h3>Preview:</h3>
+            <img id="previewImg" alt="Preview">
+        </div>
+        
+        <div class="result" id="result" style="display: none;">
+            <h3>Base64 Code:</h3>
+            <textarea id="base64Output" readonly placeholder="Base64 code will appear here..."></textarea>
+            <br>
+            <button class="btn" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+            <button class="btn" onclick="downloadCode()">💾 Download Code</button>
+        </div>
+        
+        <div id="gameCodeInstructions" style="display: none;">
+            <div class="instructions">
+                <h3>How to add this to your game:</h3>
+                <ol>
+                    <li>Copy the base64 code above</li>
+                    <li>Open your game.js file</li>
+                    <li>Find the <code>loadSaraImage()</code> function</li>
+                    <li>Replace the placeholder base64 string with your copied code</li>
+                    <li>Save and refresh your game</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const uploadArea = document.querySelector('.upload-area');
+        const preview = document.getElementById('preview');
+        const previewImg = document.getElementById('previewImg');
+        const result = document.getElementById('result');
+        const base64Output = document.getElementById('base64Output');
+        const gameCodeInstructions = document.getElementById('gameCodeInstructions');
+
+        // Handle file input change
+        imageInput.addEventListener('change', handleFile);
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        });
+
+        function handleFile(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                
+                // Show preview
+                previewImg.src = base64;
+                preview.style.display = 'block';
+                
+                // Show base64 code
+                base64Output.value = base64;
+                result.style.display = 'block';
+                gameCodeInstructions.style.display = 'block';
+                
+                // Update upload area text
+                uploadArea.innerHTML = '<p>✅ Image converted successfully!</p><p style="color: #666;">Click to upload a different image</p>';
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function copyToClipboard() {
+            base64Output.select();
+            document.execCommand('copy');
+            alert('Base64 code copied to clipboard!');
+        }
+
+        function downloadCode() {
+            const base64Code = base64Output.value;
+            const blob = new Blob([base64Code], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'sara-netanyahu-base64.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
