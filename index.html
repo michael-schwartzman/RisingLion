@@ -49,10 +49,13 @@
                     <div class="strategy">
                         <h3>Strategy Tips:</h3>
                         <ul>
-                            <li>Watch for enemy interceptor missiles</li>
+                            <li>Watch for enemy interceptor missiles (red trails)</li>
+                            <li>Defend against Iranian counterattacks (green trails)</li>
+                            <li>Protect your base - if it's destroyed, mission fails</li>
                             <li>Use aircraft for precise strikes</li>
                             <li>Aim for direct hits for maximum damage</li>
                             <li>Complete mission quickly for time bonus</li>
+                            <li>The enemy gets more aggressive as time passes</li>
                         </ul>
                     </div>
                 </div>
@@ -69,6 +72,13 @@
                     <div class="stats">
                         <div>Score: <span id="score">0</span></div>
                         <div>Time: <span id="timer">180</span>s</div>
+                    </div>
+                    <!-- Adding Israeli base health bar -->
+                    <div class="target">
+                        <span>Israeli Base</span>
+                        <div class="health-bar">
+                            <div id="israeliBaseHealth" class="health-fill"></div>
+                        </div>
                     </div>
                 </div>
                 

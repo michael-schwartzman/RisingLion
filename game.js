@@ -64,14 +64,28 @@ class OperationRisingLion {
             x: 50,
             y: 500,
             width: 100,
-            height: 40
+            height: 40,
+            health: 100,         // Adding health to Israeli platform
+            maxHealth: 100,
+            destroyed: false,
+            name: 'Israeli Base'
         };
         
-        // Defense systems
+        // Iranian offensive capabilities
+        this.iranianOffensive = {
+            attackCooldown: 0,
+            missileSpeed: 3,
+            accuracy: 0.85,       // Higher means more accurate
+            attackFrequency: 3000 // Milliseconds between attacks
+        };
+        
+        // Defense systems - increased number and improved capabilities
         this.defenseSystems = [
-            { x: 800, y: 450, radius: 150, active: true, cooldown: 0 },
-            { x: 1000, y: 300, radius: 120, active: true, cooldown: 0 },
-            { x: 900, y: 500, radius: 100, active: true, cooldown: 0 }
+            { x: 800, y: 450, radius: 200, active: true, cooldown: 0, name: 'Northern Defense Grid' },
+            { x: 1000, y: 300, radius: 180, active: true, cooldown: 0, name: 'Eastern Defense System' },
+            { x: 900, y: 500, radius: 160, active: true, cooldown: 0, name: 'Southern Interceptor Base' },
+            { x: 1100, y: 400, radius: 170, active: true, cooldown: 0, name: 'Central Command' },
+            { x: 850, y: 350, radius: 150, active: true, cooldown: 0, name: 'Western Outpost' }
         ];
         
         // Game statistics
@@ -244,14 +258,33 @@ class OperationRisingLion {
             this.timeLeft--;
             this.safelyUpdateHUD();
             
+            // Make the game progressively harder
+            if (this.timeLeft % 30 === 0 && this.timeLeft < 150) {
+                // Every 30 seconds, increase difficulty
+                this.iranianOffensive.accuracy += 0.05; // Make Iranian attacks more accurate
+                this.iranianOffensive.missileSpeed += 0.3; // Make missiles faster
+                this.iranianOffensive.attackFrequency = Math.max(2000, this.iranianOffensive.attackFrequency - 300); // More frequent attacks
+            }
+            
             if (this.timeLeft <= 0) {
                 this.endGame();
             }
         }, 1000);
         
-        // Spawn interceptors periodically
+        // Spawn interceptors periodically - more frequently as time goes on
         this.defenseTimer = setInterval(() => {
+            // Calculate delay based on remaining time (shorter as game progresses)
+            const progressFactor = 1 - (this.timeLeft / 180);
+            const baseDelay = 3000 - (progressFactor * 1500); // 3000ms down to 1500ms
+            
             this.spawnRandomInterceptor();
+            
+            // Clear and reset the interval with progressively shorter times
+            clearInterval(this.defenseTimer);
+            this.defenseTimer = setInterval(() => {
+                this.spawnRandomInterceptor();
+            }, baseDelay + Math.random() * 1500);
+            
         }, 3000 + Math.random() * 2000);
     }
     
@@ -372,20 +405,101 @@ class OperationRisingLion {
         if (activeSystems.length === 0) return;
         
         const system = activeSystems[Math.floor(Math.random() * activeSystems.length)];
-        const target = this.projectiles[0]; // Target oldest projectile
+        
+        // Choose which projectile to target - sometimes target the newest (most threatening) projectile
+        const targetIndex = Math.random() < 0.6 ? 0 : this.projectiles.length - 1;
+        const target = this.projectiles[targetIndex];
+        
+        // Increased speed and more intelligent tracking
+        const progressFactor = 1 - (this.timeLeft / 180); // 0 at start, 1 at end
+        const speedBoost = 1 + progressFactor; // Speed increases as game progresses
         
         const interceptor = {
             x: system.x,
             y: system.y,
             targetX: target.x,
             targetY: target.y,
-            speed: 4,
+            speed: 4.5 + speedBoost,
             life: 200,
             trail: []
         };
         
         this.interceptors.push(interceptor);
-        system.cooldown = 120; // 2 seconds at 60fps
+        
+        // Shorter cooldown as game progresses
+        const baseCooldown = 120; // 2 seconds at 60fps
+        const adaptiveCooldown = baseCooldown - (progressFactor * 60); // Down to 1 second at end game
+        system.cooldown = Math.max(60, adaptiveCooldown); 
+        
+        // Sometimes launch multiple interceptors for harder difficulty
+        if (Math.random() < 0.2 + (progressFactor * 0.3)) { // 20%-50% chance based on progress
+            setTimeout(() => {
+                if (this.projectiles.length > 0 && this.gameState === 'playing') {
+                    const followupTarget = this.projectiles[Math.floor(Math.random() * this.projectiles.length)];
+                    const followupInterceptor = {
+                        x: system.x,
+                        y: system.y,
+                        targetX: followupTarget.x,
+                        targetY: followupTarget.y,
+                        speed: 5 + speedBoost,
+                        life: 200,
+                        trail: []
+                    };
+                    this.interceptors.push(followupInterceptor);
+                }
+            }, 300); // Launch second interceptor after a short delay
+        }
+    }
+    
+    launchIranianMissile() {
+        // Select a random defense system to launch from
+        const activeSystems = this.defenseSystems.filter(sys => sys.active);
+        if (activeSystems.length === 0) return;
+        
+        const system = activeSystems[Math.floor(Math.random() * activeSystems.length)];
+        
+        // Add accuracy variation - higher iranianOffensive.accuracy means more accurate
+        const accuracyVariation = Math.random() * (1 - this.iranianOffensive.accuracy) * 100;
+        const targetX = this.launchPlatform.x + this.launchPlatform.width/2 + (Math.random() > 0.5 ? accuracyVariation : -accuracyVariation);
+        const targetY = this.launchPlatform.y + this.launchPlatform.height/2 + (Math.random() > 0.5 ? accuracyVariation : -accuracyVariation);
+        
+        // Create attack missile
+        const missile = {
+            x: system.x,
+            y: system.y,
+            targetX: targetX,
+            targetY: targetY,
+            speed: this.iranianOffensive.missileSpeed,
+            type: 'iranian',
+            damage: 10 + Math.floor(Math.random() * 10), // 10-20 damage
+            life: 200,
+            trail: []
+        };
+        
+        this.interceptors.push(missile);
+        
+        // Visual and audio feedback
+        this.createLaunchEffect(system.x, system.y);
+        
+        // Reset cooldown
+        this.iranianOffensive.attackCooldown = this.iranianOffensive.attackFrequency;
+    }
+    
+    updateIranianOffensive() {
+        if (this.iranianOffensive.attackCooldown > 0) {
+            this.iranianOffensive.attackCooldown -= 16.67; // Approximately 60fps
+        } else if (this.gameState === 'playing' && !this.launchPlatform.destroyed) {
+            // Launch attack with increasing probability as game progresses
+            const progressFactor = 1 - (this.timeLeft / 180); // 0 at start, 1 at end
+            const attackProbability = 0.1 + (progressFactor * 0.4); // 10% at start, 50% at end
+            
+            if (Math.random() < attackProbability) {
+                this.launchIranianMissile();
+            } else {
+                // Set a shorter cooldown for next check
+                this.iranianOffensive.attackCooldown = 500;
+            }
+        }
     }
     
     update() {
@@ -397,6 +511,7 @@ class OperationRisingLion {
         this.updateExplosions();
         this.updateParticles();
         this.updateDefenseSystems();
+        this.updateIranianOffensive(); // Add Iranian offensive updates
         this.checkCollisions();
         this.checkVictoryConditions();
     }
@@ -454,10 +569,23 @@ class OperationRisingLion {
             if (distance > 5) {
                 interceptor.x += (dx / distance) * interceptor.speed;
                 interceptor.y += (dy / distance) * interceptor.speed;
+                
+                // Iranian missiles have some erratic movement to make them harder to predict
+                if (interceptor.type === 'iranian' && Math.random() < 0.1) {
+                    interceptor.x += (Math.random() - 0.5) * 3;
+                    interceptor.y += (Math.random() - 0.5) * 3;
+                }
             }
             
-            // Add to trail
-            interceptor.trail.push({ x: interceptor.x, y: interceptor.y, life: 20 });
+            // Add to trail - Iranian missiles have a distinctive trail
+            const trailLife = interceptor.type === 'iranian' ? 30 : 20;
+            interceptor.trail.push({ 
+                x: interceptor.x, 
+                y: interceptor.y, 
+                life: trailLife,
+                type: interceptor.type || 'normal'
+            });
+            
             interceptor.trail = interceptor.trail.filter(point => point.life-- > 0);
             
             interceptor.life--;
@@ -624,6 +752,22 @@ class OperationRisingLion {
             const interceptor = this.interceptors[iIndex];
             let interceptorHit = false;
             
+            // Check if Iranian missile hits Israeli base
+            if (interceptor.type === 'iranian') {
+                // Check for collision with Israeli launch platform
+                if (!this.launchPlatform.destroyed &&
+                    interceptor.x > this.launchPlatform.x &&
+                    interceptor.x < this.launchPlatform.x + this.launchPlatform.width &&
+                    interceptor.y > this.launchPlatform.y - 20 &&
+                    interceptor.y < this.launchPlatform.y + this.launchPlatform.height) {
+                    
+                    this.hitIsraeliBase(interceptor);
+                    this.interceptors.splice(iIndex, 1);
+                    interceptorHit = true;
+                    continue;
+                }
+            }
+            
             for (let pIndex = this.projectiles.length - 1; pIndex >= 0; pIndex--) {
                 if (interceptorHit) break;
                 
@@ -722,19 +866,31 @@ class OperationRisingLion {
         }
     }
     
-    createLaunchEffect() {
-        const x = this.launchPlatform.x + this.launchPlatform.width;
-        const y = this.launchPlatform.y + this.launchPlatform.height / 2;
+    createLaunchEffect(sourceX, sourceY) {
+        // If no coordinates provided, use launch platform (player missile)
+        let x, y;
+        if (sourceX === undefined || sourceY === undefined) {
+            x = this.launchPlatform.x + this.launchPlatform.width;
+            y = this.launchPlatform.y + this.launchPlatform.height / 2;
+        } else {
+            x = sourceX;
+            y = sourceY;
+        }
         
-        for (let i = 0; i < 10; i++) {
+        // Determine color based on whether it's Iranian or Israeli
+        const isIranian = sourceX !== undefined && sourceY !== undefined;
+        const color = isIranian ? 'green' : 'orange';
+        const particleCount = isIranian ? 15 : 10; // Iranian launchers have more particles
+        
+        for (let i = 0; i < particleCount; i++) {
             this.particles.push({
                 x: x,
                 y: y,
-                vx: (Math.random() - 1) * 3,
+                vx: (Math.random() - (isIranian ? 0 : 1)) * 3, // Direction depends on side
                 vy: (Math.random() - 0.5) * 2,
                 life: 20,
                 alpha: 1,
-                color: 'orange'
+                color: color
             });
         }
     }
@@ -826,10 +982,22 @@ class OperationRisingLion {
     }
     
     checkVictoryConditions() {
+        // Check if Israeli base is destroyed
+        if (this.launchPlatform && this.launchPlatform.destroyed) {
+            // Game over - defeat
+            this.endGame(false);
+            return;
+        }
+        
         const allTargetsDestroyed = Object.values(this.targets).every(target => target.destroyed);
         
         if (allTargetsDestroyed) {
             this.endGame(true);
+        }
+        
+        // Check if time has run out
+        if (this.timeLeft <= 0) {
+            this.endGame(false);
         }
     }
     
@@ -861,9 +1029,15 @@ class OperationRisingLion {
         document.getElementById('timeBonus').textContent = timeBonus;
         
         const resultDiv = document.getElementById('missionResult');
-        resultDiv.textContent = victory ? 
-            'All nuclear facilities neutralized!' : 
-            'Mission incomplete. Time expired.';
+        
+        if (victory) {
+            resultDiv.textContent = 'All nuclear facilities neutralized!';
+        } else if (this.launchPlatform && this.launchPlatform.destroyed) {
+            resultDiv.textContent = 'Israeli base destroyed by Iranian counterattack!';
+        } else {
+            resultDiv.textContent = 'Mission incomplete. Time expired.';
+        }
+        
         resultDiv.className = `mission-status ${victory ? 'victory' : 'defeat'}`;
         
         this.showScreen('gameOverScreen');
@@ -876,6 +1050,7 @@ class OperationRisingLion {
         // Update target health bars
         const natazHealth = document.getElementById('natazHealth');
         const bohasherHealth = document.getElementById('bohasherHealth');
+        const israeliBaseHealth = document.getElementById('israeliBaseHealth');
         
         // Add null checks to prevent errors
         if (this.targets && this.targets.nataz && natazHealth) {
@@ -888,6 +1063,13 @@ class OperationRisingLion {
             const bohasherPercent = (this.targets.bohasher.health / this.targets.bohasher.maxHealth) * 100;
             bohasherHealth.style.width = bohasherPercent + '%';
             this.updateHealthBarColor(bohasherHealth, bohasherPercent);
+        }
+        
+        // Update Israeli base health
+        if (this.launchPlatform && israeliBaseHealth) {
+            const israeliPercent = (this.launchPlatform.health / this.launchPlatform.maxHealth) * 100;
+            israeliBaseHealth.style.width = israeliPercent + '%';
+            this.updateHealthBarColor(israeliBaseHealth, israeliPercent);
         }
         
         // Update weapon select
@@ -1443,12 +1625,19 @@ class OperationRisingLion {
     
     drawInterceptors() {
         this.interceptors.forEach(interceptor => {
+            // Set color based on type
+            const isIranian = interceptor.type === 'iranian';
+            const trailColor = isIranian ? 'rgba(0, 100, 0, 0.7)' : 'rgba(255, 0, 0, 0.6)';
+            const missileColor = isIranian ? '#006600' : '#ff0000';
+            const trailWidth = isIranian ? 2 : 1;
+            const maxLife = isIranian ? 30 : 20;
+            
             // Draw trail
-            this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.6)';
-            this.ctx.lineWidth = 1;
+            this.ctx.strokeStyle = trailColor;
+            this.ctx.lineWidth = trailWidth;
             this.ctx.beginPath();
             interceptor.trail.forEach((point, index) => {
-                const alpha = point.life / 20;
+                const alpha = point.life / maxLife;
                 this.ctx.globalAlpha = alpha;
                 if (index === 0) {
                     this.ctx.moveTo(point.x, point.y);
@@ -1460,7 +1649,7 @@ class OperationRisingLion {
             this.ctx.globalAlpha = 1;
             
             // Draw interceptor
-            this.ctx.fillStyle = '#ff0000';
+            this.ctx.fillStyle = missileColor;
             this.ctx.beginPath();
             this.ctx.arc(interceptor.x, interceptor.y, 3, 0, Math.PI * 2);
             this.ctx.fill();
@@ -1807,4 +1996,41 @@ OperationRisingLion.prototype.loadSaraImage = function() {
         console.error('Error in loadSaraImage:', error);
         this.saraImage = null;
     }
+};
+
+// Handle Iranian missiles hitting the Israeli base
+OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
+    if (!this.launchPlatform || this.launchPlatform.destroyed) return;
+    
+    // Apply damage to the Israeli base
+    this.launchPlatform.health -= missile.damage || 10;
+    
+    // Create a missile impact explosion
+    this.createExplosion(
+        this.launchPlatform.x + this.launchPlatform.width/2, 
+        this.launchPlatform.y,
+        40
+    );
+    
+    // Add screen shake
+    this.addScreenShake(10, 300);
+    
+    // Check if the base is destroyed
+    if (this.launchPlatform.health <= 0) {
+        this.launchPlatform.health = 0;
+        this.launchPlatform.destroyed = true;
+        
+        // Create a large explosion for base destruction
+        this.createExplosion(
+            this.launchPlatform.x + this.launchPlatform.width/2,
+            this.launchPlatform.y,
+            60
+        );
+        
+        // End game with defeat
+        this.endGame(false);
+    }
+    
+    // Update HUD
+    this.safelyUpdateHUD();
 };

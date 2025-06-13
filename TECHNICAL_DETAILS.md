@@ -270,3 +270,27 @@ window.forceStartGame();    // Direct game launch
 - Graceful degradation for missing features
 - Error boundaries around critical code
 - Console warnings for unsupported operations
+
+## Game Mechanics
+
+### Core Gameplay Loop
+- Player launches missiles at Iranian nuclear facilities
+- Iranian defense systems launch interceptors at player missiles
+- Iranian offensive systems launch counterattacks at the Israeli base
+- Player must destroy all targets while protecting their base
+
+### Combat Mechanics
+- **Israeli Offensive**: Player-controlled missile launches with trajectory/power aiming
+- **Iranian Defensive**: Interceptor missiles that target player projectiles
+- **Iranian Offensive**: Counterattack missiles that target the Israeli base
+- **Dynamic Difficulty**: Enemy accuracy and attack frequency increase as time progresses
+
+### Health System
+- Target facilities have individual health pools (100 health points)
+- Israeli base has a health pool (100 health points)
+- Weapons deal variable damage based on type
+- Iranian missiles deal 10-20 damage to the Israeli base
+
+### Victory & Defeat Conditions
+- **Victory**: Destroy all Iranian nuclear facilities
+- **Defeat**: Israeli base is destroyed by counterattacks OR time expires
