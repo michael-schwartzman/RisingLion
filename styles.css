@@ -29,8 +29,33 @@ body {
     align-items: center;
 }
 
-.screen.hidden {
+.screen.hidden, .hidden {
     display: none;
+}
+
+/* Victory Image Styles */
+.victory-image {
+    margin: 20px auto;
+    text-align: center;
+    transition: all 0.5s ease;
+    max-width: 100%;
+}
+
+.victory-portrait {
+    max-width: 250px;
+    border: 3px solid #ffcc00;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+    animation: victoryGlow 2s infinite alternate;
+}
+
+@keyframes victoryGlow {
+    from {
+        box-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(255, 204, 0, 0.9);
+    }
 }
 
 /* Main Menu Styles */

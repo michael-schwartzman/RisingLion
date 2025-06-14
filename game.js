@@ -1089,13 +1089,18 @@ class OperationRisingLion {
         document.getElementById('timeBonus').textContent = timeBonus;
         
         const resultDiv = document.getElementById('missionResult');
+        const victoryImageContainer = document.getElementById('victoryImageContainer');
         
         if (victory) {
             resultDiv.textContent = 'All nuclear facilities neutralized!';
+            // Show Sara image when player wins
+            victoryImageContainer.classList.remove('hidden');
         } else if (this.launchPlatform && this.launchPlatform.destroyed) {
             resultDiv.textContent = 'Israeli base destroyed by Iranian counterattack!';
+            victoryImageContainer.classList.add('hidden');
         } else {
             resultDiv.textContent = 'Mission incomplete. Time expired.';
+            victoryImageContainer.classList.add('hidden');
         }
         
         resultDiv.className = `mission-status ${victory ? 'victory' : 'defeat'}`;
