@@ -38,16 +38,14 @@
                     <div class="objective">
                         <h3>Primary Objectives:</h3>
                         <ul>
-                            <li>Destroy all 9 Iranian Nuclear Facilities:</li>
+                            <li>Destroy all 7 Iranian Nuclear Facilities:</li>
                             <ul>
                                 <li>Natanz Facility</li>
                                 <li>Fordow Complex</li>
-                                <li>Arak (IR-40) Reactor</li>
-                                <li>Esfahan (Isfahan) Facility</li>
+                                <li>Arak Reactor</li>
+                                <li>Esfahan Facility</li>
                                 <li>Bushehr Nuclear Power Plant</li>
-                                <li>Tehran Research Reactor</li>
-                                <li>Saghand Uranium Mine</li>
-                                <li>Gchine Uranium Mine</li>
+                                <li>Tehran Research Facility</li>
                                 <li>Ardakan Yellowcake Plant</li>
                             </ul>
                         </ul>
@@ -100,16 +98,14 @@
                 <div class="hud-center">
                     <div class="target-status">
                         <div class="target">
-                            <span>Nataz</span>
+                            <span>Natanz</span>
                             <div class="health-bar">
                                 <div id="natazHealth" class="health-fill"></div>
                             </div>
                         </div>
-                        <div class="target">
-                            <span>Bohasher</span>
-                            <div class="health-bar">
-                                <div id="bohasherHealth" class="health-fill"></div>
-                            </div>
+                        <div class="facilities-counter">
+                            <span>Nuclear Facilities Destroyed:</span>
+                            <span id="facilitiesDestroyed">0/7</span>
                         </div>
                     </div>
                 </div>
@@ -118,7 +114,7 @@
                     <div class="flag-mini iranian-flag-mini"></div>
                     <div class="weapon-select">
                         <div>Weapon:</div>
-                        <select id="weaponType">
+                        <select id="weaponType" aria-label="Select weapon type">
                             <option value="missile">Missile (∞)</option>
                             <option value="guided">Guided Missile (5)</option>
                             <option value="aircraft">Aircraft (3)</option>
@@ -152,7 +148,7 @@
                         </div>
                         <div class="result-item">
                             <span>Targets Destroyed:</span>
-                            <span id="targetsDestroyed">0/2</span>
+                            <span id="targetsDestroyed">0/9</span>
                         </div>
                         <div class="result-item">
                             <span>Accuracy:</span>

@@ -350,13 +350,31 @@ body {
 
 .target-status {
     display: flex;
-    gap: 30px;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
 }
 
 .target {
     color: white;
     text-align: center;
     font-weight: bold;
+}
+
+.facilities-counter {
+    color: white;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: 1px solid #ff6600;
+}
+
+.facilities-counter span:last-child {
+    margin-left: 8px;
+    color: #ff6600;
 }
 
 .health-bar {

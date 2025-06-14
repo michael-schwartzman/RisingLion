@@ -40,7 +40,7 @@ class OperationRisingLion {
         // Targets - Iranian Nuclear Facilities
         this.targets = {
             natanz: {
-                x: 950,
+                x: 700,
                 y: 400,
                 width: 80,
                 height: 120,
@@ -50,7 +50,7 @@ class OperationRisingLion {
                 name: 'Natanz Facility'
             },
             fordow: {
-                x: 1050,
+                x: 850,
                 y: 350,
                 width: 60,
                 height: 100,
@@ -60,27 +60,27 @@ class OperationRisingLion {
                 name: 'Fordow Complex'
             },
             arak: {
-                x: 850,
+                x: 600,
                 y: 430,
                 width: 70,
                 height: 110,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Arak (IR-40) Reactor'
+                name: 'Arak Reactor'
             },
             esfahan: {
-                x: 1000,
-                y: 250,
+                x: 500,
+                y: 380,
                 width: 65,
                 height: 90,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Esfahan (Isfahan) Facility'
+                name: 'Esfahan Facility'
             },
             bushehr: {
-                x: 1150,
+                x: 1000,
                 y: 380,
                 width: 90,
                 height: 130,
@@ -90,38 +90,18 @@ class OperationRisingLion {
                 name: 'Bushehr Nuclear Power Plant'
             },
             tehran: {
-                x: 900,
-                y: 280,
+                x: 400,
+                y: 350,
                 width: 55,
                 height: 85,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Tehran Research Reactor'
-            },
-            saghand: {
-                x: 750,
-                y: 350,
-                width: 50,
-                height: 70,
-                health: 100,
-                maxHealth: 100,
-                destroyed: false,
-                name: 'Saghand Uranium Mine'
-            },
-            gchine: {
-                x: 800,
-                y: 500,
-                width: 50,
-                height: 70,
-                health: 100,
-                maxHealth: 100,
-                destroyed: false,
-                name: 'Gchine Uranium Mine'
+                name: 'Tehran Research Facility'
             },
             ardakan: {
-                x: 700,
-                y: 450,
+                x: 300,
+                y: 420,
                 width: 65,
                 height: 85,
                 health: 100,
@@ -276,7 +256,7 @@ class OperationRisingLion {
                 console.log('Targets not properly initialized, reinitializing...');
                 this.targets = {
                     natanz: {
-                        x: 950,
+                        x: 700,
                         y: 400,
                         width: 80,
                         height: 120,
@@ -286,7 +266,7 @@ class OperationRisingLion {
                         name: 'Natanz Facility'
                     },
                     fordow: {
-                        x: 1050,
+                        x: 850,
                         y: 350,
                         width: 60,
                         height: 100,
@@ -296,27 +276,27 @@ class OperationRisingLion {
                         name: 'Fordow Complex'
                     },
                     arak: {
-                        x: 850,
+                        x: 600,
                         y: 430,
                         width: 70,
                         height: 110,
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Arak (IR-40) Reactor'
+                        name: 'Arak Reactor'
                     },
                     esfahan: {
-                        x: 1000,
-                        y: 250,
+                        x: 500,
+                        y: 380,
                         width: 65,
                         height: 90,
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Esfahan (Isfahan) Facility'
+                        name: 'Esfahan Facility'
                     },
                     bushehr: {
-                        x: 1150,
+                        x: 1000,
                         y: 380,
                         width: 90,
                         height: 130,
@@ -326,38 +306,18 @@ class OperationRisingLion {
                         name: 'Bushehr Nuclear Power Plant'
                     },
                     tehran: {
-                        x: 900,
-                        y: 280,
+                        x: 400,
+                        y: 350,
                         width: 55,
                         height: 85,
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Tehran Research Reactor'
-                    },
-                    saghand: {
-                        x: 750,
-                        y: 350,
-                        width: 50,
-                        height: 70,
-                        health: 100,
-                        maxHealth: 100,
-                        destroyed: false,
-                        name: 'Saghand Uranium Mine'
-                    },
-                    gchine: {
-                        x: 800,
-                        y: 500,
-                        width: 50,
-                        height: 70,
-                        health: 100,
-                        maxHealth: 100,
-                        destroyed: false,
-                        name: 'Gchine Uranium Mine'
+                        name: 'Tehran Research Facility'
                     },
                     ardakan: {
-                        x: 700,
-                        y: 450,
+                        x: 300,
+                        y: 420,
                         width: 65,
                         height: 85,
                         health: 100,
@@ -910,7 +870,7 @@ class OperationRisingLion {
     
     checkCollisions() {
         // Ensure targets exist before checking collisions
-        if (!this.targets || !this.targets.nataz || !this.targets.bohasher) {
+        if (!this.targets || Object.keys(this.targets).length === 0) {
             return;
         }
         
@@ -1241,7 +1201,7 @@ class OperationRisingLion {
         
         document.getElementById('finalScore').textContent = this.score;
         document.getElementById('targetsDestroyed').textContent = 
-            `${this.stats.targetsDestroyed}/2`;
+            `${this.stats.targetsDestroyed}/7`;
         document.getElementById('accuracy').textContent = 
             this.stats.shotsFired > 0 ? 
             Math.round((this.stats.hits / this.stats.shotsFired) * 100) + '%' : '0%';
@@ -1272,21 +1232,22 @@ class OperationRisingLion {
         document.getElementById('timer').textContent = this.timeLeft;
         
         // Update target health bars
-        const natazHealth = document.getElementById('natazHealth');
-        const bohasherHealth = document.getElementById('bohasherHealth');
+        const natanzHealth = document.getElementById('natazHealth'); // Keep ID as is to avoid HTML changes
         const israeliBaseHealth = document.getElementById('israeliBaseHealth');
         
         // Add null checks to prevent errors
-        if (this.targets && this.targets.nataz && natazHealth) {
-            const natazPercent = (this.targets.nataz.health / this.targets.nataz.maxHealth) * 100;
-            natazHealth.style.width = natazPercent + '%';
-            this.updateHealthBarColor(natazHealth, natazPercent);
+        if (this.targets && this.targets.natanz && natanzHealth) {
+            const natanzPercent = (this.targets.natanz.health / this.targets.natanz.maxHealth) * 100;
+            natanzHealth.style.width = natanzPercent + '%';
+            this.updateHealthBarColor(natanzHealth, natanzPercent);
         }
         
-        if (this.targets && this.targets.bohasher && bohasherHealth) {
-            const bohasherPercent = (this.targets.bohasher.health / this.targets.bohasher.maxHealth) * 100;
-            bohasherHealth.style.width = bohasherPercent + '%';
-            this.updateHealthBarColor(bohasherHealth, bohasherPercent);
+        // Update the destroyed facilities counter in the HUD
+        const destroyedCount = Object.values(this.targets).filter(target => target.destroyed).length;
+        const totalCount = Object.keys(this.targets).length;
+        const facilitiesCounter = document.getElementById('facilitiesDestroyed');
+        if (facilitiesCounter) {
+            facilitiesCounter.textContent = `${destroyedCount}/${totalCount}`;
         }
         
         // Update Israeli base health
@@ -1689,15 +1650,167 @@ class OperationRisingLion {
     }
     
     drawNuclearFacility(target) {
-        // Main reactor building
-        this.ctx.fillStyle = '#606060';
+        // Highlight border
+        this.ctx.strokeStyle = '#ff6600';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(target.x - 5, target.y - 5, target.width + 10, target.height + 10);
+        
+        // Flag on top - small Iranian flag
+        this.ctx.fillStyle = '#239f40'; // Green
+        this.ctx.fillRect(target.x + target.width/2 - 8, target.y - 15, 16, 5);
+        this.ctx.fillStyle = '#ffffff'; // White
+        this.ctx.fillRect(target.x + target.width/2 - 8, target.y - 10, 16, 5);
+        this.ctx.fillStyle = '#da0000'; // Red
+        this.ctx.fillRect(target.x + target.width/2 - 8, target.y - 5, 16, 5);
+        
+        // Main reactor building - different colors for different facilities
+        let buildingColor = '#606060'; // Default gray
+        
+        if (target.name.includes('Natanz')) {
+            buildingColor = '#483d8b'; // Dark slate blue for Natanz
+        } else if (target.name.includes('Fordow')) {
+            buildingColor = '#4a6b82'; // Bluish gray for Fordow
+        } else if (target.name.includes('Arak')) {
+            buildingColor = '#8b4513'; // Brown for Arak reactor
+        } else if (target.name.includes('Esfahan')) {
+            buildingColor = '#708090'; // Slate gray for Esfahan
+        } else if (target.name.includes('Bushehr')) {
+            buildingColor = '#2f4f4f'; // Dark slate gray for Bushehr
+        } else if (target.name.includes('Tehran')) {
+            buildingColor = '#556b2f'; // Dark olive green for Tehran
+        } else if (target.name.includes('Ardakan')) {
+            buildingColor = '#696969'; // Dim gray for Ardakan
+        }
+        
+        this.ctx.fillStyle = buildingColor;
         this.ctx.fillRect(target.x, target.y, target.width, target.height);
         
-        // Reactor dome
-        this.ctx.fillStyle = '#4a4a4a';
+        // Facility-specific features
+        if (target.name.includes('Natanz')) {
+            // Centrifuge facility
+            this.ctx.fillStyle = '#4a4a4a';
+            // Central structure
+            this.ctx.fillRect(target.x + target.width/4, target.y - 10, target.width/2, 15);
+            // Centrifuge arrays (depicted as small vertical lines)
+            this.ctx.fillStyle = '#333';
+            for (let i = 0; i < 5; i++) {
+                this.ctx.fillRect(target.x + 10 + i * 15, target.y + 40, 3, 40);
+            }
+        } else if (target.name.includes('Reactor') || target.name.includes('Arak')) {
+            // Reactor dome for reactor facilities
+            this.ctx.fillStyle = '#4a4a4a';
+            this.ctx.beginPath();
+            this.ctx.arc(target.x + target.width/2, target.y + 20, target.width/3, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Cooling towers
+            this.ctx.fillStyle = '#777';
+            this.ctx.beginPath();
+            this.ctx.moveTo(target.x - 10, target.y + target.height);
+            this.ctx.lineTo(target.x - 5, target.y + target.height - 30);
+            this.ctx.lineTo(target.x + 15, target.y + target.height - 30);
+            this.ctx.lineTo(target.x + 20, target.y + target.height);
+            this.ctx.fill();
+        } else if (target.name.includes('Fordow')) {
+            // Underground facility - show entrance and mountain features
+            this.ctx.fillStyle = '#333';
+            // Mountain
+            this.ctx.beginPath();
+            this.ctx.moveTo(target.x - 10, target.y + target.height);
+            this.ctx.lineTo(target.x + 10, target.y + 20);
+            this.ctx.lineTo(target.x + target.width - 10, target.y + 30);
+            this.ctx.lineTo(target.x + target.width + 10, target.y + target.height);
+            this.ctx.fill();
+            
+            // Entrance
+            this.ctx.fillStyle = '#222';
+            this.ctx.beginPath();
+            this.ctx.arc(target.x + target.width/2, target.y + target.height - 15, 15, Math.PI, 0, false);
+            this.ctx.fill();
+        } else if (target.name.includes('Esfahan')) {
+            // Conversion facility
+            this.ctx.fillStyle = '#444';
+            // Smokestacks
+            this.ctx.fillRect(target.x + 10, target.y - 15, 8, 20);
+            this.ctx.fillRect(target.x + target.width - 18, target.y - 20, 8, 25);
+            
+            // Process equipment
+            this.ctx.fillStyle = '#555';
+            this.ctx.fillRect(target.x + 5, target.y + 30, target.width - 10, 20);
+        } else if (target.name.includes('Bushehr')) {
+            // Nuclear power plant
+            this.ctx.fillStyle = '#555';
+            // Reactor dome
+            this.ctx.beginPath();
+            this.ctx.arc(target.x + target.width/2, target.y + 30, 25, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Cooling towers
+            for (let i = 0; i < 2; i++) {
+                const xPos = target.x + 15 + i * (target.width - 30);
+                this.ctx.fillStyle = '#999';
+                this.ctx.beginPath();
+                this.ctx.moveTo(xPos - 15, target.y + target.height);
+                this.ctx.lineTo(xPos - 10, target.y + target.height/2);
+                this.ctx.lineTo(xPos + 10, target.y + target.height/2);
+                this.ctx.lineTo(xPos + 15, target.y + target.height);
+                this.ctx.fill();
+            }
+        } else if (target.name.includes('Tehran')) {
+            // Research reactor
+            this.ctx.fillStyle = '#4a4a4a';
+            this.ctx.beginPath();
+            this.ctx.arc(target.x + target.width/2, target.y + 15, 15, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Laboratory buildings
+            this.ctx.fillStyle = '#666';
+            this.ctx.fillRect(target.x - 10, target.y + 35, 20, 25);
+            this.ctx.fillRect(target.x + target.width - 10, target.y + 35, 20, 25);
+        } else if (target.name.includes('Ardakan')) {
+            // Yellowcake plant
+            this.ctx.fillStyle = '#666';
+            // Process towers
+            this.ctx.fillRect(target.x + 10, target.y - 15, 10, 20);
+            this.ctx.fillRect(target.x + target.width - 20, target.y - 10, 10, 15);
+            
+            // Storage tanks
+            this.ctx.fillStyle = '#ffcc00';
+            this.ctx.beginPath();
+            this.ctx.arc(target.x + 15, target.y + target.height - 20, 10, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.beginPath();
+            this.ctx.arc(target.x + target.width - 15, target.y + target.height - 20, 10, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        
+        // Nuclear hazard symbol
+        this.ctx.fillStyle = '#ffcc00';
         this.ctx.beginPath();
-        this.ctx.arc(target.x + target.width/2, target.y + 20, target.width/3, 0, Math.PI * 2);
+        this.ctx.arc(target.x + target.width/2, target.y + target.height/2, 10, 0, Math.PI * 2);
         this.ctx.fill();
+        this.ctx.fillStyle = '#000';
+        this.ctx.beginPath();
+        this.ctx.arc(target.x + target.width/2, target.y + target.height/2, 5, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Add facility name label with better visibility
+        this.ctx.font = 'bold 12px Arial';
+        this.ctx.fillStyle = 'white';
+        this.ctx.textAlign = 'center';
+        
+        // Add text shadow for better readability
+        this.ctx.shadowColor = 'black';
+        this.ctx.shadowBlur = 4;
+        this.ctx.shadowOffsetX = 1;
+        this.ctx.shadowOffsetY = 1;
+        
+        this.ctx.fillText(target.name, target.x + target.width/2, target.y + target.height + 20);
+        
+        // Reset shadow
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
         
         // Cooling towers
         const towerWidth = target.width / 4;
@@ -2171,28 +2284,78 @@ function initGame() {
         window.game = new OperationRisingLion();
         
         // Perform a validation check on critical game objects
-        if (!window.game.targets || !window.game.targets.nataz || !window.game.targets.bohasher) {
+        if (!window.game.targets || Object.keys(window.game.targets).length === 0) {
             console.warn('Game targets not properly initialized, attempting to fix...');
             window.game.targets = {
-                nataz: {
-                    x: 950,
+                natanz: {
+                    x: 700,
                     y: 400,
                     width: 80,
                     height: 120,
                     health: 100,
                     maxHealth: 100,
                     destroyed: false,
-                    name: 'Nataz Facility'
+                    name: 'Natanz Facility'
                 },
-                bohasher: {
-                    x: 1050,
+                fordow: {
+                    x: 850,
                     y: 350,
                     width: 60,
                     height: 100,
                     health: 100,
                     maxHealth: 100,
                     destroyed: false,
-                    name: 'Bohasher Complex'
+                    name: 'Fordow Complex'
+                },
+                arak: {
+                    x: 600,
+                    y: 430,
+                    width: 70,
+                    height: 110,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Arak Reactor'
+                },
+                esfahan: {
+                    x: 500,
+                    y: 380,
+                    width: 65,
+                    height: 90,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Esfahan Facility'
+                },
+                bushehr: {
+                    x: 1000,
+                    y: 380,
+                    width: 90,
+                    height: 130,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Bushehr Nuclear Power Plant'
+                },
+                tehran: {
+                    x: 400,
+                    y: 350,
+                    width: 55,
+                    height: 85,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Tehran Research Facility'
+                },
+                ardakan: {
+                    x: 300,
+                    y: 420,
+                    width: 65,
+                    height: 85,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Ardakan Yellowcake Plant'
                 }
             };
         }
