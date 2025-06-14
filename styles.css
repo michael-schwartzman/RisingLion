@@ -49,13 +49,28 @@ body {
     animation: victoryGlow 2s infinite alternate;
 }
 
-@keyframes victoryGlow {
-    from {
-        box-shadow: 0 0 10px rgba(255, 204, 0, 0.7);
-    }
-    to {
-        box-shadow: 0 0 20px rgba(255, 204, 0, 0.9);
-    }
+/* Facility Destroyed Image Styles */
+.facility-destroyed-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    text-align: center;
+    pointer-events: none;
+}
+
+.facility-destroyed-portrait {
+    max-width: 200px;
+    border: 3px solid #ff5500;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 85, 0, 0.9);
+    animation: facilityDestroyedGlow 0.5s 4 alternate;
+}
+
+@keyframes facilityDestroyedGlow {
+    from { box-shadow: 0 0 20px rgba(255, 85, 0, 0.9); }
+    to { box-shadow: 0 0 30px rgba(255, 85, 0, 1); }
 }
 
 /* Main Menu Styles */
@@ -314,9 +329,10 @@ body {
 }
 
 .hud-center {
-    flex: 2;
+    flex: 3;
     display: flex;
     justify-content: center;
+    max-height: 70px;
 }
 
 .stats {
@@ -334,23 +350,27 @@ body {
 }
 
 .target-status {
-    display: flex;
-    gap: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-height: 70px;
+    overflow-y: auto;
 }
 
 .target {
     color: white;
     text-align: center;
     font-weight: bold;
+    font-size: 0.8rem;
 }
 
 .health-bar {
-    width: 100px;
-    height: 8px;
+    width: 70px;
+    height: 6px;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 4px;
     overflow: hidden;
-    margin-top: 5px;
+    margin-top: 2px;
     border: 1px solid #333;
 }
 

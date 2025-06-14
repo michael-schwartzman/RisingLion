@@ -25,6 +25,11 @@
             </div>
         </div>
 
+        <!-- Haminai image container for facility destruction -->
+        <div id="haminaiContainer" class="facility-destroyed-image hidden">
+            <img id="haminaiImage" src="images/haminai.png" alt="Haminai" class="facility-destroyed-portrait">
+        </div>
+
         <!-- Instructions Screen -->
         <div id="instructionsScreen" class="screen hidden">
             <div class="screen-content">
@@ -33,8 +38,16 @@
                     <div class="objective">
                         <h3>Primary Objectives:</h3>
                         <ul>
-                            <li>Destroy Nataz Nuclear Facility</li>
-                            <li>Destroy Bohasher Nuclear Complex</li>
+                            <li>Destroy all 7 Iranian Nuclear Facilities:</li>
+                            <ul>
+                                <li>Natanz Facility</li>
+                                <li>Fordow Complex</li>
+                                <li>Arak Reactor</li>
+                                <li>Esfahan Facility</li>
+                                <li>Bushehr Nuclear Power Plant</li>
+                                <li>Tehran Research Facility</li>
+                                <li>Ardakan Yellowcake Plant</li>
+                            </ul>
                         </ul>
                     </div>
                     <div class="controls">
@@ -42,8 +55,7 @@
                         <ul>
                             <li><strong>Mouse:</strong> Aim and fire missiles</li>
                             <li><strong>Click & Drag:</strong> Set power and trajectory</li>
-                            <li><strong>Space:</strong> Deploy aircraft</li>
-                            <li><strong>1-4:</strong> Select weapon type</li>
+                            <li><strong>1-2:</strong> Select missile type</li>
                         </ul>
                     </div>
                     <div class="strategy">
@@ -52,7 +64,7 @@
                             <li>Watch for enemy interceptor missiles (red trails)</li>
                             <li>Defend against Iranian counterattacks (green trails)</li>
                             <li>Protect your base - if it's destroyed, mission fails</li>
-                            <li>Use aircraft for precise strikes</li>
+                            <li>Use cruise missiles for high-damage strikes</li>
                             <li>Aim for direct hits for maximum damage</li>
                             <li>Complete mission quickly for time bonus</li>
                             <li>The enemy gets more aggressive as time passes</li>
@@ -85,15 +97,57 @@
                 <div class="hud-center">
                     <div class="target-status">
                         <div class="target">
-                            <span>Nataz</span>
+                            <span>Natanz</span>
                             <div class="health-bar">
-                                <div id="natazHealth" class="health-fill"></div>
+                                <div id="natanzHealth" class="health-fill"></div>
                             </div>
                         </div>
                         <div class="target">
-                            <span>Bohasher</span>
+                            <span>Fordow</span>
                             <div class="health-bar">
-                                <div id="bohasherHealth" class="health-fill"></div>
+                                <div id="fordowHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                        <div class="target">
+                            <span>Arak</span>
+                            <div class="health-bar">
+                                <div id="arakHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                        <div class="target">
+                            <span>Esfahan</span>
+                            <div class="health-bar">
+                                <div id="esfahanHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                        <div class="target">
+                            <span>Bushehr</span>
+                            <div class="health-bar">
+                                <div id="bushehrHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                        <div class="target">
+                            <span>Tehran</span>
+                            <div class="health-bar">
+                                <div id="tehranHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                        <div class="target">
+                            <span>Bonab</span>
+                            <div class="health-bar">
+                                <div id="bonabHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                        <div class="target">
+                            <span>Darkovin</span>
+                            <div class="health-bar">
+                                <div id="darkovinHealth" class="health-fill"></div>
+                            </div>
+                        </div>
+                        <div class="target">
+                            <span>Parchin</span>
+                            <div class="health-bar">
+                                <div id="parchinHealth" class="health-fill"></div>
                             </div>
                         </div>
                     </div>
@@ -105,8 +159,6 @@
                         <div>Weapon:</div>
                         <select id="weaponType">
                             <option value="missile">Missile (∞)</option>
-                            <option value="guided">Guided Missile (5)</option>
-                            <option value="aircraft">Aircraft (3)</option>
                             <option value="cruise">Cruise Missile (2)</option>
                         </select>
                     </div>
@@ -137,7 +189,7 @@
                         </div>
                         <div class="result-item">
                             <span>Targets Destroyed:</span>
-                            <span id="targetsDestroyed">0/2</span>
+                            <span id="targetsDestroyed">0/7</span>
                         </div>
                         <div class="result-item">
                             <span>Accuracy:</span>

@@ -31,31 +31,83 @@ class OperationRisingLion {
         this.aircrafts = [];
         this.screenShake = null;
         
-        // Sara Netanyahu image
+        // Load images
         this.saraImage = null;
+        this.haminaiImage = null;
         this.loadSaraImage();
+        this.loadHaminaiImage();
         
-        // Targets
+        // Targets - Iranian Nuclear Facilities
         this.targets = {
-            nataz: {
-                x: 950,
+            natanz: {
+                x: 700,
                 y: 400,
                 width: 80,
                 height: 120,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Nataz Facility'
+                name: 'Natanz Facility'
             },
-            bohasher: {
-                x: 1050,
+            fordow: {
+                x: 850,
                 y: 350,
                 width: 60,
                 height: 100,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Bohasher Complex'
+                name: 'Fordow Complex'
+            },
+            arak: {
+                x: 600,
+                y: 430,
+                width: 70,
+                height: 110,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Arak Reactor'
+            },
+            esfahan: {
+                x: 500,
+                y: 380,
+                width: 65,
+                height: 90,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Esfahan Facility'
+            },
+            bushehr: {
+                x: 1000,
+                y: 380,
+                width: 90,
+                height: 130,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Bushehr Nuclear Power Plant'
+            },
+            tehran: {
+                x: 400,
+                y: 350,
+                width: 55,
+                height: 85,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Tehran Research Facility'
+            },
+            ardakan: {
+                x: 300,
+                y: 420,
+                width: 65,
+                height: 85,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Ardakan Yellowcake Plant'
             }
         };
         
@@ -151,8 +203,22 @@ class OperationRisingLion {
             }
             
             const playAgainBtn = document.getElementById('playAgain');
+            console.log('Play Again Button found:', playAgainBtn);
             if (playAgainBtn) {
-                playAgainBtn.addEventListener('click', () => this.startGame());
+                // Remove existing listeners to prevent duplicates
+                playAgainBtn.removeEventListener('click', this.playAgainHandler);
+                
+                // Create a bound handler for the click event
+                this.playAgainHandler = () => {
+                    console.log('Play Again button clicked, starting new game');
+                    // Make sure to clear any existing timers
+                    if (this.gameTimer) clearInterval(this.gameTimer);
+                    if (this.defenseTimer) clearInterval(this.defenseTimer);
+                    this.startGame();
+                };
+                
+                console.log('Adding click event listener to Play Again button');
+                playAgainBtn.addEventListener('click', this.playAgainHandler);
             }
             
             const backToMainMenuBtn = document.getElementById('backToMainMenu');
@@ -185,25 +251,34 @@ class OperationRisingLion {
     }
     
     showScreen(screenId) {
+        console.log(`Showing screen: ${screenId}`);
         document.querySelectorAll('.screen').forEach(screen => {
+            console.log(`Adding 'hidden' class to: ${screen.id}`);
             screen.classList.add('hidden');
         });
-        document.getElementById(screenId).classList.remove('hidden');
+        const targetScreen = document.getElementById(screenId);
+        if (targetScreen) {
+            console.log(`Removing 'hidden' class from: ${screenId}`);
+            targetScreen.classList.remove('hidden');
+        } else {
+            console.error(`Screen element not found: ${screenId}`);
+        }
     }
     
     startGame() {
-        console.log('Starting game...');
+        console.log('startGame method called');
         try {
+            console.log('Setting game state to playing');
             this.gameState = 'playing';
             this.score = 0;
             this.timeLeft = 180;
             this.stats = { shotsFired: 0, hits: 0, targetsDestroyed: 0 };
             
             // Ensure targets are properly initialized
-            if (!this.targets || !this.targets.nataz || !this.targets.bohasher) {
+            if (!this.targets || Object.keys(this.targets).length === 0) {
                 console.log('Targets not properly initialized, reinitializing...');
                 this.targets = {
-                    nataz: {
+                    natanz: {
                         x: 950,
                         y: 400,
                         width: 80,
@@ -211,9 +286,9 @@ class OperationRisingLion {
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Nataz Facility'
+                        name: 'Natanz Facility'
                     },
-                    bohasher: {
+                    fordow: {
                         x: 1050,
                         y: 350,
                         width: 60,
@@ -221,21 +296,96 @@ class OperationRisingLion {
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Bohasher Complex'
+                        name: 'Fordow Complex'
+                    },
+                    arak: {
+                        x: 850,
+                        y: 430,
+                        width: 70,
+                        height: 110,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Arak (IR-40) Reactor'
+                    },
+                    esfahan: {
+                        x: 1000,
+                        y: 250,
+                        width: 65,
+                        height: 90,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Esfahan (Isfahan) Facility'
+                    },
+                    bushehr: {
+                        x: 1150,
+                        y: 380,
+                        width: 90,
+                        height: 130,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Bushehr Nuclear Power Plant'
+                    },
+                    tehran: {
+                        x: 900,
+                        y: 280,
+                        width: 55,
+                        height: 85,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Tehran Research Reactor'
+                    },
+                    bonab: {
+                        x: 980,
+                        y: 320,
+                        width: 70,
+                        height: 100,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Bonab Heavy Water Plant'
+                    },
+                    darkovin: {
+                        x: 1100,
+                        y: 450,
+                        width: 75,
+                        height: 95,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Darkovin Nuclear Power Plant'
+                    },
+                    parchin: {
+                        x: 800,
+                        y: 380,
+                        width: 65,
+                        height: 85,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Parchin Military Complex'
                     }
                 };
-            } else {
-                // Reset targets
-                Object.values(this.targets).forEach(target => {
-                    target.health = target.maxHealth;
-                    target.destroyed = false;
-                });
+            } else {            // Reset targets
+            Object.values(this.targets).forEach(target => {
+                target.health = target.maxHealth;
+                target.destroyed = false;
+            });
+            
+            // Reset launch platform
+            if (this.launchPlatform) {
+                console.log('Resetting launch platform');
+                this.launchPlatform.health = this.launchPlatform.maxHealth;
+                this.launchPlatform.destroyed = false;
+            }
             }
             
-            // Reset weapons
-            this.weapons.guided.count = 5;
-            this.weapons.aircraft.count = 3;
-            this.weapons.cruise.count = 2;
+            // Reset weapons - only missile and cruise missile available
+            this.weapons.missile = { count: Infinity, name: 'Missile' };
+            this.weapons.cruise = { count: 2, name: 'Cruise Missile' };
             
             // Clear game objects
             this.projectiles = [];
@@ -244,6 +394,27 @@ class OperationRisingLion {
             this.particles = [];
             this.aircrafts = [];
             this.screenShake = null;
+            
+            // Reset Iranian systems
+            if (this.iranianOffensive) {
+                console.log('Resetting Iranian offensive systems');
+                this.iranianOffensive = {
+                    attackCooldown: 0,
+                    missileSpeed: 5.5,     // Significantly faster (was 3)
+                    accuracy: 0.95,        // Much more accurate (was 0.85)
+                    attackFrequency: 2000, // More frequent attacks (was 3000ms)
+                    baseAttackChance: 0.25 // Base chance of attack per cycle
+                };
+            }
+            
+            // Reset defense systems
+            if (this.defenseSystems) {
+                console.log('Resetting defense systems');
+                this.defenseSystems.forEach(system => {
+                    system.active = true;
+                    system.cooldown = 0;
+                });
+            }
             
             this.showScreen('gameScreen');
             this.startTimer();
@@ -255,6 +426,14 @@ class OperationRisingLion {
     }
     
     startTimer() {
+        console.log('Starting game timer');
+        
+        // Clear existing timer if it exists
+        if (this.gameTimer) {
+            console.log('Clearing existing game timer');
+            clearInterval(this.gameTimer);
+        }
+        
         this.gameTimer = setInterval(() => {
             this.timeLeft--;
             this.safelyUpdateHUD();
@@ -268,6 +447,7 @@ class OperationRisingLion {
             }
             
             if (this.timeLeft <= 0) {
+                console.log('Time expired, ending game');
                 this.endGame();
             }
         }, 1000);
@@ -333,18 +513,9 @@ class OperationRisingLion {
                 this.currentWeapon = 'missile';
                 break;
             case '2':
-                this.currentWeapon = 'guided';
-                break;
-            case '3':
-                this.currentWeapon = 'aircraft';
-                break;
-            case '4':
                 this.currentWeapon = 'cruise';
                 break;
-            case ' ':
-                e.preventDefault();
-                this.deployAircraft();
-                break;
+            // Removed aircraft and guided missile options
         }
         this.updateWeaponSelect();
     }
@@ -768,7 +939,7 @@ class OperationRisingLion {
     
     checkCollisions() {
         // Ensure targets exist before checking collisions
-        if (!this.targets || !this.targets.nataz || !this.targets.bohasher) {
+        if (!this.targets || Object.keys(this.targets).length === 0) {
             return;
         }
         
@@ -809,9 +980,9 @@ class OperationRisingLion {
             
             // Check if Iranian missile hits Israeli base
             if (interceptor.type === 'iranian') {
-                // More lenient collision detection for Iranian missiles with the Israeli base
-                // Increased collision area to make hits more reliable
-                const expandedCollisionBuffer = 30; // pixels of extra collision area
+                // Much more lenient collision detection for Iranian missiles with the Israeli base
+                // Greatly increased collision area to make hits more reliable
+                const expandedCollisionBuffer = 50; // pixels of extra collision area (increased from 30)
                 if (!this.launchPlatform.destroyed &&
                     interceptor.x > this.launchPlatform.x - expandedCollisionBuffer &&
                     interceptor.x < this.launchPlatform.x + this.launchPlatform.width + expandedCollisionBuffer &&
@@ -823,7 +994,23 @@ class OperationRisingLion {
                     interceptorHit = true;
                     
                     // Add visual feedback for the hit
-                    this.createExplosion(interceptor.x, interceptor.y, 25);
+                    this.createExplosion(interceptor.x, interceptor.y, 35);
+                    continue;
+                }
+                
+                // Additional check: if missile gets close to the bottom of the screen
+                // and it was heading toward the Israeli base, count it as a hit
+                if (!this.launchPlatform.destroyed && 
+                    interceptor.y > this.canvas.height - 100 &&
+                    interceptor.x > this.launchPlatform.x - 100 &&
+                    interceptor.x < this.launchPlatform.x + this.launchPlatform.width + 100) {
+                    
+                    this.hitIsraeliBase(interceptor);
+                    this.interceptors.splice(iIndex, 1);
+                    interceptorHit = true;
+                    
+                    // Add visual feedback for the hit
+                    this.createExplosion(interceptor.x, interceptor.y, 35);
                     continue;
                 }
             }
@@ -883,11 +1070,28 @@ class OperationRisingLion {
             this.stats.targetsDestroyed++;
             this.score += 500; // Destruction bonus
             this.createAtomicExplosion(target.x + target.width/2, target.y + target.height/2);
+            
+            // Show the Haminai image for 2 seconds when a facility is destroyed
+            this.showHaminaiImage();
         } else {
             this.createExplosion(projectile.x, projectile.y, 40);
         }
         
         this.safelyUpdateHUD();
+    }
+    
+    // Function to display the Haminai image when a facility is destroyed
+    showHaminaiImage() {
+        const haminaiContainer = document.getElementById('haminaiContainer');
+        if (!haminaiContainer) return;
+        
+        // Show the image
+        haminaiContainer.classList.remove('hidden');
+        
+        // Hide it after 2 seconds
+        setTimeout(() => {
+            haminaiContainer.classList.add('hidden');
+        }, 2000);
     }
     
     calculateDamage(weaponType) {
@@ -1062,9 +1266,21 @@ class OperationRisingLion {
     }
     
     endGame(victory = false) {
+        console.log(`Ending game with victory=${victory}`);
         this.gameState = 'gameOver';
-        clearInterval(this.gameTimer);
-        clearInterval(this.defenseTimer);
+        
+        // Make sure timers are cleared
+        if (this.gameTimer) {
+            console.log('Clearing game timer');
+            clearInterval(this.gameTimer);
+            this.gameTimer = null;
+        }
+        
+        if (this.defenseTimer) {
+            console.log('Clearing defense timer');
+            clearInterval(this.defenseTimer);
+            this.defenseTimer = null;
+        }
         
         // Calculate final score
         const timeBonus = victory ? this.timeLeft * 10 : 0;
@@ -1073,7 +1289,10 @@ class OperationRisingLion {
         
         this.score += timeBonus + accuracyBonus;
         
-        this.showGameOverScreen(victory, timeBonus, accuracyBonus);
+        // Show the game over screen
+        setTimeout(() => {
+            this.showGameOverScreen(victory, timeBonus, accuracyBonus);
+        }, 100);
     }
     
     showGameOverScreen(victory, timeBonus, accuracyBonus) {
@@ -1082,7 +1301,7 @@ class OperationRisingLion {
         
         document.getElementById('finalScore').textContent = this.score;
         document.getElementById('targetsDestroyed').textContent = 
-            `${this.stats.targetsDestroyed}/2`;
+            `${this.stats.targetsDestroyed}/${Object.keys(this.targets).length}`;
         document.getElementById('accuracy').textContent = 
             this.stats.shotsFired > 0 ? 
             Math.round((this.stats.hits / this.stats.shotsFired) * 100) + '%' : '0%';
@@ -1092,7 +1311,7 @@ class OperationRisingLion {
         const victoryImageContainer = document.getElementById('victoryImageContainer');
         
         if (victory) {
-            resultDiv.textContent = 'All nuclear facilities neutralized!';
+            resultDiv.textContent = 'All 9 Iranian nuclear facilities neutralized!';
             // Show Sara image when player wins
             victoryImageContainer.classList.remove('hidden');
         } else if (this.launchPlatform && this.launchPlatform.destroyed) {
@@ -1113,21 +1332,22 @@ class OperationRisingLion {
         document.getElementById('timer').textContent = this.timeLeft;
         
         // Update target health bars
-        const natazHealth = document.getElementById('natazHealth');
-        const bohasherHealth = document.getElementById('bohasherHealth');
         const israeliBaseHealth = document.getElementById('israeliBaseHealth');
         
-        // Add null checks to prevent errors
-        if (this.targets && this.targets.nataz && natazHealth) {
-            const natazPercent = (this.targets.nataz.health / this.targets.nataz.maxHealth) * 100;
-            natazHealth.style.width = natazPercent + '%';
-            this.updateHealthBarColor(natazHealth, natazPercent);
-        }
-        
-        if (this.targets && this.targets.bohasher && bohasherHealth) {
-            const bohasherPercent = (this.targets.bohasher.health / this.targets.bohasher.maxHealth) * 100;
-            bohasherHealth.style.width = bohasherPercent + '%';
-            this.updateHealthBarColor(bohasherHealth, bohasherPercent);
+        // Update health bars for all targets
+        if (this.targets) {
+            // Loop through all targets and update their health bars
+            Object.keys(this.targets).forEach(targetKey => {
+                const target = this.targets[targetKey];
+                const healthBarId = targetKey + 'Health';
+                const healthBar = document.getElementById(healthBarId);
+                
+                if (target && healthBar) {
+                    const healthPercent = (target.health / target.maxHealth) * 100;
+                    healthBar.style.width = healthPercent + '%';
+                    this.updateHealthBarColor(healthBar, healthPercent);
+                }
+            });
         }
         
         // Update Israeli base health
@@ -1943,6 +2163,68 @@ class OperationRisingLion {
     }
 }
 
+// Implement Sara Netanyahu image loading with proper fallback
+OperationRisingLion.prototype.loadSaraImage = function() {
+    console.log('Loading Sara Netanyahu image...');
+    try {
+        // Create a new image object
+        this.saraImage = new Image();
+        
+        // Set up success handler
+        this.saraImage.onload = () => {
+            console.log('Sara Netanyahu image loaded successfully');
+        };
+        
+        // Set up error handler with fallback
+        this.saraImage.onerror = (error) => {
+            console.warn('Failed to load Sara Netanyahu image, will use drawn portrait fallback', error);
+            // Keep saraImage as null to trigger fallback
+            this.saraImage = null;
+        };            // Base64 string for the Sara Netanyahu photo
+            // Replace this with your actual base64 string generated from image-converter.html
+            // Example: const base64String = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBD...";
+            const base64String = ""; // Empty for now, user needs to add their own image
+        
+        // Only attempt to load if there's actually a base64 string
+        if (base64String && base64String.length > 0) {
+            this.saraImage.src = base64String.startsWith('data:image') ? 
+                base64String : 'data:image/jpeg;base64,' + base64String;
+        } else {
+            console.log('No base64 string provided for Sara Netanyahu image, using fallback');
+            this.saraImage = null;
+        }
+    } catch (error) {
+        console.error('Error in loadSaraImage:', error);
+        this.saraImage = null;
+    }
+};
+
+// Implement Haminai image loading for facility destruction
+OperationRisingLion.prototype.loadHaminaiImage = function() {
+    console.log('Loading Haminai image...');
+    try {
+        // Create a new image object
+        this.haminaiImage = new Image();
+        
+        // Set up success handler
+        this.haminaiImage.onload = () => {
+            console.log('Haminai image loaded successfully');
+        };
+        
+        // Set up error handler
+        this.haminaiImage.onerror = (error) => {
+            console.warn('Failed to load Haminai image', error);
+            this.haminaiImage = null;
+        };
+        
+        // Set the source of the image
+        this.haminaiImage.src = 'images/haminai.png';
+    } catch (error) {
+        console.error('Error in loadHaminaiImage:', error);
+        this.haminaiImage = null;
+    }
+};
+
 // Initialize game when page loads
 function initGame() {
     console.log('Initializing game...');
@@ -1950,10 +2232,10 @@ function initGame() {
         window.game = new OperationRisingLion();
         
         // Perform a validation check on critical game objects
-        if (!window.game.targets || !window.game.targets.nataz || !window.game.targets.bohasher) {
+        if (!window.game.targets || Object.keys(window.game.targets).length === 0) {
             console.warn('Game targets not properly initialized, attempting to fix...');
             window.game.targets = {
-                nataz: {
+                natanz: {
                     x: 950,
                     y: 400,
                     width: 80,
@@ -1961,9 +2243,9 @@ function initGame() {
                     health: 100,
                     maxHealth: 100,
                     destroyed: false,
-                    name: 'Nataz Facility'
+                    name: 'Natanz Facility'
                 },
-                bohasher: {
+                fordow: {
                     x: 1050,
                     y: 350,
                     width: 60,
@@ -1971,7 +2253,47 @@ function initGame() {
                     health: 100,
                     maxHealth: 100,
                     destroyed: false,
-                    name: 'Bohasher Complex'
+                    name: 'Fordow Complex'
+                },
+                arak: {
+                    x: 850,
+                    y: 430,
+                    width: 70,
+                    height: 110,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Arak (IR-40) Reactor'
+                },
+                esfahan: {
+                    x: 1000,
+                    y: 250,
+                    width: 65,
+                    height: 90,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Esfahan (Isfahan) Facility'
+                },
+                bushehr: {
+                    x: 1150,
+                    y: 380,
+                    width: 90,
+                    height: 130,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Bushehr Nuclear Power Plant'
+                },
+                tehran: {
+                    x: 900,
+                    y: 280,
+                    width: 55,
+                    height: 85,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Tehran Research Reactor'
                 }
             };
         }
@@ -2027,60 +2349,43 @@ window.forceStartGame = function() {
     }
 };
 
-// Implement Sara Netanyahu image loading with proper fallback
-OperationRisingLion.prototype.loadSaraImage = function() {
-    console.log('Loading Sara Netanyahu image...');
-    try {
-        // Create a new image object
-        this.saraImage = new Image();
-        
-        // Set up success handler
-        this.saraImage.onload = () => {
-            console.log('Sara Netanyahu image loaded successfully');
-        };
-        
-        // Set up error handler with fallback
-        this.saraImage.onerror = (error) => {
-            console.warn('Failed to load Sara Netanyahu image, will use drawn portrait fallback', error);
-            // Keep saraImage as null to trigger fallback
-            this.saraImage = null;
-        };            // Base64 string for the Sara Netanyahu photo
-            // Replace this with your actual base64 string generated from image-converter.html
-            // Example: const base64String = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBD...";
-            const base64String = ""; // Empty for now, user needs to add their own image
-        
-        // Only attempt to load if there's actually a base64 string
-        if (base64String && base64String.length > 0) {
-            this.saraImage.src = base64String.startsWith('data:image') ? 
-                base64String : 'data:image/jpeg;base64,' + base64String;
-        } else {
-            console.log('No base64 string provided for Sara Netanyahu image, using fallback');
-            this.saraImage = null;
-        }
-    } catch (error) {
-        console.error('Error in loadSaraImage:', error);
-        this.saraImage = null;
-    }
-};
-
 // Handle Iranian missiles hitting the Israeli base
 OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
     if (!this.launchPlatform || this.launchPlatform.destroyed) return;
     
-    // Apply damage to the Israeli base
-    this.launchPlatform.health -= missile.damage || 10;
+    // Apply increased damage to the Israeli base
+    const damage = missile.damage || 20; // Increased base damage from 10 to 20
+    this.launchPlatform.health -= damage;
     
-    // Create a missile impact explosion
-    this.createExplosion(
-        this.launchPlatform.x + this.launchPlatform.width/2, 
-        this.launchPlatform.y,
-        40
-    );
+    // Update the score to reflect damage taken
+    this.score = Math.max(0, this.score - Math.floor(damage * 5)); // Reduce score on hit
     
-    // Add screen shake
+    // Create a missile impact explosion with green fire
+    const fireX = this.launchPlatform.x + this.launchPlatform.width/2;
+    const fireY = this.launchPlatform.y;
+    
+    // Create green fire particles
+    for (let i = 0; i < 20; i++) {
+        this.particles.push({
+            x: fireX + (Math.random() - 0.5) * 40,
+            y: fireY + (Math.random() - 0.5) * 40,
+            vx: (Math.random() - 0.5) * 3,
+            vy: -1 - Math.random() * 3,
+            life: 60 + Math.random() * 40,
+            alpha: 0.8,
+            size: 5 + Math.random() * 10,
+            color: `rgba(0, ${120 + Math.random() * 135}, 0, 0.8)`, // Green fire
+            type: 'fire'
+        });
+    }
+    
+    // Create regular explosion
+    this.createExplosion(fireX, fireY, 50);
+    
+    // Add stronger screen shake
     this.screenShake = {
-        intensity: 10,
-        duration: 30,
+        intensity: 15,
+        duration: 40,
         current: 0
     };
     
