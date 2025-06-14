@@ -161,3 +161,17 @@ const CONFIG = {
 - **Incremental updates**: Small, focused changes with immediate testing
 - **Backwards compatibility**: Maintain existing functionality while adding features
 - **Error resilience**: Defensive programming to handle edge cases
+
+## Bug Fixes and Optimizations
+
+### Critical Bug Fixes
+- **Target Health Null Checks (2025-06-13)**
+  - **Issue**: Game crashed with "Cannot read properties of undefined (reading 'health')" errors in `updateHUD` when trying to access target health
+  - **Root Cause**: Accessing target properties before they were fully initialized or after they were destroyed
+  - **Solution**: 
+    - Added comprehensive null checks in `updateHUD()` to verify targets exist before accessing properties
+    - Created a `safelyUpdateHUD()` wrapper method to only update when game is in "playing" state
+    - Added validation in target initialization to ensure proper object structure
+    - Enhanced collision detection with additional safety checks
+    - Added robust error handling throughout the codebase
+  - **Commit**: 58d531e "Fix game crash: Add null checks to prevent 'Cannot read properties of undefined' errors in updateHUD and target handling"
