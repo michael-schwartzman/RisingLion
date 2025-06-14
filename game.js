@@ -204,7 +204,15 @@ class OperationRisingLion {
             
             const playAgainBtn = document.getElementById('playAgain');
             if (playAgainBtn) {
-                playAgainBtn.addEventListener('click', () => this.startGame());
+                // Remove existing event listeners to prevent duplicates
+                const newPlayAgainBtn = playAgainBtn.cloneNode(true);
+                playAgainBtn.parentNode.replaceChild(newPlayAgainBtn, playAgainBtn);
+                
+                // Add fresh event listener
+                newPlayAgainBtn.addEventListener('click', () => {
+                    console.log('Play Again button clicked');
+                    this.startGame();
+                });
             }
             
             const backToMainMenuBtn = document.getElementById('backToMainMenu');
@@ -245,11 +253,44 @@ class OperationRisingLion {
     
     startGame() {
         console.log('Starting game...');
+        
+        // Prevent multiple simultaneous game starts
+        if (this.gameState === 'playing') {
+            console.log('Game already in progress, ignoring start request');
+            return;
+        }
+        
         try {
+            // Clear any existing timers first
+            if (this.gameTimer) {
+                clearInterval(this.gameTimer);
+                this.gameTimer = null;
+            }
+            if (this.defenseTimer) {
+                clearInterval(this.defenseTimer);
+                this.defenseTimer = null;
+            }
+            
+            // Reset game state
             this.gameState = 'playing';
             this.score = 0;
             this.timeLeft = 180;
             this.stats = { shotsFired: 0, hits: 0, targetsDestroyed: 0 };
+            
+            // Reset launch platform
+            if (this.launchPlatform) {
+                this.launchPlatform.health = this.launchPlatform.maxHealth;
+                this.launchPlatform.destroyed = false;
+            }
+            
+            // Reset Iranian offensive to default values
+            this.iranianOffensive = {
+                attackCooldown: 0,
+                missileSpeed: 5.5,
+                accuracy: 0.95,
+                attackFrequency: 2000,
+                baseAttackChance: 0.25
+            };
             
             // Ensure targets are properly initialized
             if (!this.targets || Object.keys(this.targets).length === 0) {
@@ -338,6 +379,7 @@ class OperationRisingLion {
             this.weapons.guided.count = 5;
             this.weapons.aircraft.count = 3;
             this.weapons.cruise.count = 2;
+            this.currentWeapon = 'missile';
             
             // Clear game objects
             this.projectiles = [];
@@ -347,8 +389,18 @@ class OperationRisingLion {
             this.aircrafts = [];
             this.screenShake = null;
             
+            // Reset aiming state
+            this.isAiming = false;
+            this.aimStartX = 0;
+            this.aimStartY = 0;
+            this.aimEndX = 0;
+            this.aimEndY = 0;
+            
+            console.log('Showing game screen...');
             this.showScreen('gameScreen');
+            console.log('Starting timer...');
             this.startTimer();
+            console.log('Updating HUD...');
             this.safelyUpdateHUD();
             console.log('Game started successfully');
         } catch (error) {
@@ -1182,8 +1234,16 @@ class OperationRisingLion {
     
     endGame(victory = false) {
         this.gameState = 'gameOver';
-        clearInterval(this.gameTimer);
-        clearInterval(this.defenseTimer);
+        
+        // Clear all timers
+        if (this.gameTimer) {
+            clearInterval(this.gameTimer);
+            this.gameTimer = null;
+        }
+        if (this.defenseTimer) {
+            clearInterval(this.defenseTimer);
+            this.defenseTimer = null;
+        }
         
         // Calculate final score
         const timeBonus = victory ? this.timeLeft * 10 : 0;
@@ -1211,7 +1271,7 @@ class OperationRisingLion {
         const victoryImageContainer = document.getElementById('victoryImageContainer');
         
         if (victory) {
-            resultDiv.textContent = 'All 9 Iranian nuclear facilities neutralized!';
+            resultDiv.textContent = 'All 7 Iranian nuclear facilities neutralized!';
             // Show Sara image when player wins
             victoryImageContainer.classList.remove('hidden');
         } else if (this.launchPlatform && this.launchPlatform.destroyed) {
