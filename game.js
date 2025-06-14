@@ -223,8 +223,22 @@ class OperationRisingLion {
             }
             
             const playAgainBtn = document.getElementById('playAgain');
+            console.log('Play Again Button found:', playAgainBtn);
             if (playAgainBtn) {
-                playAgainBtn.addEventListener('click', () => this.startGame());
+                // Remove existing listeners to prevent duplicates
+                playAgainBtn.removeEventListener('click', this.playAgainHandler);
+                
+                // Create a bound handler for the click event
+                this.playAgainHandler = () => {
+                    console.log('Play Again button clicked, starting new game');
+                    // Make sure to clear any existing timers
+                    if (this.gameTimer) clearInterval(this.gameTimer);
+                    if (this.defenseTimer) clearInterval(this.defenseTimer);
+                    this.startGame();
+                };
+                
+                console.log('Adding click event listener to Play Again button');
+                playAgainBtn.addEventListener('click', this.playAgainHandler);
             }
             
             const backToMainMenuBtn = document.getElementById('backToMainMenu');
@@ -257,15 +271,24 @@ class OperationRisingLion {
     }
     
     showScreen(screenId) {
+        console.log(`Showing screen: ${screenId}`);
         document.querySelectorAll('.screen').forEach(screen => {
+            console.log(`Adding 'hidden' class to: ${screen.id}`);
             screen.classList.add('hidden');
         });
-        document.getElementById(screenId).classList.remove('hidden');
+        const targetScreen = document.getElementById(screenId);
+        if (targetScreen) {
+            console.log(`Removing 'hidden' class from: ${screenId}`);
+            targetScreen.classList.remove('hidden');
+        } else {
+            console.error(`Screen element not found: ${screenId}`);
+        }
     }
     
     startGame() {
-        console.log('Starting game...');
+        console.log('startGame method called');
         try {
+            console.log('Setting game state to playing');
             this.gameState = 'playing';
             this.score = 0;
             this.timeLeft = 180;
@@ -366,12 +389,18 @@ class OperationRisingLion {
                         name: 'Ardakan Yellowcake Plant'
                     }
                 };
-            } else {
-                // Reset targets
-                Object.values(this.targets).forEach(target => {
-                    target.health = target.maxHealth;
-                    target.destroyed = false;
-                });
+            } else {            // Reset targets
+            Object.values(this.targets).forEach(target => {
+                target.health = target.maxHealth;
+                target.destroyed = false;
+            });
+            
+            // Reset launch platform
+            if (this.launchPlatform) {
+                console.log('Resetting launch platform');
+                this.launchPlatform.health = this.launchPlatform.maxHealth;
+                this.launchPlatform.destroyed = false;
+            }
             }
             
             // Reset weapons
@@ -387,6 +416,27 @@ class OperationRisingLion {
             this.aircrafts = [];
             this.screenShake = null;
             
+            // Reset Iranian systems
+            if (this.iranianOffensive) {
+                console.log('Resetting Iranian offensive systems');
+                this.iranianOffensive = {
+                    active: true,
+                    lastAttack: 0,
+                    attackFrequency: 5000, // milliseconds between attacks
+                    accuracy: 0.4, // base accuracy
+                    missileSpeed: 2, // base speed
+                };
+            }
+            
+            // Reset defense systems
+            if (this.defenseSystems) {
+                console.log('Resetting defense systems');
+                this.defenseSystems.forEach(system => {
+                    system.active = true;
+                    system.cooldown = 0;
+                });
+            }
+            
             this.showScreen('gameScreen');
             this.startTimer();
             this.safelyUpdateHUD();
@@ -397,6 +447,14 @@ class OperationRisingLion {
     }
     
     startTimer() {
+        console.log('Starting game timer');
+        
+        // Clear existing timer if it exists
+        if (this.gameTimer) {
+            console.log('Clearing existing game timer');
+            clearInterval(this.gameTimer);
+        }
+        
         this.gameTimer = setInterval(() => {
             this.timeLeft--;
             this.safelyUpdateHUD();
@@ -410,6 +468,7 @@ class OperationRisingLion {
             }
             
             if (this.timeLeft <= 0) {
+                console.log('Time expired, ending game');
                 this.endGame();
             }
         }, 1000);
@@ -1221,9 +1280,21 @@ class OperationRisingLion {
     }
     
     endGame(victory = false) {
+        console.log(`Ending game with victory=${victory}`);
         this.gameState = 'gameOver';
-        clearInterval(this.gameTimer);
-        clearInterval(this.defenseTimer);
+        
+        // Make sure timers are cleared
+        if (this.gameTimer) {
+            console.log('Clearing game timer');
+            clearInterval(this.gameTimer);
+            this.gameTimer = null;
+        }
+        
+        if (this.defenseTimer) {
+            console.log('Clearing defense timer');
+            clearInterval(this.defenseTimer);
+            this.defenseTimer = null;
+        }
         
         // Calculate final score
         const timeBonus = victory ? this.timeLeft * 10 : 0;
@@ -1232,7 +1303,10 @@ class OperationRisingLion {
         
         this.score += timeBonus + accuracyBonus;
         
-        this.showGameOverScreen(victory, timeBonus, accuracyBonus);
+        // Show the game over screen
+        setTimeout(() => {
+            this.showGameOverScreen(victory, timeBonus, accuracyBonus);
+        }, 100);
     }
     
     showGameOverScreen(victory, timeBonus, accuracyBonus) {
@@ -1241,7 +1315,7 @@ class OperationRisingLion {
         
         document.getElementById('finalScore').textContent = this.score;
         document.getElementById('targetsDestroyed').textContent = 
-            `${this.stats.targetsDestroyed}/2`;
+            `${this.stats.targetsDestroyed}/${Object.keys(this.targets).length}`;
         document.getElementById('accuracy').textContent = 
             this.stats.shotsFired > 0 ? 
             Math.round((this.stats.hits / this.stats.shotsFired) * 100) + '%' : '0%';
