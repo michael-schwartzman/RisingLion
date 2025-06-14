@@ -13,11 +13,9 @@ class OperationRisingLion {
         this.aimEndX = 0;
         this.aimEndY = 0;
         
-        // Weapons inventory
+        // Weapons inventory - only missile and cruise missile
         this.weapons = {
             missile: { count: Infinity, name: 'Missile' },
-            guided: { count: 5, name: 'Guided Missile' },
-            aircraft: { count: 3, name: 'Aircraft' },
             cruise: { count: 2, name: 'Cruise Missile' }
         };
         
@@ -99,35 +97,35 @@ class OperationRisingLion {
                 destroyed: false,
                 name: 'Tehran Research Reactor'
             },
-            saghand: {
-                x: 750,
-                y: 350,
-                width: 50,
-                height: 70,
+            bonab: {
+                x: 980,
+                y: 320,
+                width: 70,
+                height: 100,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Saghand Uranium Mine'
+                name: 'Bonab Heavy Water Plant'
             },
-            gchine: {
-                x: 800,
-                y: 500,
-                width: 50,
-                height: 70,
-                health: 100,
-                maxHealth: 100,
-                destroyed: false,
-                name: 'Gchine Uranium Mine'
-            },
-            ardakan: {
-                x: 700,
+            darkovin: {
+                x: 1100,
                 y: 450,
+                width: 75,
+                height: 95,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Darkovin Nuclear Power Plant'
+            },
+            parchin: {
+                x: 800,
+                y: 380,
                 width: 65,
                 height: 85,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Ardakan Yellowcake Plant'
+                name: 'Parchin Military Complex'
             }
         };
         
@@ -358,35 +356,35 @@ class OperationRisingLion {
                         destroyed: false,
                         name: 'Tehran Research Reactor'
                     },
-                    saghand: {
-                        x: 750,
-                        y: 350,
-                        width: 50,
-                        height: 70,
+                    bonab: {
+                        x: 980,
+                        y: 320,
+                        width: 70,
+                        height: 100,
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Saghand Uranium Mine'
+                        name: 'Bonab Heavy Water Plant'
                     },
-                    gchine: {
-                        x: 800,
-                        y: 500,
-                        width: 50,
-                        height: 70,
-                        health: 100,
-                        maxHealth: 100,
-                        destroyed: false,
-                        name: 'Gchine Uranium Mine'
-                    },
-                    ardakan: {
-                        x: 700,
+                    darkovin: {
+                        x: 1100,
                         y: 450,
+                        width: 75,
+                        height: 95,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Darkovin Nuclear Power Plant'
+                    },
+                    parchin: {
+                        x: 800,
+                        y: 380,
                         width: 65,
                         height: 85,
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Ardakan Yellowcake Plant'
+                        name: 'Parchin Military Complex'
                     }
                 };
             } else {            // Reset targets
@@ -403,10 +401,9 @@ class OperationRisingLion {
             }
             }
             
-            // Reset weapons
-            this.weapons.guided.count = 5;
-            this.weapons.aircraft.count = 3;
-            this.weapons.cruise.count = 2;
+            // Reset weapons - only missile and cruise missile available
+            this.weapons.missile = { count: Infinity, name: 'Missile' };
+            this.weapons.cruise = { count: 2, name: 'Cruise Missile' };
             
             // Clear game objects
             this.projectiles = [];
@@ -534,18 +531,9 @@ class OperationRisingLion {
                 this.currentWeapon = 'missile';
                 break;
             case '2':
-                this.currentWeapon = 'guided';
-                break;
-            case '3':
-                this.currentWeapon = 'aircraft';
-                break;
-            case '4':
                 this.currentWeapon = 'cruise';
                 break;
-            case ' ':
-                e.preventDefault();
-                this.deployAircraft();
-                break;
+            // Removed aircraft and guided missile options
         }
         this.updateWeaponSelect();
     }
@@ -1010,9 +998,9 @@ class OperationRisingLion {
             
             // Check if Iranian missile hits Israeli base
             if (interceptor.type === 'iranian') {
-                // More lenient collision detection for Iranian missiles with the Israeli base
-                // Increased collision area to make hits more reliable
-                const expandedCollisionBuffer = 30; // pixels of extra collision area
+                // Much more lenient collision detection for Iranian missiles with the Israeli base
+                // Greatly increased collision area to make hits more reliable
+                const expandedCollisionBuffer = 50; // pixels of extra collision area (increased from 30)
                 if (!this.launchPlatform.destroyed &&
                     interceptor.x > this.launchPlatform.x - expandedCollisionBuffer &&
                     interceptor.x < this.launchPlatform.x + this.launchPlatform.width + expandedCollisionBuffer &&
@@ -1024,7 +1012,23 @@ class OperationRisingLion {
                     interceptorHit = true;
                     
                     // Add visual feedback for the hit
-                    this.createExplosion(interceptor.x, interceptor.y, 25);
+                    this.createExplosion(interceptor.x, interceptor.y, 35);
+                    continue;
+                }
+                
+                // Additional check: if missile gets close to the bottom of the screen
+                // and it was heading toward the Israeli base, count it as a hit
+                if (!this.launchPlatform.destroyed && 
+                    interceptor.y > this.canvas.height - 100 &&
+                    interceptor.x > this.launchPlatform.x - 100 &&
+                    interceptor.x < this.launchPlatform.x + this.launchPlatform.width + 100) {
+                    
+                    this.hitIsraeliBase(interceptor);
+                    this.interceptors.splice(iIndex, 1);
+                    interceptorHit = true;
+                    
+                    // Add visual feedback for the hit
+                    this.createExplosion(interceptor.x, interceptor.y, 35);
                     continue;
                 }
             }
@@ -2308,36 +2312,6 @@ function initGame() {
                     maxHealth: 100,
                     destroyed: false,
                     name: 'Tehran Research Reactor'
-                },
-                saghand: {
-                    x: 750,
-                    y: 350,
-                    width: 50,
-                    height: 70,
-                    health: 100,
-                    maxHealth: 100,
-                    destroyed: false,
-                    name: 'Saghand Uranium Mine'
-                },
-                gchine: {
-                    x: 800,
-                    y: 500,
-                    width: 50,
-                    height: 70,
-                    health: 100,
-                    maxHealth: 100,
-                    destroyed: false,
-                    name: 'Gchine Uranium Mine'
-                },
-                ardakan: {
-                    x: 700,
-                    y: 450,
-                    width: 65,
-                    height: 85,
-                    health: 100,
-                    maxHealth: 100,
-                    destroyed: false,
-                    name: 'Ardakan Yellowcake Plant'
                 }
             };
         }
@@ -2397,20 +2371,39 @@ window.forceStartGame = function() {
 OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
     if (!this.launchPlatform || this.launchPlatform.destroyed) return;
     
-    // Apply damage to the Israeli base
-    this.launchPlatform.health -= missile.damage || 10;
+    // Apply increased damage to the Israeli base
+    const damage = missile.damage || 20; // Increased base damage from 10 to 20
+    this.launchPlatform.health -= damage;
     
-    // Create a missile impact explosion
-    this.createExplosion(
-        this.launchPlatform.x + this.launchPlatform.width/2, 
-        this.launchPlatform.y,
-        40
-    );
+    // Update the score to reflect damage taken
+    this.score = Math.max(0, this.score - Math.floor(damage * 5)); // Reduce score on hit
     
-    // Add screen shake
+    // Create a missile impact explosion with green fire
+    const fireX = this.launchPlatform.x + this.launchPlatform.width/2;
+    const fireY = this.launchPlatform.y;
+    
+    // Create green fire particles
+    for (let i = 0; i < 20; i++) {
+        this.particles.push({
+            x: fireX + (Math.random() - 0.5) * 40,
+            y: fireY + (Math.random() - 0.5) * 40,
+            vx: (Math.random() - 0.5) * 3,
+            vy: -1 - Math.random() * 3,
+            life: 60 + Math.random() * 40,
+            alpha: 0.8,
+            size: 5 + Math.random() * 10,
+            color: `rgba(0, ${120 + Math.random() * 135}, 0, 0.8)`, // Green fire
+            type: 'fire'
+        });
+    }
+    
+    // Create regular explosion
+    this.createExplosion(fireX, fireY, 50);
+    
+    // Add stronger screen shake
     this.screenShake = {
-        intensity: 10,
-        duration: 30,
+        intensity: 15,
+        duration: 40,
         current: 0
     };
     
