@@ -13,9 +13,11 @@ class OperationRisingLion {
         this.aimEndX = 0;
         this.aimEndY = 0;
         
-        // Weapons inventory - only missile and cruise missile
+        // Weapons inventory
         this.weapons = {
             missile: { count: Infinity, name: 'Missile' },
+            guided: { count: 5, name: 'Guided Missile' },
+            aircraft: { count: 3, name: 'Aircraft' },
             cruise: { count: 2, name: 'Cruise Missile' }
         };
         
@@ -38,7 +40,7 @@ class OperationRisingLion {
         // Targets - Iranian Nuclear Facilities
         this.targets = {
             natanz: {
-                x: 950,
+                x: 700,
                 y: 400,
                 width: 80,
                 height: 120,
@@ -48,7 +50,7 @@ class OperationRisingLion {
                 name: 'Natanz Facility'
             },
             fordow: {
-                x: 1050,
+                x: 850,
                 y: 350,
                 width: 60,
                 height: 100,
@@ -58,27 +60,27 @@ class OperationRisingLion {
                 name: 'Fordow Complex'
             },
             arak: {
-                x: 850,
+                x: 600,
                 y: 430,
                 width: 70,
                 height: 110,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Arak (IR-40) Reactor'
+                name: 'Arak Reactor'
             },
             esfahan: {
-                x: 1000,
-                y: 250,
+                x: 500,
+                y: 380,
                 width: 65,
                 height: 90,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Esfahan (Isfahan) Facility'
+                name: 'Esfahan Facility'
             },
             bushehr: {
-                x: 1150,
+                x: 1000,
                 y: 380,
                 width: 90,
                 height: 130,
@@ -88,44 +90,24 @@ class OperationRisingLion {
                 name: 'Bushehr Nuclear Power Plant'
             },
             tehran: {
-                x: 900,
-                y: 280,
+                x: 400,
+                y: 350,
                 width: 55,
                 height: 85,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Tehran Research Reactor'
+                name: 'Tehran Research Facility'
             },
-            bonab: {
-                x: 980,
-                y: 320,
-                width: 70,
-                height: 100,
-                health: 100,
-                maxHealth: 100,
-                destroyed: false,
-                name: 'Bonab Heavy Water Plant'
-            },
-            darkovin: {
-                x: 1100,
-                y: 450,
-                width: 75,
-                height: 95,
-                health: 100,
-                maxHealth: 100,
-                destroyed: false,
-                name: 'Darkovin Nuclear Power Plant'
-            },
-            parchin: {
-                x: 800,
-                y: 380,
+            ardakan: {
+                x: 300,
+                y: 420,
                 width: 65,
                 height: 85,
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Parchin Military Complex'
+                name: 'Ardakan Yellowcake Plant'
             }
         };
         
@@ -417,11 +399,11 @@ class OperationRisingLion {
             if (this.iranianOffensive) {
                 console.log('Resetting Iranian offensive systems');
                 this.iranianOffensive = {
-                    active: true,
-                    lastAttack: 0,
-                    attackFrequency: 5000, // milliseconds between attacks
-                    accuracy: 0.4, // base accuracy
-                    missileSpeed: 2, // base speed
+                    attackCooldown: 0,
+                    missileSpeed: 5.5,     // Significantly faster (was 3)
+                    accuracy: 0.95,        // Much more accurate (was 0.85)
+                    attackFrequency: 2000, // More frequent attacks (was 3000ms)
+                    baseAttackChance: 0.25 // Base chance of attack per cycle
                 };
             }
             
