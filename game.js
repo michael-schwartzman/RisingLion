@@ -71,12 +71,13 @@ class OperationRisingLion {
             name: 'Israeli Base'
         };
         
-        // Iranian offensive capabilities
+        // Iranian offensive capabilities - increased speed and accuracy
         this.iranianOffensive = {
             attackCooldown: 0,
-            missileSpeed: 3,
-            accuracy: 0.85,       // Higher means more accurate
-            attackFrequency: 3000 // Milliseconds between attacks
+            missileSpeed: 5.5,     // Significantly faster (was 3)
+            accuracy: 0.95,        // Much more accurate (was 0.85)
+            attackFrequency: 2000, // More frequent attacks (was 3000ms)
+            baseAttackChance: 0.25 // Base chance of attack per cycle
         };
         
         // Defense systems - increased number and improved capabilities
@@ -458,12 +459,15 @@ class OperationRisingLion {
         
         const system = activeSystems[Math.floor(Math.random() * activeSystems.length)];
         
-        // Add accuracy variation - higher iranianOffensive.accuracy means more accurate
-        const accuracyVariation = Math.random() * (1 - this.iranianOffensive.accuracy) * 100;
-        const targetX = this.launchPlatform.x + this.launchPlatform.width/2 + (Math.random() > 0.5 ? accuracyVariation : -accuracyVariation);
-        const targetY = this.launchPlatform.y + this.launchPlatform.height/2 + (Math.random() > 0.5 ? accuracyVariation : -accuracyVariation);
+        // Much improved targeting system
+        // Smaller accuracy variation - more missiles hit their target
+        const accuracyVariation = Math.random() * (1 - this.iranianOffensive.accuracy) * 40; // Was 100
         
-        // Create attack missile
+        // Target the center of the platform more consistently
+        const targetX = this.launchPlatform.x + (this.launchPlatform.width/2) + (Math.random() > 0.5 ? accuracyVariation : -accuracyVariation);
+        const targetY = this.launchPlatform.y + (this.launchPlatform.height/2) + (Math.random() > 0.7 ? accuracyVariation : -accuracyVariation/2);
+        
+        // Create attack missile with increased damage and improved properties
         const missile = {
             x: system.x,
             y: system.y,
@@ -471,9 +475,11 @@ class OperationRisingLion {
             targetY: targetY,
             speed: this.iranianOffensive.missileSpeed,
             type: 'iranian',
-            damage: 10 + Math.floor(Math.random() * 10), // 10-20 damage
+            damage: 15 + Math.floor(Math.random() * 15), // 15-30 damage (was 10-20)
             life: 200,
-            trail: []
+            trail: [],
+            directHoming: Math.random() < 0.6, // 60% of missiles have direct homing capability
+            homingStrength: 0.2 + (Math.random() * 0.3) // Variable homing strength
         };
         
         this.interceptors.push(missile);
@@ -489,15 +495,38 @@ class OperationRisingLion {
         if (this.iranianOffensive.attackCooldown > 0) {
             this.iranianOffensive.attackCooldown -= 16.67; // Approximately 60fps
         } else if (this.gameState === 'playing' && !this.launchPlatform.destroyed) {
-            // Launch attack with increasing probability as game progresses
+            // Much more aggressive attack pattern
             const progressFactor = 1 - (this.timeLeft / 180); // 0 at start, 1 at end
-            const attackProbability = 0.1 + (progressFactor * 0.4); // 10% at start, 50% at end
+            const attackProbability = this.iranianOffensive.baseAttackChance + (progressFactor * 0.6); // 25% at start, 85% at end
             
             if (Math.random() < attackProbability) {
                 this.launchIranianMissile();
+                
+                // Sometimes launch multiple missiles in a salvo attack
+                const salvoChance = 0.2 + (progressFactor * 0.4); // 20%-60% chance based on time
+                if (Math.random() < salvoChance) {
+                    // Schedule additional missile launches
+                    setTimeout(() => {
+                        if (this.gameState === 'playing' && !this.launchPlatform.destroyed) {
+                            this.launchIranianMissile();
+                        }
+                    }, 300 + Math.random() * 200); // 300-500ms delay
+                    
+                    // Late game can have triple missile salvos
+                    if (progressFactor > 0.6 && Math.random() < 0.4) {
+                        setTimeout(() => {
+                            if (this.gameState === 'playing' && !this.launchPlatform.destroyed) {
+                                this.launchIranianMissile();
+                            }
+                        }, 600 + Math.random() * 300); // 600-900ms delay
+                    }
+                }
+                
+                // Set a bit longer cooldown after firing a missile
+                this.iranianOffensive.attackCooldown = this.iranianOffensive.attackFrequency;
             } else {
-                // Set a shorter cooldown for next check
-                this.iranianOffensive.attackCooldown = 500;
+                // Set a much shorter cooldown for next check - faster reaction time
+                this.iranianOffensive.attackCooldown = 200 + Math.random() * 200; // 200-400ms (was 500)
             }
         }
     }
@@ -561,19 +590,45 @@ class OperationRisingLion {
     
     updateInterceptors() {
         this.interceptors = this.interceptors.filter(interceptor => {
+            // Iranian missiles with directHoming will actively track the Israeli base
+            if (interceptor.type === 'iranian' && interceptor.directHoming) {
+                // Update target coordinates to current platform position for continuous tracking
+                interceptor.targetX = this.launchPlatform.x + (this.launchPlatform.width/2);
+                interceptor.targetY = this.launchPlatform.y + (this.launchPlatform.height/2);
+                
+                // Add a slight variation for less predictable patterns
+                if (Math.random() < 0.1) {
+                    interceptor.targetX += (Math.random() - 0.5) * 5;
+                    interceptor.targetY += (Math.random() - 0.5) * 5;
+                }
+            }
+            
             // Move towards target
             const dx = interceptor.targetX - interceptor.x;
             const dy = interceptor.targetY - interceptor.y;
             const distance = Math.sqrt(dx * dx + dy * dy);
             
             if (distance > 5) {
-                interceptor.x += (dx / distance) * interceptor.speed;
-                interceptor.y += (dy / distance) * interceptor.speed;
+                // Enhanced movement with improved homing for Iranian missiles
+                const speedMultiplier = interceptor.type === 'iranian' ? 
+                    (1 + ((200 - interceptor.life) / 200) * 0.3) : 1; // Speed increases as missile gets closer
                 
-                // Iranian missiles have some erratic movement to make them harder to predict
-                if (interceptor.type === 'iranian' && Math.random() < 0.1) {
-                    interceptor.x += (Math.random() - 0.5) * 3;
-                    interceptor.y += (Math.random() - 0.5) * 3;
+                interceptor.x += (dx / distance) * interceptor.speed * speedMultiplier;
+                interceptor.y += (dy / distance) * interceptor.speed * speedMultiplier;
+                
+                // Iranian missiles have unpredictable movement patterns
+                if (interceptor.type === 'iranian') {
+                    if (Math.random() < 0.15) { // More erratic movement (was 0.1)
+                        interceptor.x += (Math.random() - 0.5) * 2.5;
+                        interceptor.y += (Math.random() - 0.5) * 2.5;
+                    }
+                    
+                    // Boost towards target as they get closer
+                    if (distance < 150 && interceptor.homingStrength) {
+                        const homing = interceptor.homingStrength * (1 - (distance / 150));
+                        interceptor.x += (dx / distance) * homing;
+                        interceptor.y += (dy / distance) * homing;
+                    }
                 }
             }
             
@@ -754,16 +809,21 @@ class OperationRisingLion {
             
             // Check if Iranian missile hits Israeli base
             if (interceptor.type === 'iranian') {
-                // Check for collision with Israeli launch platform
+                // More lenient collision detection for Iranian missiles with the Israeli base
+                // Increased collision area to make hits more reliable
+                const expandedCollisionBuffer = 30; // pixels of extra collision area
                 if (!this.launchPlatform.destroyed &&
-                    interceptor.x > this.launchPlatform.x &&
-                    interceptor.x < this.launchPlatform.x + this.launchPlatform.width &&
-                    interceptor.y > this.launchPlatform.y - 20 &&
-                    interceptor.y < this.launchPlatform.y + this.launchPlatform.height) {
+                    interceptor.x > this.launchPlatform.x - expandedCollisionBuffer &&
+                    interceptor.x < this.launchPlatform.x + this.launchPlatform.width + expandedCollisionBuffer &&
+                    interceptor.y > this.launchPlatform.y - expandedCollisionBuffer &&
+                    interceptor.y < this.launchPlatform.y + this.launchPlatform.height + expandedCollisionBuffer) {
                     
                     this.hitIsraeliBase(interceptor);
                     this.interceptors.splice(iIndex, 1);
                     interceptorHit = true;
+                    
+                    // Add visual feedback for the hit
+                    this.createExplosion(interceptor.x, interceptor.y, 25);
                     continue;
                 }
             }
@@ -2013,7 +2073,11 @@ OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
     );
     
     // Add screen shake
-    this.addScreenShake(10, 300);
+    this.screenShake = {
+        intensity: 10,
+        duration: 30,
+        current: 0
+    };
     
     // Check if the base is destroyed
     if (this.launchPlatform.health <= 0) {
