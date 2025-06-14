@@ -31,13 +31,15 @@ class OperationRisingLion {
         this.aircrafts = [];
         this.screenShake = null;
         
-        // Sara Netanyahu image
+        // Load images
         this.saraImage = null;
+        this.haminaiImage = null;
         this.loadSaraImage();
+        this.loadHaminaiImage();
         
-        // Targets
+        // Targets - Iranian Nuclear Facilities
         this.targets = {
-            nataz: {
+            natanz: {
                 x: 950,
                 y: 400,
                 width: 80,
@@ -45,9 +47,9 @@ class OperationRisingLion {
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Nataz Facility'
+                name: 'Natanz Facility'
             },
-            bohasher: {
+            fordow: {
                 x: 1050,
                 y: 350,
                 width: 60,
@@ -55,7 +57,77 @@ class OperationRisingLion {
                 health: 100,
                 maxHealth: 100,
                 destroyed: false,
-                name: 'Bohasher Complex'
+                name: 'Fordow Complex'
+            },
+            arak: {
+                x: 850,
+                y: 430,
+                width: 70,
+                height: 110,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Arak (IR-40) Reactor'
+            },
+            esfahan: {
+                x: 1000,
+                y: 250,
+                width: 65,
+                height: 90,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Esfahan (Isfahan) Facility'
+            },
+            bushehr: {
+                x: 1150,
+                y: 380,
+                width: 90,
+                height: 130,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Bushehr Nuclear Power Plant'
+            },
+            tehran: {
+                x: 900,
+                y: 280,
+                width: 55,
+                height: 85,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Tehran Research Reactor'
+            },
+            saghand: {
+                x: 750,
+                y: 350,
+                width: 50,
+                height: 70,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Saghand Uranium Mine'
+            },
+            gchine: {
+                x: 800,
+                y: 500,
+                width: 50,
+                height: 70,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Gchine Uranium Mine'
+            },
+            ardakan: {
+                x: 700,
+                y: 450,
+                width: 65,
+                height: 85,
+                health: 100,
+                maxHealth: 100,
+                destroyed: false,
+                name: 'Ardakan Yellowcake Plant'
             }
         };
         
@@ -200,10 +272,10 @@ class OperationRisingLion {
             this.stats = { shotsFired: 0, hits: 0, targetsDestroyed: 0 };
             
             // Ensure targets are properly initialized
-            if (!this.targets || !this.targets.nataz || !this.targets.bohasher) {
+            if (!this.targets || Object.keys(this.targets).length === 0) {
                 console.log('Targets not properly initialized, reinitializing...');
                 this.targets = {
-                    nataz: {
+                    natanz: {
                         x: 950,
                         y: 400,
                         width: 80,
@@ -211,9 +283,9 @@ class OperationRisingLion {
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Nataz Facility'
+                        name: 'Natanz Facility'
                     },
-                    bohasher: {
+                    fordow: {
                         x: 1050,
                         y: 350,
                         width: 60,
@@ -221,7 +293,77 @@ class OperationRisingLion {
                         health: 100,
                         maxHealth: 100,
                         destroyed: false,
-                        name: 'Bohasher Complex'
+                        name: 'Fordow Complex'
+                    },
+                    arak: {
+                        x: 850,
+                        y: 430,
+                        width: 70,
+                        height: 110,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Arak (IR-40) Reactor'
+                    },
+                    esfahan: {
+                        x: 1000,
+                        y: 250,
+                        width: 65,
+                        height: 90,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Esfahan (Isfahan) Facility'
+                    },
+                    bushehr: {
+                        x: 1150,
+                        y: 380,
+                        width: 90,
+                        height: 130,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Bushehr Nuclear Power Plant'
+                    },
+                    tehran: {
+                        x: 900,
+                        y: 280,
+                        width: 55,
+                        height: 85,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Tehran Research Reactor'
+                    },
+                    saghand: {
+                        x: 750,
+                        y: 350,
+                        width: 50,
+                        height: 70,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Saghand Uranium Mine'
+                    },
+                    gchine: {
+                        x: 800,
+                        y: 500,
+                        width: 50,
+                        height: 70,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Gchine Uranium Mine'
+                    },
+                    ardakan: {
+                        x: 700,
+                        y: 450,
+                        width: 65,
+                        height: 85,
+                        health: 100,
+                        maxHealth: 100,
+                        destroyed: false,
+                        name: 'Ardakan Yellowcake Plant'
                     }
                 };
             } else {
@@ -883,11 +1025,28 @@ class OperationRisingLion {
             this.stats.targetsDestroyed++;
             this.score += 500; // Destruction bonus
             this.createAtomicExplosion(target.x + target.width/2, target.y + target.height/2);
+            
+            // Show the Haminai image for 2 seconds when a facility is destroyed
+            this.showHaminaiImage();
         } else {
             this.createExplosion(projectile.x, projectile.y, 40);
         }
         
         this.safelyUpdateHUD();
+    }
+    
+    // Function to display the Haminai image when a facility is destroyed
+    showHaminaiImage() {
+        const haminaiContainer = document.getElementById('haminaiContainer');
+        if (!haminaiContainer) return;
+        
+        // Show the image
+        haminaiContainer.classList.remove('hidden');
+        
+        // Hide it after 2 seconds
+        setTimeout(() => {
+            haminaiContainer.classList.add('hidden');
+        }, 2000);
     }
     
     calculateDamage(weaponType) {
@@ -1092,7 +1251,7 @@ class OperationRisingLion {
         const victoryImageContainer = document.getElementById('victoryImageContainer');
         
         if (victory) {
-            resultDiv.textContent = 'All nuclear facilities neutralized!';
+            resultDiv.textContent = 'All 9 Iranian nuclear facilities neutralized!';
             // Show Sara image when player wins
             victoryImageContainer.classList.remove('hidden');
         } else if (this.launchPlatform && this.launchPlatform.destroyed) {
@@ -1943,6 +2102,68 @@ class OperationRisingLion {
     }
 }
 
+// Implement Sara Netanyahu image loading with proper fallback
+OperationRisingLion.prototype.loadSaraImage = function() {
+    console.log('Loading Sara Netanyahu image...');
+    try {
+        // Create a new image object
+        this.saraImage = new Image();
+        
+        // Set up success handler
+        this.saraImage.onload = () => {
+            console.log('Sara Netanyahu image loaded successfully');
+        };
+        
+        // Set up error handler with fallback
+        this.saraImage.onerror = (error) => {
+            console.warn('Failed to load Sara Netanyahu image, will use drawn portrait fallback', error);
+            // Keep saraImage as null to trigger fallback
+            this.saraImage = null;
+        };            // Base64 string for the Sara Netanyahu photo
+            // Replace this with your actual base64 string generated from image-converter.html
+            // Example: const base64String = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBD...";
+            const base64String = ""; // Empty for now, user needs to add their own image
+        
+        // Only attempt to load if there's actually a base64 string
+        if (base64String && base64String.length > 0) {
+            this.saraImage.src = base64String.startsWith('data:image') ? 
+                base64String : 'data:image/jpeg;base64,' + base64String;
+        } else {
+            console.log('No base64 string provided for Sara Netanyahu image, using fallback');
+            this.saraImage = null;
+        }
+    } catch (error) {
+        console.error('Error in loadSaraImage:', error);
+        this.saraImage = null;
+    }
+};
+
+// Implement Haminai image loading for facility destruction
+OperationRisingLion.prototype.loadHaminaiImage = function() {
+    console.log('Loading Haminai image...');
+    try {
+        // Create a new image object
+        this.haminaiImage = new Image();
+        
+        // Set up success handler
+        this.haminaiImage.onload = () => {
+            console.log('Haminai image loaded successfully');
+        };
+        
+        // Set up error handler
+        this.haminaiImage.onerror = (error) => {
+            console.warn('Failed to load Haminai image', error);
+            this.haminaiImage = null;
+        };
+        
+        // Set the source of the image
+        this.haminaiImage.src = 'images/haminai.png';
+    } catch (error) {
+        console.error('Error in loadHaminaiImage:', error);
+        this.haminaiImage = null;
+    }
+};
+
 // Initialize game when page loads
 function initGame() {
     console.log('Initializing game...');
@@ -2024,42 +2245,6 @@ window.forceStartGame = function() {
         window.game.startGame();
     } else {
         console.error('Game instance not found!');
-    }
-};
-
-// Implement Sara Netanyahu image loading with proper fallback
-OperationRisingLion.prototype.loadSaraImage = function() {
-    console.log('Loading Sara Netanyahu image...');
-    try {
-        // Create a new image object
-        this.saraImage = new Image();
-        
-        // Set up success handler
-        this.saraImage.onload = () => {
-            console.log('Sara Netanyahu image loaded successfully');
-        };
-        
-        // Set up error handler with fallback
-        this.saraImage.onerror = (error) => {
-            console.warn('Failed to load Sara Netanyahu image, will use drawn portrait fallback', error);
-            // Keep saraImage as null to trigger fallback
-            this.saraImage = null;
-        };            // Base64 string for the Sara Netanyahu photo
-            // Replace this with your actual base64 string generated from image-converter.html
-            // Example: const base64String = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBD...";
-            const base64String = ""; // Empty for now, user needs to add their own image
-        
-        // Only attempt to load if there's actually a base64 string
-        if (base64String && base64String.length > 0) {
-            this.saraImage.src = base64String.startsWith('data:image') ? 
-                base64String : 'data:image/jpeg;base64,' + base64String;
-        } else {
-            console.log('No base64 string provided for Sara Netanyahu image, using fallback');
-            this.saraImage = null;
-        }
-    } catch (error) {
-        console.error('Error in loadSaraImage:', error);
-        this.saraImage = null;
     }
 };
 
