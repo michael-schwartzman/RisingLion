@@ -910,7 +910,7 @@ class OperationRisingLion {
     
     checkCollisions() {
         // Ensure targets exist before checking collisions
-        if (!this.targets || !this.targets.nataz || !this.targets.bohasher) {
+        if (!this.targets || Object.keys(this.targets).length === 0) {
             return;
         }
         
@@ -1272,21 +1272,22 @@ class OperationRisingLion {
         document.getElementById('timer').textContent = this.timeLeft;
         
         // Update target health bars
-        const natazHealth = document.getElementById('natazHealth');
-        const bohasherHealth = document.getElementById('bohasherHealth');
         const israeliBaseHealth = document.getElementById('israeliBaseHealth');
         
-        // Add null checks to prevent errors
-        if (this.targets && this.targets.nataz && natazHealth) {
-            const natazPercent = (this.targets.nataz.health / this.targets.nataz.maxHealth) * 100;
-            natazHealth.style.width = natazPercent + '%';
-            this.updateHealthBarColor(natazHealth, natazPercent);
-        }
-        
-        if (this.targets && this.targets.bohasher && bohasherHealth) {
-            const bohasherPercent = (this.targets.bohasher.health / this.targets.bohasher.maxHealth) * 100;
-            bohasherHealth.style.width = bohasherPercent + '%';
-            this.updateHealthBarColor(bohasherHealth, bohasherPercent);
+        // Update health bars for all targets
+        if (this.targets) {
+            // Loop through all targets and update their health bars
+            Object.keys(this.targets).forEach(targetKey => {
+                const target = this.targets[targetKey];
+                const healthBarId = targetKey + 'Health';
+                const healthBar = document.getElementById(healthBarId);
+                
+                if (target && healthBar) {
+                    const healthPercent = (target.health / target.maxHealth) * 100;
+                    healthBar.style.width = healthPercent + '%';
+                    this.updateHealthBarColor(healthBar, healthPercent);
+                }
+            });
         }
         
         // Update Israeli base health
@@ -2171,10 +2172,10 @@ function initGame() {
         window.game = new OperationRisingLion();
         
         // Perform a validation check on critical game objects
-        if (!window.game.targets || !window.game.targets.nataz || !window.game.targets.bohasher) {
+        if (!window.game.targets || Object.keys(window.game.targets).length === 0) {
             console.warn('Game targets not properly initialized, attempting to fix...');
             window.game.targets = {
-                nataz: {
+                natanz: {
                     x: 950,
                     y: 400,
                     width: 80,
@@ -2182,9 +2183,9 @@ function initGame() {
                     health: 100,
                     maxHealth: 100,
                     destroyed: false,
-                    name: 'Nataz Facility'
+                    name: 'Natanz Facility'
                 },
-                bohasher: {
+                fordow: {
                     x: 1050,
                     y: 350,
                     width: 60,
@@ -2192,7 +2193,77 @@ function initGame() {
                     health: 100,
                     maxHealth: 100,
                     destroyed: false,
-                    name: 'Bohasher Complex'
+                    name: 'Fordow Complex'
+                },
+                arak: {
+                    x: 850,
+                    y: 430,
+                    width: 70,
+                    height: 110,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Arak (IR-40) Reactor'
+                },
+                esfahan: {
+                    x: 1000,
+                    y: 250,
+                    width: 65,
+                    height: 90,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Esfahan (Isfahan) Facility'
+                },
+                bushehr: {
+                    x: 1150,
+                    y: 380,
+                    width: 90,
+                    height: 130,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Bushehr Nuclear Power Plant'
+                },
+                tehran: {
+                    x: 900,
+                    y: 280,
+                    width: 55,
+                    height: 85,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Tehran Research Reactor'
+                },
+                saghand: {
+                    x: 750,
+                    y: 350,
+                    width: 50,
+                    height: 70,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Saghand Uranium Mine'
+                },
+                gchine: {
+                    x: 800,
+                    y: 500,
+                    width: 50,
+                    height: 70,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Gchine Uranium Mine'
+                },
+                ardakan: {
+                    x: 700,
+                    y: 450,
+                    width: 65,
+                    height: 85,
+                    health: 100,
+                    maxHealth: 100,
+                    destroyed: false,
+                    name: 'Ardakan Yellowcake Plant'
                 }
             };
         }

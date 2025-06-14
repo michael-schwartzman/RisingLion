@@ -329,9 +329,10 @@ body {
 }
 
 .hud-center {
-    flex: 2;
+    flex: 3;
     display: flex;
     justify-content: center;
+    max-height: 70px;
 }
 
 .stats {
@@ -349,23 +350,27 @@ body {
 }
 
 .target-status {
-    display: flex;
-    gap: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-height: 70px;
+    overflow-y: auto;
 }
 
 .target {
     color: white;
     text-align: center;
     font-weight: bold;
+    font-size: 0.8rem;
 }
 
 .health-bar {
-    width: 100px;
-    height: 8px;
+    width: 70px;
+    height: 6px;
     background: rgba(255, 255, 255, 0.3);
     border-radius: 4px;
     overflow: hidden;
-    margin-top: 5px;
+    margin-top: 2px;
     border: 1px solid #333;
 }
 
