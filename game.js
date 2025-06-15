@@ -2238,21 +2238,37 @@ OperationRisingLion.prototype.setupResponsiveCanvas = function() {
     if (!this.canvas) return;
     
     if (this.isMobile()) {
-        // Mobile setup - account for browser chrome and make fullscreen
+        // Mobile setup - maintain aspect ratio
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
+        const gameAspectRatio = 1200 / 700; // Original game aspect ratio
         
-        // Set canvas to full viewport size
-        this.canvas.width = viewportWidth;
-        this.canvas.height = viewportHeight;
-        this.canvas.style.width = `${viewportWidth}px`;
-        this.canvas.style.height = `${viewportHeight}px`;
+        // Calculate canvas size while maintaining aspect ratio
+        let canvasWidth, canvasHeight;
+        
+        if (viewportWidth / viewportHeight > gameAspectRatio) {
+            // Viewport is wider than game aspect ratio - fit to height
+            canvasHeight = viewportHeight;
+            canvasWidth = canvasHeight * gameAspectRatio;
+        } else {
+            // Viewport is taller than game aspect ratio - fit to width
+            canvasWidth = viewportWidth;
+            canvasHeight = canvasWidth / gameAspectRatio;
+        }
+        
+        // Set canvas logical size (game coordinates)
+        this.canvas.width = 1200;
+        this.canvas.height = 700;
+        
+        // Set canvas display size (what user sees)
+        this.canvas.style.width = `${canvasWidth}px`;
+        this.canvas.style.height = `${canvasHeight}px`;
         this.canvas.style.position = 'fixed';
-        this.canvas.style.top = '0px';
-        this.canvas.style.left = '0px';
+        this.canvas.style.top = `${(viewportHeight - canvasHeight) / 2}px`;
+        this.canvas.style.left = `${(viewportWidth - canvasWidth) / 2}px`;
         this.canvas.style.zIndex = '1';
         
-        // Hide HUD on mobile or overlay it
+        // Position HUD for mobile
         const hud = document.getElementById('hud');
         if (hud) {
             hud.style.position = 'fixed';
@@ -2260,9 +2276,10 @@ OperationRisingLion.prototype.setupResponsiveCanvas = function() {
             hud.style.left = '10px';
             hud.style.right = '10px';
             hud.style.zIndex = '10';
-            hud.style.background = 'rgba(0,0,0,0.7)';
-            hud.style.borderRadius = '5px';
-            hud.style.padding = '5px';
+            hud.style.background = 'rgba(0,0,0,0.8)';
+            hud.style.borderRadius = '8px';
+            hud.style.padding = '8px';
+            hud.style.fontSize = '14px';
         }
     } else {
         // Desktop setup
@@ -2271,6 +2288,8 @@ OperationRisingLion.prototype.setupResponsiveCanvas = function() {
         this.canvas.style.width = '1200px';
         this.canvas.style.height = '700px';
         this.canvas.style.position = 'relative';
+        this.canvas.style.top = 'auto';
+        this.canvas.style.left = 'auto';
         this.canvas.style.zIndex = '1';
         
         // Reset HUD for desktop
@@ -2284,10 +2303,11 @@ OperationRisingLion.prototype.setupResponsiveCanvas = function() {
             hud.style.background = 'transparent';
             hud.style.borderRadius = 'none';
             hud.style.padding = '0';
+            hud.style.fontSize = 'inherit';
         }
     }
     
-    console.log(`Canvas setup for ${this.isMobile() ? 'mobile' : 'desktop'}: ${this.canvas.width}x${this.canvas.height}`);
+    console.log(`Canvas setup for ${this.isMobile() ? 'mobile' : 'desktop'}: logical=${this.canvas.width}x${this.canvas.height}, display=${this.canvas.style.width}x${this.canvas.style.height}`);
 };
 
 OperationRisingLion.prototype.handleResize = function() {
