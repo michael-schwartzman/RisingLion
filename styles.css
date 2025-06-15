@@ -126,46 +126,44 @@ body {
 
 /* Israeli Flag */
 .israeli-flag {
-    background: 
-        /* Top blue stripe */
-        linear-gradient(to right, #0038b8 0%, #0038b8 100%) 0 15% / 100% 12% no-repeat,
-        /* Bottom blue stripe */
-        linear-gradient(to right, #0038b8 0%, #0038b8 100%) 0 73% / 100% 12% no-repeat,
-        /* White background */
-        white;
+    background: white;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
-/* Star of David using CSS triangles */
-.israeli-flag:not(.israeli-flag-mini)::before {
+/* Blue stripes for Israeli flag using gradient */
+.israeli-flag::before {
     content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom,
+        transparent 0%, transparent 15%,
+        #0038b8 15%, #0038b8 27%,
+        transparent 27%, transparent 73%,
+        #0038b8 73%, #0038b8 85%,
+        transparent 85%, transparent 100%);
+    z-index: 1;
+}
+
+/* Star of David - centered */
+.israeli-flag::after {
+    content: '✡';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 14px solid #0038b8;
-    z-index: 2;
-}
-
-.israeli-flag:not(.israeli-flag-mini)::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(180deg);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 14px solid #0038b8;
-    z-index: 2;
+    z-index: 3;
+    font-size: 24px;
+    line-height: 1;
+    color: #0038b8;
+    font-weight: bold;
+    text-shadow: 0 0 1px white, 0 0 2px white;
 }
 
 /* Iranian Flag */
@@ -196,18 +194,32 @@ body {
 }
 
 .israeli-flag-mini::before {
-    content: '●';
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom,
+        transparent 0%, transparent 15%,
+        #0038b8 15%, #0038b8 27%,
+        transparent 27%, transparent 73%,
+        #0038b8 73%, #0038b8 85%,
+        transparent 85%, transparent 100%);
+    z-index: 1;
+}
+
+.israeli-flag-mini::after {
+    content: '✡';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 8px;
-    color: #0038b8;
     z-index: 2;
-}
-
-.israeli-flag-mini::after {
-    content: none;
+    font-size: 12px;
+    line-height: 1;
+    color: #0038b8;
+    font-weight: bold;
 }
 
 .iranian-flag-mini {
@@ -913,4 +925,76 @@ body {
         min-height: 44px;
         min-width: 44px;
     }
+}
+
+/* Flag improvements for mobile */
+.israeli-flag::before {
+    font-size: 28px !important;
+    font-weight: bold;
+}
+
+.flag {
+    border: 2px solid #333 !important;
+}
+
+.flag-container {
+    margin: 20px 0;
+}
+
+.flag-container .flag {
+    width: 80px;
+    height: 48px;
+}
+
+/* Landscape Orientation Requirement */
+.landscape-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    color: white;
+}
+
+.prompt-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 350px;
+    background: rgba(231, 76, 60, 0.1);
+    border: 2px solid #e74c3c;
+    border-radius: 15px;
+}
+
+.rotate-icon {
+    font-size: 5rem;
+    margin-bottom: 25px;
+    animation: rotateDevice 2s ease-in-out infinite;
+}
+
+@keyframes rotateDevice {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+}
+
+.prompt-content h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.prompt-content p {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.prompt-content p strong {
+    color: #ffcc00;
+    font-size: 1.2rem;
 }

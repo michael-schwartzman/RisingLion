@@ -335,6 +335,11 @@ class OperationRisingLion {
         } else {
             console.error(`Screen element not found: ${screenId}`);
         }
+        
+        // Check orientation when showing main menu
+        if (screenId === 'mainMenu') {
+            setTimeout(() => this.checkOrientation(), 100);
+        }
     }
     
     startGame() {
@@ -2864,7 +2869,85 @@ OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
     this.safelyUpdateHUD();
 };
 
-// Mobile debugging and improvements
+// Orientation and landscape requirement for mobile
+OperationRisingLion.prototype.checkOrientation = function() {
+    console.log('checkOrientation called, isMobile:', this.isMobile());
+    
+    if (!this.isMobile()) return;
+    
+    const landscapePrompt = document.getElementById('landscapePrompt');
+    if (!landscapePrompt) {
+        console.log('Landscape prompt element not found!');
+        return;
+    }
+    
+    const isPortrait = window.innerHeight > window.innerWidth;
+    console.log('isPortrait:', isPortrait, 'dimensions:', window.innerWidth, 'x', window.innerHeight);
+    
+    if (isPortrait) {
+        console.log('Showing landscape prompt');
+        // Show landscape prompt and block all game interaction
+        landscapePrompt.classList.remove('hidden');
+        landscapePrompt.style.display = 'flex'; // Force display
+        
+        // Disable game canvas interaction
+        if (this.canvas) {
+            this.canvas.style.pointerEvents = 'none';
+        }
+        
+        // Hide other screens
+        document.querySelectorAll('.screen').forEach(screen => {
+            if (screen.id !== 'landscapePrompt') {
+                screen.classList.add('hidden');
+            }
+        });
+        
+        // Pause the game if it's running
+        if (this.gameState === 'playing') {
+            this.gameState = 'paused';
+        }
+    } else {
+        console.log('Hiding landscape prompt');
+        // Hide prompt and re-enable game
+        landscapePrompt.classList.add('hidden');
+        landscapePrompt.style.display = 'none';
+        
+        // Re-enable game canvas interaction
+        if (this.canvas) {
+            this.canvas.style.pointerEvents = 'auto';
+        }
+        
+        // Show main menu if no other screen is active
+        if (this.gameState === 'menu' || this.gameState === 'paused') {
+            this.showScreen('mainMenu');
+            if (this.gameState === 'paused') {
+                this.gameState = 'playing';
+            }
+        }
+    }
+};
+
+OperationRisingLion.prototype.setupOrientationHandling = function() {
+    if (!this.isMobile()) return;
+    
+    // Check orientation on load and resize
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            this.checkOrientation();
+            this.setupResponsiveCanvas();
+        }, 100);
+    });
+    
+    window.addEventListener('resize', () => {
+        this.checkOrientation();
+        this.setupResponsiveCanvas();
+    });
+    
+    // Initial check
+    this.checkOrientation();
+};
+
+// Debug function for mobile touch events
 OperationRisingLion.prototype.debugTouch = function(message, coords) {
     if (this.isMobile() && console && console.log) {
         console.log(`Touch Debug: ${message}`, coords);
