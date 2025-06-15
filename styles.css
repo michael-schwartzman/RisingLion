@@ -10,11 +10,20 @@ body {
     color: #333;
     overflow: hidden;
     height: 100vh;
+    /* Prevent zoom and scrolling on mobile */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 #gameContainer {
     height: 100vh;
     position: relative;
+    width: 100vw;
 }
 
 /* Screen Management */
@@ -418,6 +427,9 @@ body {
     border: 2px solid #e74c3c;
     cursor: crosshair;
     background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    /* Make canvas responsive */
+    max-width: 100%;
+    max-height: calc(100vh - 80px);
 }
 
 /* Power Meter */
@@ -548,22 +560,253 @@ body {
 }
 
 @media (max-width: 768px) {
+    /* Canvas and game area - override existing styles */
     #gameCanvas {
-        width: 100vw;
-        height: calc(100vh - 80px);
+        width: 100vw !important;
+        height: calc(100vh - 120px) !important;
+        top: 60px !important;
+        left: 0 !important;
+        border: 1px solid #e74c3c !important;
+        position: fixed !important;
+        touch-action: none;
+        cursor: default;
+    }
+    
+    /* HUD adjustments for mobile */
+    .hud {
+        height: 60px !important;
+        padding: 5px 10px !important;
+        font-size: 12px !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 1000 !important;
     }
     
     .hud-left, .hud-center, .hud-right {
         flex: 1;
+        min-width: 0;
     }
     
     .stats {
-        flex-direction: column;
-        gap: 5px;
+        flex-direction: row !important;
+        gap: 8px !important;
+        font-size: 11px !important;
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        font-size: 10px !important;
+        padding: 2px 4px !important;
+        white-space: nowrap;
     }
     
     .target-status {
-        flex-direction: column;
+        flex-direction: row !important;
+        gap: 8px !important;
+        font-size: 11px !important;
+        flex-wrap: wrap;
+    }
+    
+    /* Menu adjustments */
+    .menu-content {
+        padding: 20px;
+        max-width: 90%;
+    }
+    
+    .menu-content h1 {
+        font-size: 2rem !important;
+        margin-bottom: 15px;
+    }
+    
+    .flag-container {
+        gap: 15px;
+        margin: 15px 0;
+    }
+    
+    .flag {
+        width: 80px !important;
+        height: 50px !important;
+    }
+    
+    .vs {
+        font-size: 1.2rem;
+    }
+    
+    .menu-buttons {
         gap: 10px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 15px 25px !important;
+        font-size: 16px !important;
+        min-width: 150px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    /* Screen content adjustments */
+    .screen-content {
+        padding: 15px;
+        margin: 10px;
+        max-height: 85vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .screen-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .instructions-content {
+        gap: 15px;
+        font-size: 14px;
+        grid-template-columns: 1fr !important;
+    }
+    
+    .objective {
+        grid-column: span 1 !important;
+    }
+    
+    .objective ul {
+        padding-left: 15px;
+    }
+    
+    .objective li {
+        margin-bottom: 5px;
+    }
+    
+    /* Controls section for mobile */
+    .controls {
+        font-size: 14px;
+    }
+    
+    .controls ul {
+        padding-left: 15px;
+    }
+    
+    /* Power meter mobile */
+    #powerMeter {
+        bottom: 10px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+        width: 200px;
+    }
+    
+    /* Victory/Game Over screens */
+    .victory-image, .defeat-image {
+        margin: 10px auto;
+    }
+    
+    .victory-portrait, .defeat-portrait {
+        max-width: 200px;
+    }
+    
+    /* Results display */
+    .results {
+        gap: 8px;
+        font-size: 14px;
+    }
+    
+    .result-item {
+        font-size: 13px;
+    }
+    
+    /* Weapon selector */
+    #weaponControls {
+        font-size: 12px;
+    }
+    
+    #weaponType {
+        font-size: 16px !important;
+        padding: 8px 12px !important;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra small screens (phones) */
+    .menu-content h1 {
+        font-size: 1.8rem !important;
+    }
+    
+    .flag {
+        width: 70px !important;
+        height: 45px !important;
+    }
+    
+    .flag-container {
+        gap: 10px;
+    }
+    
+    .vs {
+        font-size: 1rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+        min-width: 130px;
+    }
+    
+    .hud {
+        height: 50px !important;
+        font-size: 10px !important;
+        padding: 3px 8px !important;
+    }
+    
+    #gameCanvas {
+        height: calc(100vh - 100px) !important;
+        top: 50px !important;
+    }
+    
+    .stats {
+        gap: 5px !important;
+    }
+    
+    .stat-item {
+        font-size: 9px !important;
+        padding: 1px 3px !important;
+    }
+    
+    #powerMeter {
+        width: 180px !important;
+        padding: 6px 10px !important;
+        font-size: 11px !important;
+    }
+    
+    .screen-content {
+        padding: 10px;
+        margin: 5px;
+        font-size: 13px;
+    }
+    
+    .victory-portrait, .defeat-portrait {
+        max-width: 150px;
+    }
+}
+
+/* Touch-friendly interactive elements */
+@media (hover: none) and (pointer: coarse) {
+    /* Mobile touch devices */
+    .btn-primary:hover, .btn-secondary:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+    
+    /* Remove cursor pointer on touch devices */
+    #gameCanvas {
+        cursor: default !important;
+    }
+    
+    /* Ensure touch targets are large enough */
+    button, select, input {
+        min-height: 44px;
+        min-width: 44px;
     }
 }

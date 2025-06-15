@@ -51,7 +51,8 @@ jobs:
           action: "upload"
           app_location: "/"
           api_location: ""
-          output_location: ""
+          output_location: "."
+          skip_app_build: true
 
       - name: Handle deployment failure
         if: steps.check_token.outputs.skip_deploy == 'false' && steps.builddeploy.outcome == 'failure'
@@ -80,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Close Pull Request Job
     steps:
-      - name: Check if Azure token exists
+      - name: Check if Azure token exists and is valid
         id: check_token
         env:
           AZURE_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
@@ -88,6 +89,11 @@ jobs:
           if [ -z "$AZURE_TOKEN" ] || [ "$AZURE_TOKEN" = "" ]; then
             echo "Azure token is not set, skipping close operation"
             echo "skip_close=true" >> $GITHUB_OUTPUT
+            echo "reason=missing_token" >> $GITHUB_OUTPUT
+          elif [ ${#AZURE_TOKEN} -lt 10 ]; then
+            echo "Azure token appears to be invalid (too short), skipping close operation"
+            echo "skip_close=true" >> $GITHUB_OUTPUT
+            echo "reason=invalid_token" >> $GITHUB_OUTPUT
           else
             echo "Azure token is set, proceeding with close operation"
             echo "skip_close=false" >> $GITHUB_OUTPUT
@@ -100,10 +106,23 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "close"
           app_location: "/"
+          skip_app_build: true
+
+      - name: Handle close failure
+        if: steps.check_token.outputs.skip_close == 'false' && steps.closepullrequest.outcome == 'failure'
+        run: |
+          echo "::warning::Azure Static Web Apps close operation failed"
+          echo "::notice::This is likely due to an invalid API token or missing Azure Static Web App resource"
+          echo "::notice::The close operation is not critical and can be safely ignored"
 
       - name: Skip Close Message
         if: steps.check_token.outputs.skip_close == 'true'
         run: |
-          echo "::notice::Pull request close operation skipped - Azure Static Web Apps API token not configured"
+          if [ "${{ steps.check_token.outputs.reason }}" = "missing_token" ]; then
+            echo "::notice::Close operation skipped - Azure Static Web Apps API token not configured"
+          elif [ "${{ steps.check_token.outputs.reason }}" = "invalid_token" ]; then
+            echo "::notice::Close operation skipped - Azure Static Web Apps API token appears invalid"
+          fi
