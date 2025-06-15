@@ -148,6 +148,14 @@ class OperationRisingLion {
             targetsDestroyed: 0
         };
         
+        // Progressive difficulty system
+        this.currentLevel = 1;
+        this.maxLevel = 7; // One for each facility
+        this.levelStartTime = 0;
+        this.levelDuration = 30; // 30 seconds per level initially
+        this.difficultyMultiplier = 1.0;
+        this.speedMultiplier = 1.0;
+        
         this.init();
     }
     
@@ -163,14 +171,14 @@ class OperationRisingLion {
             this.setupEventListeners();
             console.log('Event listeners set up');
             
-            // Setup orientation handling for mobile
+            // Set up orientation handling for mobile
             this.setupOrientationHandling();
+            console.log('Orientation handling set up');
             
             // Force immediate orientation check on mobile
             if (this.isMobile()) {
-                setTimeout(() => this.checkOrientation(), 50);
+                setTimeout(() => this.checkOrientation(), 100);
             }
-            console.log('Orientation handling set up');
             
             // Add resize listener for responsive behavior
             window.addEventListener('resize', () => this.handleResize());
@@ -350,6 +358,18 @@ class OperationRisingLion {
             this.score = 0;
             this.timeLeft = 180;
             this.stats = { shotsFired: 0, hits: 0, targetsDestroyed: 0 };
+            
+            // Initialize progressive difficulty system
+            this.currentLevel = 1;
+            this.levelStartTime = 0;
+            this.difficultyMultiplier = 1.0;
+            this.speedMultiplier = 1.0;
+            
+            // Reset all facilities to non-destroyed state
+            Object.keys(this.targets).forEach(key => {
+                this.targets[key].destroyed = false;
+                this.targets[key].health = this.targets[key].maxHealth;
+            });
             
             // Ensure targets are properly initialized
             if (!this.targets || Object.keys(this.targets).length === 0) {
@@ -793,6 +813,10 @@ class OperationRisingLion {
     update() {
         if (this.gameState !== 'playing') return;
         
+        // Progressive difficulty updates
+        this.checkLevelProgression();
+        this.updateDifficulty();
+        
         this.updateProjectiles();
         this.updateInterceptors();
         this.updateAircrafts();
@@ -806,9 +830,9 @@ class OperationRisingLion {
     
     updateProjectiles() {
         this.projectiles = this.projectiles.filter(projectile => {
-            // Update position
-            projectile.x += projectile.vx;
-            projectile.y += projectile.vy;
+            // Update position with speed multiplier
+            projectile.x += projectile.vx * this.speedMultiplier;
+            projectile.y += projectile.vy * this.speedMultiplier;
             
             // Apply gravity
             if (projectile.type !== 'cruise') {
@@ -1031,6 +1055,9 @@ class OperationRisingLion {
             return;
         }
         
+        // Get only active facilities for current level
+        const activeFacilities = this.getActiveFacilities();
+        
         // Projectile vs Target collisions - use reverse loop to avoid index issues
         for (let pIndex = this.projectiles.length - 1; pIndex >= 0; pIndex--) {
             if (pIndex >= this.projectiles.length || pIndex < 0) continue;
@@ -1040,7 +1067,8 @@ class OperationRisingLion {
             
             let projectileHit = false;
             
-            Object.values(this.targets).forEach(target => {
+            // Only check collisions with ACTIVE facilities
+            Object.values(activeFacilities).forEach(target => {
                 if (target.destroyed || projectileHit) return;
                 
                 if (projectile.x > target.x && 
@@ -1341,9 +1369,11 @@ class OperationRisingLion {
             return;
         }
         
-        const allTargetsDestroyed = Object.values(this.targets).every(target => target.destroyed);
+        // Check victory: all facilities destroyed AND reached max level
+        const activeFacilities = this.getActiveFacilities();
+        const allActiveTargetsDestroyed = Object.values(activeFacilities).every(target => target.destroyed);
         
-        if (allTargetsDestroyed) {
+        if (allActiveTargetsDestroyed && this.currentLevel >= this.maxLevel) {
             this.endGame(true);
         }
         
@@ -1419,14 +1449,20 @@ class OperationRisingLion {
         document.getElementById('score').textContent = this.score;
         document.getElementById('timer').textContent = this.timeLeft;
         
-        // Update target health bars
-        const israeliBaseHealth = document.getElementById('israeliBaseHealth');
+        // Update level display
+        const levelDisplay = document.getElementById('levelDisplay');
+        if (levelDisplay) {
+            levelDisplay.textContent = this.currentLevel || 1;
+        }
         
-        // Update health bars for all targets
-        if (this.targets) {
-            // Loop through all targets and update their health bars
-            Object.keys(this.targets).forEach(targetKey => {
-                const target = this.targets[targetKey];
+        // Update target health bars only for active facilities
+        const israeliBaseHealth = document.getElementById('israeliBaseHealth');
+        const activeFacilities = this.getActiveFacilities();
+        
+        // Update health bars for active targets only
+        if (activeFacilities) {
+            Object.keys(activeFacilities).forEach(targetKey => {
+                const target = activeFacilities[targetKey];
                 const healthBarId = targetKey + 'Health';
                 const healthBar = document.getElementById(healthBarId);
                 
@@ -1434,8 +1470,30 @@ class OperationRisingLion {
                     const healthPercent = (target.health / target.maxHealth) * 100;
                     healthBar.style.width = healthPercent + '%';
                     this.updateHealthBarColor(healthBar, healthPercent);
+                    
+                    // Show active facility health bars
+                    const facilityContainer = healthBar.closest('.facility-health');
+                    if (facilityContainer) {
+                        facilityContainer.style.display = 'block';
+                    }
                 }
             });
+            
+            // Hide inactive facility health bars
+            if (this.targets) {
+                Object.keys(this.targets).forEach(targetKey => {
+                    if (!activeFacilities[targetKey]) {
+                        const healthBarId = targetKey + 'Health';
+                        const healthBar = document.getElementById(healthBarId);
+                        if (healthBar) {
+                            const facilityContainer = healthBar.closest('.facility-health');
+                            if (facilityContainer) {
+                                facilityContainer.style.display = 'none';
+                            }
+                        }
+                    }
+                });
+            }
         }
         
         // Update Israeli base health
@@ -1512,6 +1570,7 @@ class OperationRisingLion {
             this.drawExplosions();
             this.drawParticles();
             this.drawAimingLine();
+            this.drawLevelIndicator(); // Draw the level indicator
         }
         
         if (this.screenShake) {
@@ -1807,7 +1866,10 @@ class OperationRisingLion {
     }
     
     drawTargets() {
-        Object.values(this.targets).forEach(target => {
+        // Only draw active facilities based on current level
+        const activeFacilities = this.getActiveFacilities();
+        
+        Object.values(activeFacilities).forEach(target => {
             if (target.destroyed) {
                 // Draw destroyed facility with radiation area
                 this.ctx.fillStyle = '#333';
@@ -1835,6 +1897,9 @@ class OperationRisingLion {
                 this.drawNuclearFacility(target);
             }
         });
+        
+        // Draw level indicator
+        this.drawLevelIndicator();
     }
     
     drawNuclearFacility(target) {
@@ -2244,6 +2309,29 @@ class OperationRisingLion {
         );
     }
     
+    // Draw level indicator on screen
+    drawLevelIndicator() {
+        this.ctx.save();
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(10, 10, 200, 60);
+        
+        this.ctx.strokeStyle = '#e74c3c';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(10, 10, 200, 60);
+        
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 16px Arial';
+        this.ctx.fillText(`LEVEL ${this.currentLevel}`, 20, 30);
+        
+        this.ctx.font = '12px Arial';
+        this.ctx.fillText(`Facilities: ${Object.keys(this.getActiveFacilities()).length}/${this.maxLevel}`, 20, 45);
+        
+        this.ctx.fillStyle = '#ffd700';
+        this.ctx.fillText(`Difficulty: ${Math.round(this.difficultyMultiplier * 100)}%`, 20, 60);
+        
+        this.ctx.restore();
+    }
+
     gameLoop() {
         this.update();
         this.render();
@@ -2338,6 +2426,201 @@ OperationRisingLion.prototype.handleResize = function() {
     if (this.gameState === 'playing') {
         this.safelyUpdateHUD();
     }
+};
+
+// Orientation and landscape requirement for mobile
+OperationRisingLion.prototype.checkOrientation = function() {
+    console.log('checkOrientation called, isMobile:', this.isMobile());
+    
+    if (!this.isMobile()) return;
+    
+    const landscapePrompt = document.getElementById('landscapePrompt');
+    if (!landscapePrompt) {
+        console.log('Landscape prompt element not found!');
+        return;
+    }
+    
+    const isPortrait = window.innerHeight > window.innerWidth;
+    console.log('isPortrait:', isPortrait, 'dimensions:', window.innerWidth, 'x', window.innerHeight);
+    
+    if (isPortrait) {
+        console.log('Showing landscape prompt');
+        // Show landscape prompt and block all game interaction
+        landscapePrompt.classList.remove('hidden');
+        landscapePrompt.style.display = 'flex'; // Force display
+        
+        // Disable game canvas interaction
+        if (this.canvas) {
+            this.canvas.style.pointerEvents = 'none';
+        }
+        
+        // Hide other screens
+        document.querySelectorAll('.screen').forEach(screen => {
+            if (screen.id !== 'landscapePrompt') {
+                screen.classList.add('hidden');
+            }
+        });
+        
+        // Pause the game if it's running
+        if (this.gameState === 'playing') {
+            this.gameState = 'paused';
+        }
+    } else {
+        console.log('Hiding landscape prompt');
+        // Hide prompt and re-enable game
+        landscapePrompt.classList.add('hidden');
+        landscapePrompt.style.display = 'none';
+        
+        // Re-enable game canvas interaction
+        if (this.canvas) {
+            this.canvas.style.pointerEvents = 'auto';
+        }
+        
+        // Show main menu if no other screen is active
+        if (this.gameState === 'menu' || this.gameState === 'paused') {
+            this.showScreen('mainMenu');
+            if (this.gameState === 'paused') {
+                this.gameState = 'playing';
+            }
+        }
+    }
+};
+
+OperationRisingLion.prototype.setupOrientationHandling = function() {
+    if (!this.isMobile()) return;
+    
+    // Check orientation on load and resize
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            this.checkOrientation();
+            this.setupResponsiveCanvas();
+        }, 100);
+    });
+    
+    window.addEventListener('resize', () => {
+        this.checkOrientation();
+        this.setupResponsiveCanvas();
+    });
+    
+    // Initial check
+    this.checkOrientation();
+};
+
+// Progressive difficulty - facility unlock order
+OperationRisingLion.prototype.getFacilityUnlockOrder = function() {
+    return [
+        'natanz',     // Level 1 - Start with Natanz
+        'fordow',     // Level 2 - Add Fordow
+        'arak',       // Level 3 - Add Arak
+        'esfahan',    // Level 4 - Add Esfahan
+        'bushehr',    // Level 5 - Add Bushehr
+        'tehran',     // Level 6 - Add Tehran Research
+        'ardakan'     // Level 7 - Add Ardakan (final level)
+    ];
+};
+
+// Get active facilities based on current level
+OperationRisingLion.prototype.getActiveFacilities = function() {
+    const unlockOrder = this.getFacilityUnlockOrder();
+    const activeFacilities = {};
+    
+    // Unlock facilities progressively based on current level
+    for (let i = 0; i < Math.min(this.currentLevel, unlockOrder.length); i++) {
+        const facilityKey = unlockOrder[i];
+        if (this.targets[facilityKey]) {
+            activeFacilities[facilityKey] = this.targets[facilityKey];
+        }
+    }
+    
+    // Debug logging
+    console.log(`Current level: ${this.currentLevel}, Active facilities:`, Object.keys(activeFacilities));
+    
+    return activeFacilities;
+};
+
+// Update difficulty based on level and time
+OperationRisingLion.prototype.updateDifficulty = function() {
+    // Base difficulty increases with level
+    this.difficultyMultiplier = 1.0 + (this.currentLevel - 1) * 0.3;
+    
+    // Speed increases with level and time
+    const timeElapsed = 180 - this.timeLeft; // Total time elapsed
+    const timeBasedIncrease = timeElapsed / 60; // Increase every minute
+    this.speedMultiplier = 1.0 + (this.currentLevel - 1) * 0.2 + timeBasedIncrease * 0.1;
+    
+    // Apply difficulty to defense systems
+    this.defenseSystems.forEach(system => {
+        if (system.originalCooldown === undefined) {
+            system.originalCooldown = system.maxCooldown;
+            system.originalAccuracy = system.accuracy;
+        }
+        
+        // Faster defense systems at higher levels
+        system.maxCooldown = Math.max(10, system.originalCooldown / this.difficultyMultiplier);
+        // More accurate defense systems
+        system.accuracy = Math.min(0.95, system.originalAccuracy * (1 + (this.currentLevel - 1) * 0.1));
+    });
+};
+
+// Check if level should advance
+OperationRisingLion.prototype.checkLevelProgression = function() {
+    if (this.gameState !== 'playing') return;
+    
+    const activeFacilities = this.getActiveFacilities();
+    const activeCount = Object.keys(activeFacilities).length;
+    const destroyedCount = Object.values(activeFacilities).filter(f => f.destroyed).length;
+    
+    // Debug logging
+    console.log(`Level ${this.currentLevel}: ${destroyedCount}/${activeCount} facilities destroyed`);
+    console.log('Active facilities:', Object.keys(activeFacilities));
+    console.log('Destroyed facilities:', Object.keys(activeFacilities).filter(key => activeFacilities[key].destroyed));
+    
+    // Level complete when all active facilities are destroyed
+    if (destroyedCount === activeCount && this.currentLevel < this.maxLevel) {
+        console.log(`Level ${this.currentLevel} complete! Advancing to level ${this.currentLevel + 1}`);
+        this.advanceLevel();
+    }
+};
+
+// Advance to next level
+OperationRisingLion.prototype.advanceLevel = function() {
+    this.currentLevel++;
+    this.levelStartTime = 180 - this.timeLeft;
+    
+    // Bonus score for completing level
+    this.score += 500 * this.currentLevel;
+    
+    // Show level advance notification
+    this.showLevelAdvanceNotification();
+    
+    // Update difficulty
+    this.updateDifficulty();
+    
+    // Add time bonus for higher levels
+    this.timeLeft += Math.min(30, 10 + this.currentLevel * 2);
+    
+    console.log(`Advanced to level ${this.currentLevel}`);
+};
+
+// Show level advancement notification
+OperationRisingLion.prototype.showLevelAdvanceNotification = function() {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'level-notification';
+    notification.innerHTML = `
+        <h2>LEVEL ${this.currentLevel}</h2>
+        <p>New target facility activated!</p>
+        <p>+${500 * this.currentLevel} Bonus Points</p>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
 };
 
 // Implement Sara Netanyahu image loading with proper fallback
