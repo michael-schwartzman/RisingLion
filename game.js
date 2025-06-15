@@ -155,9 +155,19 @@ class OperationRisingLion {
         // Wait for DOM to be fully loaded before setting up event listeners
         console.log('Initializing game elements...');
         try {
+            // Set up responsive canvas
+            this.setupResponsiveCanvas();
+            console.log('Canvas setup complete');
+            
             // Always set up the event listeners
             this.setupEventListeners();
             console.log('Event listeners set up');
+            
+            // Add resize listener for responsive behavior
+            window.addEventListener('resize', () => this.handleResize());
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => this.handleResize(), 500); // Delay for orientation change
+            });
             
             // Show main menu
             this.showScreen('mainMenu');
@@ -226,11 +236,45 @@ class OperationRisingLion {
                 backToMainMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
             }
             
-            // Canvas events
+            // Canvas events - Mouse and Touch support
             if (this.canvas) {
+                // Mouse events
                 this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
                 this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
                 this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+                
+                // Touch events for mobile
+                this.canvas.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousedown', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.handleMouseDown(mouseEvent);
+                });
+                
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent('mousemove', {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY
+                    });
+                    this.handleMouseMove(mouseEvent);
+                });
+                
+                this.canvas.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    const mouseEvent = new MouseEvent('mouseup', {
+                        clientX: 0,
+                        clientY: 0
+                    });
+                    this.handleMouseUp(mouseEvent);
+                });
+                
+                // Prevent context menu on long press
+                this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
             }
             
             // Keyboard events
@@ -2162,6 +2206,46 @@ class OperationRisingLion {
         requestAnimationFrame(() => this.gameLoop());
     }
 }
+
+// Mobile detection and responsive setup
+OperationRisingLion.prototype.isMobile = function() {
+    return window.innerWidth <= 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+};
+
+OperationRisingLion.prototype.setupResponsiveCanvas = function() {
+    if (!this.canvas) return;
+    
+    if (this.isMobile()) {
+        // Mobile setup
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const hudHeight = 60;
+        
+        this.canvas.width = viewportWidth;
+        this.canvas.height = viewportHeight - hudHeight - 20;
+        this.canvas.style.width = `${viewportWidth}px`;
+        this.canvas.style.height = `${viewportHeight - hudHeight - 20}px`;
+        this.canvas.style.top = `${hudHeight}px`;
+        this.canvas.style.left = '0px';
+        this.canvas.style.position = 'fixed';
+    } else {
+        // Desktop setup
+        this.canvas.width = 1200;
+        this.canvas.height = 700;
+        this.canvas.style.width = '1200px';
+        this.canvas.style.height = '700px';
+    }
+    
+    console.log(`Canvas setup for ${this.isMobile() ? 'mobile' : 'desktop'}: ${this.canvas.width}x${this.canvas.height}`);
+};
+
+OperationRisingLion.prototype.handleResize = function() {
+    this.setupResponsiveCanvas();
+    // Adjust game elements for new size if needed
+    if (this.gameState === 'playing') {
+        this.safelyUpdateHUD();
+    }
+};
 
 // Implement Sara Netanyahu image loading with proper fallback
 OperationRisingLion.prototype.loadSaraImage = function() {
