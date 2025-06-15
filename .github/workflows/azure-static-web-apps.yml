@@ -1,0 +1,128 @@
+name: Azure Static Web Apps CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - main
+      - development
+
+jobs:
+  build_and_deploy_job:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy Job
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Check if Azure token exists and is valid
+        id: check_token
+        env:
+          AZURE_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+        run: |
+          if [ -z "$AZURE_TOKEN" ] || [ "$AZURE_TOKEN" = "" ]; then
+            echo "Azure token is not set, skipping deployment"
+            echo "skip_deploy=true" >> $GITHUB_OUTPUT
+            echo "reason=missing_token" >> $GITHUB_OUTPUT
+          elif [ ${#AZURE_TOKEN} -lt 10 ]; then
+            echo "Azure token appears to be invalid (too short), skipping deployment"
+            echo "skip_deploy=true" >> $GITHUB_OUTPUT
+            echo "reason=invalid_token" >> $GITHUB_OUTPUT
+          else
+            echo "Azure token is set, proceeding with deployment"
+            echo "skip_deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build And Deploy
+        id: builddeploy
+        if: steps.check_token.outputs.skip_deploy == 'false'
+        continue-on-error: true
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "/"
+          api_location: ""
+          output_location: "."
+          skip_app_build: true
+
+      - name: Handle deployment failure
+        if: steps.check_token.outputs.skip_deploy == 'false' && steps.builddeploy.outcome == 'failure'
+        run: |
+          echo "::warning::Azure Static Web Apps deployment failed"
+          echo "::notice::This is likely due to an invalid API token or missing Azure Static Web App resource"
+          echo "::notice::To fix this:"
+          echo "::notice::1. Create an Azure Static Web App resource in the Azure portal"
+          echo "::notice::2. Get the deployment token from the resource"
+          echo "::notice::3. Add it as AZURE_STATIC_WEB_APPS_API_TOKEN in repository secrets"
+          echo "::notice::4. Or remove/disable this workflow if Azure deployment is not needed"
+
+      - name: Skip Deploy Message
+        if: steps.check_token.outputs.skip_deploy == 'true'
+        run: |
+          if [ "${{ steps.check_token.outputs.reason }}" = "missing_token" ]; then
+            echo "::notice::Deployment skipped - Azure Static Web Apps API token not configured"
+            echo "::notice::To deploy this app, add AZURE_STATIC_WEB_APPS_API_TOKEN to repository secrets"
+          elif [ "${{ steps.check_token.outputs.reason }}" = "invalid_token" ]; then
+            echo "::notice::Deployment skipped - Azure Static Web Apps API token appears invalid"
+            echo "::notice::Please check the token in repository secrets"
+          fi
+
+  close_pull_request_job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Check if Azure token exists and is valid
+        id: check_token
+        env:
+          AZURE_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+        run: |
+          if [ -z "$AZURE_TOKEN" ] || [ "$AZURE_TOKEN" = "" ]; then
+            echo "Azure token is not set, skipping close operation"
+            echo "skip_close=true" >> $GITHUB_OUTPUT
+            echo "reason=missing_token" >> $GITHUB_OUTPUT
+          elif [ ${#AZURE_TOKEN} -lt 10 ]; then
+            echo "Azure token appears to be invalid (too short), skipping close operation"
+            echo "skip_close=true" >> $GITHUB_OUTPUT
+            echo "reason=invalid_token" >> $GITHUB_OUTPUT
+          else
+            echo "Azure token is set, proceeding with close operation"
+            echo "skip_close=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Close Pull Request
+        id: closepullrequest
+        if: steps.check_token.outputs.skip_close == 'false'
+        continue-on-error: true
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "close"
+          app_location: "/"
+          skip_app_build: true
+
+      - name: Handle close failure
+        if: steps.check_token.outputs.skip_close == 'false' && steps.closepullrequest.outcome == 'failure'
+        run: |
+          echo "::warning::Azure Static Web Apps close operation failed"
+          echo "::notice::This is likely due to an invalid API token or missing Azure Static Web App resource"
+          echo "::notice::The close operation is not critical and can be safely ignored"
+
+      - name: Skip Close Message
+        if: steps.check_token.outputs.skip_close == 'true'
+        run: |
+          if [ "${{ steps.check_token.outputs.reason }}" = "missing_token" ]; then
+            echo "::notice::Close operation skipped - Azure Static Web Apps API token not configured"
+          elif [ "${{ steps.check_token.outputs.reason }}" = "invalid_token" ]; then
+            echo "::notice::Close operation skipped - Azure Static Web Apps API token appears invalid"
+          fi

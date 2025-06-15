@@ -1,0 +1,152 @@
+# .clinerules - Operation Rising Lion Project Intelligence
+
+## Project-Specific Patterns
+
+### User Working Style
+- **Comprehensive approach**: Prefers complete, fully-functional solutions over incremental builds
+- **Documentation focused**: Values thorough documentation and memory systems
+- **Visual authenticity**: Strong emphasis on realistic visual representation and effects
+- **Quality oriented**: Willing to iterate on bugs and performance issues until perfect
+- **Thematic consistency**: Maintains focus on specific narrative and character elements
+
+### Critical Implementation Paths
+
+#### Canvas Game Development
+```javascript
+// Essential pattern for stable game loops
+gameLoop() {
+    try {
+        this.update();
+        this.render();
+    } catch (error) {
+        console.error('Game loop error:', error);
+        // Graceful recovery
+    }
+    requestAnimationFrame(() => this.gameLoop());
+}
+```
+
+#### Array Management in Real-Time Systems
+```javascript
+// CRITICAL: Always iterate backwards when removing during loops
+for (let i = array.length - 1; i >= 0; i--) {
+    if (shouldRemove(array[i])) {
+        array.splice(i, 1);
+    }
+}
+```
+
+#### Event Listener Safety Pattern
+```javascript
+// Essential for web game stability
+const element = document.getElementById('id');
+if (element && typeof element.addEventListener === 'function') {
+    element.addEventListener('event', handler.bind(this));
+} else {
+    console.warn('Element not found, creating debug access');
+    window.debugFunction = () => handler();
+}
+```
+
+### Known Challenges & Solutions
+
+#### Character Photo Integration
+- **Challenge**: Converting real photos to base64 for web integration
+- **Solution**: Dedicated image-converter.html utility with clear instructions
+- **Pattern**: Always provide fallback drawn portraits for graceful degradation
+- **User workflow**: User must manually convert and update base64 string
+
+#### Performance in Browser Games
+- **Memory management**: Filter arrays frequently, limit particle counts
+- **Rendering optimization**: Skip off-screen objects, batch similar operations
+- **Error boundaries**: Wrap critical functions in try-catch blocks
+- **Debug access**: Provide console functions for troubleshooting
+
+#### Complex Visual Effects
+- **Atomic explosions**: Multi-phase state machine with careful timing
+- **Screen shake**: Context translation with intensity decay
+- **Particle systems**: Pool objects when possible, strict lifetime management
+- **Animation coordination**: Sync effects with game events for impact
+
+### Evolution of Project Decisions
+
+#### Architecture Evolution
+1. **Initial**: Simple script with global functions
+2. **Refined**: Single class with method organization
+3. **Final**: Comprehensive error handling and debug systems
+
+#### Visual Design Evolution
+1. **Basic**: Simple shapes and colors
+2. **Enhanced**: Detailed nuclear facilities and character portraits
+3. **Polished**: Realistic explosions and dynamic effects
+
+#### Documentation Evolution
+1. **Minimal**: Basic README approach
+2. **Expanded**: Comprehensive technical documentation  
+3. **Structured**: Full memory bank system with hierarchy
+
+### Tool Usage Patterns
+
+#### Development Workflow
+- **Direct browser testing**: No build tools, immediate feedback loop
+- **Console debugging**: Heavy reliance on browser dev tools
+- **Incremental testing**: Test each feature immediately after implementation
+- **Documentation first**: Update memory bank before code changes
+
+#### File Organization
+- **Single directory**: Keep all files in root for simplicity
+- **Clear naming**: Descriptive filenames that indicate purpose
+- **Utility separation**: Dedicated tools like image-converter.html
+- **Memory bank**: Structured documentation in separate directory
+
+### User Preferences
+
+#### Code Style
+- **Vanilla JavaScript**: No external dependencies preferred
+- **Comprehensive comments**: Explain complex algorithms and decisions
+- **Error handling**: Defensive programming with try-catch blocks
+- **Consistent formatting**: Uniform style throughout codebase
+
+#### Feature Priorities
+1. **Core functionality**: Get basic game working first
+2. **Visual polish**: Add compelling effects and animations
+3. **Character integration**: Authentic representation of key figures
+4. **Stability**: Fix all bugs and edge cases
+5. **Documentation**: Complete memory system for future work
+
+#### Communication Style
+- **Technical detail**: Appreciates thorough explanations
+- **Problem-solving focused**: Wants solutions, not just analysis
+- **Quality emphasis**: Prefers taking time to get things right
+- **Context preservation**: Values comprehensive documentation
+
+### Critical Success Factors
+
+#### Technical
+- **Performance**: Must maintain 60fps during gameplay
+- **Stability**: Zero crashes during normal operation
+- **Compatibility**: Work across modern browsers without issues
+- **Maintainability**: Clean code with clear documentation
+
+#### Experiential  
+- **Intuitive controls**: Users understand immediately
+- **Visual satisfaction**: Effects feel impactful and realistic
+- **Balanced challenge**: Difficult but fair gameplay
+- **Authentic representation**: Accurate visual and thematic elements
+
+#### Project Management
+- **Complete solutions**: Deliver fully working features
+- **Comprehensive documentation**: Memory bank system maintenance
+- **Quality focus**: Fix issues thoroughly rather than quickly
+- **Future-proofing**: Code and docs support future enhancements
+
+## Learning Notes
+
+This project demonstrates the user's preference for:
+- High-quality, complete implementations over rapid prototypes
+- Thorough documentation and memory systems for complex projects
+- Visual authenticity and attention to thematic detail
+- Robust error handling and defensive programming practices
+- Comprehensive testing and bug resolution before considering features complete
+
+The memory bank structure itself shows a preference for organized, hierarchical documentation that provides complete context for future work sessions.

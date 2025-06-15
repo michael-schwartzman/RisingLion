@@ -1,0 +1,11 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "rising-lion": {
+      "appLocation": ".",
+      "outputLocation": ".",
+      "appName": "rising-lion-2",
+      "resourceGroup": "rising-lion-2-rg"
+    }
+  }
+}
