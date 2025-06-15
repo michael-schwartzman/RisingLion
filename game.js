@@ -243,35 +243,46 @@ class OperationRisingLion {
                 this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
                 this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
                 
-                // Touch events for mobile
+                // Touch events for mobile with proper coordinate handling
                 this.canvas.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     const touch = e.touches[0];
-                    const mouseEvent = new MouseEvent('mousedown', {
+                    const coords = this.getCanvasCoordinates(touch.clientX, touch.clientY);
+                    this.debugTouch('touchstart', { raw: {x: touch.clientX, y: touch.clientY}, canvas: coords });
+                    
+                    const mouseEvent = {
                         clientX: touch.clientX,
-                        clientY: touch.clientY
-                    });
+                        clientY: touch.clientY,
+                        preventDefault: () => {}
+                    };
                     this.handleMouseDown(mouseEvent);
-                });
+                }, { passive: false });
                 
                 this.canvas.addEventListener('touchmove', (e) => {
                     e.preventDefault();
                     const touch = e.touches[0];
-                    const mouseEvent = new MouseEvent('mousemove', {
+                    const coords = this.getCanvasCoordinates(touch.clientX, touch.clientY);
+                    this.debugTouch('touchmove', { raw: {x: touch.clientX, y: touch.clientY}, canvas: coords });
+                    
+                    const mouseEvent = {
                         clientX: touch.clientX,
-                        clientY: touch.clientY
-                    });
+                        clientY: touch.clientY,
+                        preventDefault: () => {}
+                    };
                     this.handleMouseMove(mouseEvent);
-                });
+                }, { passive: false });
                 
                 this.canvas.addEventListener('touchend', (e) => {
                     e.preventDefault();
-                    const mouseEvent = new MouseEvent('mouseup', {
+                    this.debugTouch('touchend', { released: true });
+                    
+                    const mouseEvent = {
                         clientX: 0,
-                        clientY: 0
-                    });
+                        clientY: 0,
+                        preventDefault: () => {}
+                    };
                     this.handleMouseUp(mouseEvent);
-                });
+                }, { passive: false });
                 
                 // Prevent context menu on long press
                 this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -513,12 +524,23 @@ class OperationRisingLion {
         }, 3000 + Math.random() * 2000);
     }
     
+    getCanvasCoordinates(clientX, clientY) {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        
+        return {
+            x: (clientX - rect.left) * scaleX,
+            y: (clientY - rect.top) * scaleY
+        };
+    }
+    
     handleMouseDown(e) {
         if (this.gameState !== 'playing') return;
         
-        const rect = this.canvas.getBoundingClientRect();
-        this.aimStartX = e.clientX - rect.left;
-        this.aimStartY = e.clientY - rect.top;
+        const coords = this.getCanvasCoordinates(e.clientX, e.clientY);
+        this.aimStartX = coords.x;
+        this.aimStartY = coords.y;
         this.isAiming = true;
         
         document.getElementById('powerMeter').classList.remove('hidden');
@@ -527,9 +549,9 @@ class OperationRisingLion {
     handleMouseMove(e) {
         if (!this.isAiming) return;
         
-        const rect = this.canvas.getBoundingClientRect();
-        this.aimEndX = e.clientX - rect.left;
-        this.aimEndY = e.clientY - rect.top;
+        const coords = this.getCanvasCoordinates(e.clientX, e.clientY);
+        this.aimEndX = coords.x;
+        this.aimEndY = coords.y;
         
         // Update power meter
         const distance = Math.sqrt(
@@ -2216,24 +2238,53 @@ OperationRisingLion.prototype.setupResponsiveCanvas = function() {
     if (!this.canvas) return;
     
     if (this.isMobile()) {
-        // Mobile setup
+        // Mobile setup - account for browser chrome and make fullscreen
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        const hudHeight = 60;
         
+        // Set canvas to full viewport size
         this.canvas.width = viewportWidth;
-        this.canvas.height = viewportHeight - hudHeight - 20;
+        this.canvas.height = viewportHeight;
         this.canvas.style.width = `${viewportWidth}px`;
-        this.canvas.style.height = `${viewportHeight - hudHeight - 20}px`;
-        this.canvas.style.top = `${hudHeight}px`;
-        this.canvas.style.left = '0px';
+        this.canvas.style.height = `${viewportHeight}px`;
         this.canvas.style.position = 'fixed';
+        this.canvas.style.top = '0px';
+        this.canvas.style.left = '0px';
+        this.canvas.style.zIndex = '1';
+        
+        // Hide HUD on mobile or overlay it
+        const hud = document.getElementById('hud');
+        if (hud) {
+            hud.style.position = 'fixed';
+            hud.style.top = '10px';
+            hud.style.left = '10px';
+            hud.style.right = '10px';
+            hud.style.zIndex = '10';
+            hud.style.background = 'rgba(0,0,0,0.7)';
+            hud.style.borderRadius = '5px';
+            hud.style.padding = '5px';
+        }
     } else {
         // Desktop setup
         this.canvas.width = 1200;
         this.canvas.height = 700;
         this.canvas.style.width = '1200px';
         this.canvas.style.height = '700px';
+        this.canvas.style.position = 'relative';
+        this.canvas.style.zIndex = '1';
+        
+        // Reset HUD for desktop
+        const hud = document.getElementById('hud');
+        if (hud) {
+            hud.style.position = 'relative';
+            hud.style.top = 'auto';
+            hud.style.left = 'auto';
+            hud.style.right = 'auto';
+            hud.style.zIndex = 'auto';
+            hud.style.background = 'transparent';
+            hud.style.borderRadius = 'none';
+            hud.style.padding = '0';
+        }
     }
     
     console.log(`Canvas setup for ${this.isMobile() ? 'mobile' : 'desktop'}: ${this.canvas.width}x${this.canvas.height}`);
@@ -2491,4 +2542,11 @@ OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
     
     // Update HUD
     this.safelyUpdateHUD();
+};
+
+// Mobile debugging and improvements
+OperationRisingLion.prototype.debugTouch = function(message, coords) {
+    if (this.isMobile() && console && console.log) {
+        console.log(`Touch Debug: ${message}`, coords);
+    }
 };
