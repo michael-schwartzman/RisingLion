@@ -12,6 +12,16 @@
 </head>
 <body>
     <div id="gameContainer">
+        <!-- Landscape orientation requirement for mobile -->
+        <div id="landscapePrompt" class="landscape-prompt hidden">
+            <div class="prompt-content">
+                <div class="rotate-icon">📱 ↻</div>
+                <h3>Landscape Mode Required</h3>
+                <p>This game requires landscape orientation for optimal mobile gameplay.</p>
+                <p><strong>Please rotate your device to continue.</strong></p>
+            </div>
+        </div>
+
         <!-- Main Menu -->
         <div id="mainMenu" class="screen">
             <div class="menu-content">
@@ -88,6 +98,7 @@
                 <div class="hud-left">
                     <div class="flag-mini israeli-flag-mini"></div>
                     <div class="stats">
+                        <div>Level: <span id="levelDisplay">1</span></div>
                         <div>Score: <span id="score">0</span></div>
                         <div>Time: <span id="timer">180</span>s</div>
                     </div>

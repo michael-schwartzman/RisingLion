@@ -126,41 +126,45 @@ body {
 
 /* Israeli Flag */
 .israeli-flag {
-    background: white;
-}
-
-.israeli-flag::before {
-    content: '';
-    position: absolute;
-    top: 12px;
-    left: 0;
-    right: 0;
-    height: 8px;
-    background: #0038b8;
-}
-
-.israeli-flag::after {
-    content: '';
-    position: absolute;
-    bottom: 12px;
-    left: 0;
-    right: 0;
-    height: 8px;
-    background: #0038b8;
-}
-
-/* Star of David for Israeli flag */
-.israeli-flag {
+    background: 
+        /* Top blue stripe */
+        linear-gradient(to right, #0038b8 0%, #0038b8 100%) 0 15% / 100% 12% no-repeat,
+        /* Bottom blue stripe */
+        linear-gradient(to right, #0038b8 0%, #0038b8 100%) 0 73% / 100% 12% no-repeat,
+        /* White background */
+        white;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+/* Star of David using CSS triangles */
 .israeli-flag:not(.israeli-flag-mini)::before {
-    content: '✡';
+    content: '';
     position: absolute;
-    font-size: 24px;
-    color: #0038b8;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 14px solid #0038b8;
+    z-index: 2;
+}
+
+.israeli-flag:not(.israeli-flag-mini)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(180deg);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 14px solid #0038b8;
     z-index: 2;
 }
 
@@ -178,28 +182,32 @@ body {
 }
 
 .israeli-flag-mini {
-    background: white;
+    background: 
+        /* Top blue stripe */
+        linear-gradient(to right, #0038b8 0%, #0038b8 100%) 0 3px / 100% 2px no-repeat,
+        /* Bottom blue stripe */
+        linear-gradient(to right, #0038b8 0%, #0038b8 100%) 0 calc(100% - 5px) / 100% 2px no-repeat,
+        /* White background */
+        white;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .israeli-flag-mini::before {
-    content: '';
+    content: '●';
     position: absolute;
-    top: 3px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #0038b8;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 8px;
+    color: #0038b8;
+    z-index: 2;
 }
 
 .israeli-flag-mini::after {
-    content: '';
-    position: absolute;
-    bottom: 3px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #0038b8;
+    content: none;
 }
 
 .iranian-flag-mini {
@@ -521,6 +529,40 @@ body {
     justify-content: center;
 }
 
+/* Level progression notification */
+.level-notification {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
+    z-index: 9999;
+    text-align: center;
+    border: 3px solid #ffffff;
+    animation: levelNotificationPulse 0.5s ease-in-out;
+}
+
+.level-notification h2 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.level-notification p {
+    font-size: 1.2rem;
+    margin: 5px 0;
+}
+
+@keyframes levelNotificationPulse {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
 /* Animations */
 @keyframes explosion {
     0% { transform: scale(0); opacity: 1; }
@@ -545,6 +587,59 @@ body {
 
 .shake {
     animation: shake 0.5s ease-in-out;
+}
+
+/* Landscape Orientation Requirement */
+.landscape-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    color: white;
+}
+
+.prompt-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 350px;
+    background: rgba(231, 76, 60, 0.1);
+    border: 2px solid #e74c3c;
+    border-radius: 15px;
+}
+
+.rotate-icon {
+    font-size: 5rem;
+    margin-bottom: 25px;
+    animation: rotateDevice 2s ease-in-out infinite;
+}
+
+@keyframes rotateDevice {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+}
+
+.prompt-content h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.prompt-content p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+/* Hide the prompt by default */
+.landscape-prompt.hidden {
+    display: none !important;
 }
 
 /* Responsive Design */
