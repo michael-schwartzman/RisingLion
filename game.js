@@ -1,3 +1,221 @@
+// Sound Manager for generating and playing audio effects
+class SoundManager {
+    constructor() {
+        this.audioContext = null;
+        this.masterGainNode = null;
+        this.backgroundMusic = null;
+        this.backgroundMusicGain = null;
+        this.initAudio();
+    }
+    
+    initAudio() {
+        try {
+            // Initialize Web Audio API
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            this.masterGainNode = this.audioContext.createGain();
+            this.masterGainNode.connect(this.audioContext.destination);
+            
+            // Background music gain node
+            this.backgroundMusicGain = this.audioContext.createGain();
+            this.backgroundMusicGain.gain.value = 0.3; // Lower volume for background music
+            this.backgroundMusicGain.connect(this.masterGainNode);
+            
+            console.log('Sound system initialized');
+        } catch (error) {
+            console.log('Web Audio not supported, falling back to silence');
+        }
+    }
+    
+    // Resume audio context if needed (for browser autoplay policies)
+    resumeAudio() {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+        }
+    }
+    
+    // Create a simple tone with specified frequency, duration, and wave type
+    createTone(frequency, duration, waveType = 'sine', volume = 0.3) {
+        if (!this.audioContext) return;
+        
+        const oscillator = this.audioContext.createOscillator();
+        const gainNode = this.audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        
+        oscillator.frequency.value = frequency;
+        oscillator.type = waveType;
+        
+        // Attack and release envelope for smoother sound
+        const now = this.audioContext.currentTime;
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(volume, now + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        
+        oscillator.start(now);
+        oscillator.stop(now + duration);
+    }
+    
+    // Create noise burst for explosion effects
+    createNoise(duration, volume = 0.2) {
+        if (!this.audioContext) return;
+        
+        const bufferSize = this.audioContext.sampleRate * duration;
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const output = buffer.getChannelData(0);
+        
+        // Generate white noise
+        for (let i = 0; i < bufferSize; i++) {
+            output[i] = (Math.random() * 2 - 1) * volume;
+        }
+        
+        const source = this.audioContext.createBufferSource();
+        const gainNode = this.audioContext.createGain();
+        
+        source.buffer = buffer;
+        source.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        
+        // Fade out the noise
+        const now = this.audioContext.currentTime;
+        gainNode.gain.setValueAtTime(volume, now);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+        
+        source.start(now);
+    }
+    
+    // Specific sound effects for the game
+    playMissileFireSound() {
+        this.resumeAudio();
+        // Whoosh sound: quick frequency sweep
+        this.createTone(800, 0.3, 'sawtooth', 0.2);
+        setTimeout(() => this.createTone(400, 0.2, 'sawtooth', 0.1), 100);
+    }
+    
+    playHitSound() {
+        this.resumeAudio();
+        // Satisfying ding sound
+        this.createTone(800, 0.3, 'sine', 0.3);
+        setTimeout(() => this.createTone(1200, 0.2, 'sine', 0.2), 100);
+    }
+    
+    playExplosionSound() {
+        this.resumeAudio();
+        // Big boom with noise and low frequency
+        this.createNoise(0.5, 0.3);
+        this.createTone(60, 0.4, 'sawtooth', 0.4);
+    }
+    
+    playTargetDestroyedSound() {
+        this.resumeAudio();
+        // Triumphant ascending notes
+        this.createTone(400, 0.2, 'square', 0.3);
+        setTimeout(() => this.createTone(600, 0.2, 'square', 0.3), 150);
+        setTimeout(() => this.createTone(800, 0.3, 'square', 0.3), 300);
+    }
+    
+    playMissSound() {
+        this.resumeAudio();
+        // Descending "aww" sound
+        this.createTone(300, 0.5, 'triangle', 0.2);
+        setTimeout(() => this.createTone(200, 0.3, 'triangle', 0.1), 200);
+    }
+    
+    playInterceptSound() {
+        this.resumeAudio();
+        // Quick zap sound
+        this.createTone(1500, 0.1, 'square', 0.2);
+        setTimeout(() => this.createTone(1000, 0.1, 'square', 0.1), 50);
+    }
+    
+    playBaseDamageSound() {
+        this.resumeAudio();
+        // Alarm-like sound
+        this.createTone(800, 0.2, 'square', 0.3);
+        setTimeout(() => this.createTone(600, 0.2, 'square', 0.3), 100);
+        setTimeout(() => this.createTone(800, 0.2, 'square', 0.3), 200);
+    }
+    
+    playVictorySound() {
+        this.resumeAudio();
+        // Victory fanfare
+        const notes = [523, 659, 784, 1047]; // C, E, G, C octave
+        notes.forEach((freq, index) => {
+            setTimeout(() => this.createTone(freq, 0.4, 'square', 0.3), index * 200);
+        });
+    }
+    
+    playDefeatSound() {
+        this.resumeAudio();
+        // Sad descending sound
+        this.createTone(400, 0.5, 'triangle', 0.3);
+        setTimeout(() => this.createTone(300, 0.5, 'triangle', 0.2), 300);
+        setTimeout(() => this.createTone(200, 0.8, 'triangle', 0.2), 600);
+    }
+    
+    // Background music - simple upbeat melody
+    startBackgroundMusic() {
+        if (!this.audioContext || this.backgroundMusic) return;
+        
+        this.backgroundMusic = true;
+        this.playBackgroundLoop();
+    }
+    
+    playBackgroundLoop() {
+        if (!this.backgroundMusic) return;
+        
+        this.resumeAudio();
+        
+        // Simple upbeat melody - C major scale pattern
+        const melody = [523, 587, 659, 523, 659, 784, 659, 523]; // C, D, E, C, E, G, E, C
+        const rhythm = [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.6]; // Note durations
+        
+        let currentTime = 0;
+        melody.forEach((freq, index) => {
+            setTimeout(() => {
+                if (this.backgroundMusic) {
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.backgroundMusicGain);
+                    
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'triangle';
+                    
+                    const now = this.audioContext.currentTime;
+                    const duration = rhythm[index];
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(0.1, now + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+                    
+                    oscillator.start(now);
+                    oscillator.stop(now + duration);
+                }
+            }, currentTime * 1000);
+            currentTime += rhythm[index] + 0.1; // Small gap between notes
+        });
+        
+        // Loop the melody
+        setTimeout(() => {
+            if (this.backgroundMusic) {
+                this.playBackgroundLoop();
+            }
+        }, (currentTime + 1) * 1000);
+    }
+    
+    stopBackgroundMusic() {
+        this.backgroundMusic = false;
+    }
+    
+    // Mute/unmute all sounds
+    setMuted(muted) {
+        if (this.masterGainNode) {
+            this.masterGainNode.gain.value = muted ? 0 : 1;
+        }
+    }
+}
+
 class OperationRisingLion {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -36,6 +254,10 @@ class OperationRisingLion {
         this.haminaiImage = null;
         this.loadSaraImage();
         this.loadHaminaiImage();
+        
+        // Sound system
+        this.soundManager = new SoundManager();
+        this.soundEnabled = true;
         
         // Targets - Iranian Nuclear Facilities
         this.targets = {
@@ -251,6 +473,26 @@ class OperationRisingLion {
             const backToMainMenuBtn = document.getElementById('backToMainMenu');
             if (backToMainMenuBtn) {
                 backToMainMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Settings screen event listeners
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            const soundToggle = document.getElementById('soundToggle');
+            if (soundToggle) {
+                soundToggle.addEventListener('change', (e) => {
+                    this.soundEnabled = e.target.checked;
+                    this.soundManager.setMuted(!this.soundEnabled);
+                    console.log('Sound', this.soundEnabled ? 'enabled' : 'disabled');
+                });
             }
             
             // Canvas events - Mouse and Touch support
@@ -517,6 +759,11 @@ class OperationRisingLion {
             this.startTimer();
             this.safelyUpdateHUD();
             console.log('Game started successfully');
+            
+            // Start background music
+            if (this.soundEnabled) {
+                this.soundManager.startBackgroundMusic();
+            }
         } catch (error) {
             console.error('Error starting game:', error);
         }
@@ -651,6 +898,11 @@ class OperationRisingLion {
         
         this.projectiles.push(projectile);
         this.stats.shotsFired++;
+        
+        // Play missile fire sound
+        if (this.soundEnabled) {
+            this.soundManager.playMissileFireSound();
+        }
         
         if (weapon.count !== Infinity) {
             weapon.count--;
@@ -1086,6 +1338,11 @@ class OperationRisingLion {
             if (!projectileHit && projectile.y > this.canvas.height - 100) {
                 this.createExplosion(projectile.x, projectile.y, 30);
                 this.projectiles.splice(pIndex, 1);
+                
+                // Play miss sound for ground hit
+                if (this.soundEnabled) {
+                    this.soundManager.playMissSound();
+                }
             }
         }
         
@@ -1144,6 +1401,11 @@ class OperationRisingLion {
                     this.interceptors.splice(iIndex, 1);
                     this.projectiles.splice(pIndex, 1);
                     interceptorHit = true;
+                    
+                    // Play intercept sound
+                    if (this.soundEnabled) {
+                        this.soundManager.playInterceptSound();
+                    }
                 }
             }
         }
@@ -1187,10 +1449,20 @@ class OperationRisingLion {
             this.score += 500; // Destruction bonus
             this.createAtomicExplosion(target.x + target.width/2, target.y + target.height/2);
             
+            // Play target destroyed sound
+            if (this.soundEnabled) {
+                this.soundManager.playTargetDestroyedSound();
+            }
+            
             // Show the Haminai image for 2 seconds when a facility is destroyed
             this.showHaminaiImage();
         } else {
             this.createExplosion(projectile.x, projectile.y, 40);
+            
+            // Play hit sound for damage
+            if (this.soundEnabled) {
+                this.soundManager.playHitSound();
+            }
         }
         
         this.safelyUpdateHUD();
@@ -1231,6 +1503,11 @@ class OperationRisingLion {
             life: 30,
             alpha: 1
         });
+        
+        // Play explosion sound
+        if (this.soundEnabled) {
+            this.soundManager.playExplosionSound();
+        }
         
         // Create particles
         for (let i = 0; i < 15; i++) {
@@ -1386,6 +1663,18 @@ class OperationRisingLion {
     endGame(victory = false) {
         console.log(`Ending game with victory=${victory}`);
         this.gameState = 'gameOver';
+        
+        // Play victory or defeat sound
+        if (this.soundEnabled) {
+            if (victory) {
+                this.soundManager.playVictorySound();
+            } else {
+                this.soundManager.playDefeatSound();
+            }
+        }
+        
+        // Stop background music
+        this.soundManager.stopBackgroundMusic();
         
         // Make sure timers are cleared
         if (this.gameTimer) {
@@ -2816,6 +3105,11 @@ OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
     // Apply increased damage to the Israeli base
     const damage = missile.damage || 20; // Increased base damage from 10 to 20
     this.launchPlatform.health -= damage;
+    
+    // Play base damage sound
+    if (this.soundEnabled) {
+        this.soundManager.playBaseDamageSound();
+    }
     
     // Update the score to reflect damage taken
     this.score = Math.max(0, this.score - Math.floor(damage * 5)); // Reduce score on hit
