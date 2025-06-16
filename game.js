@@ -123,13 +123,14 @@ class OperationRisingLion {
             name: 'Israeli Base'
         };
         
-        // Iranian offensive capabilities - increased speed and accuracy
+        // Iranian offensive capabilities - progressive difficulty
         this.iranianOffensive = {
             attackCooldown: 0,
-            missileSpeed: 5.5,     // Significantly faster (was 3)
-            accuracy: 0.95,        // Much more accurate (was 0.85)
-            attackFrequency: 2000, // More frequent attacks (was 3000ms)
-            baseAttackChance: 0.25 // Base chance of attack per cycle
+            missileSpeed: 2.0,     // Start slower, will increase with levels
+            accuracy: 0.3,         // Start less accurate, will increase with levels
+            attackFrequency: 5000, // Start with less frequent attacks
+            baseAttackChance: 0.0, // Start with no attacks (Level 1 tutorial)
+            enabled: false         // Disabled for tutorial level
         };
         
         // Defense systems - increased number and improved capabilities
@@ -497,10 +498,11 @@ class OperationRisingLion {
                 console.log('Resetting Iranian offensive systems');
                 this.iranianOffensive = {
                     attackCooldown: 0,
-                    missileSpeed: 5.5,     // Significantly faster (was 3)
-                    accuracy: 0.95,        // Much more accurate (was 0.85)
-                    attackFrequency: 2000, // More frequent attacks (was 3000ms)
-                    baseAttackChance: 0.25 // Base chance of attack per cycle
+                    missileSpeed: 2.0,     // Start slower
+                    accuracy: 0.3,         // Start less accurate
+                    attackFrequency: 5000, // Start with less frequent attacks
+                    baseAttackChance: 0.0, // Start with no attacks (Level 1 tutorial)
+                    enabled: false         // Disabled for tutorial level
                 };
             }
             
@@ -516,6 +518,10 @@ class OperationRisingLion {
             this.showScreen('gameScreen');
             this.startTimer();
             this.safelyUpdateHUD();
+            
+            // Initialize difficulty for level 1 (tutorial mode)
+            this.updateDifficulty();
+            
             console.log('Game started successfully');
         } catch (error) {
             console.error('Error starting game:', error);
@@ -771,6 +777,11 @@ class OperationRisingLion {
     }
     
     updateIranianOffensive() {
+        // Skip Iranian attacks if not enabled (tutorial level)
+        if (!this.iranianOffensive.enabled) {
+            return;
+        }
+        
         if (this.iranianOffensive.attackCooldown > 0) {
             this.iranianOffensive.attackCooldown -= 16.67; // Approximately 60fps
         } else if (this.gameState === 'playing' && !this.launchPlatform.destroyed) {
@@ -1453,6 +1464,24 @@ class OperationRisingLion {
         const levelDisplay = document.getElementById('levelDisplay');
         if (levelDisplay) {
             levelDisplay.textContent = this.currentLevel || 1;
+        }
+        
+        // Update difficulty display
+        const difficultyDisplay = document.getElementById('difficultyDisplay');
+        if (difficultyDisplay) {
+            let difficultyText = 'Tutorial';
+            if (this.currentLevel === 1) difficultyText = 'Tutorial';
+            else if (this.currentLevel === 2) difficultyText = 'Easy';
+            else if (this.currentLevel === 3) difficultyText = 'Moderate';
+            else if (this.currentLevel === 4) difficultyText = 'Hard';
+            else if (this.currentLevel === 5) difficultyText = 'Very Hard';
+            else if (this.currentLevel === 6) difficultyText = 'Expert';
+            else difficultyText = 'Master';
+            
+            difficultyDisplay.textContent = difficultyText;
+            
+            // Add color coding for difficulty
+            difficultyDisplay.className = 'difficulty-' + difficultyText.toLowerCase().replace(' ', '-');
         }
         
         // Update target health bars only for active facilities
@@ -2540,25 +2569,89 @@ OperationRisingLion.prototype.getActiveFacilities = function() {
 
 // Update difficulty based on level and time
 OperationRisingLion.prototype.updateDifficulty = function() {
-    // Base difficulty increases with level
-    this.difficultyMultiplier = 1.0 + (this.currentLevel - 1) * 0.3;
+    // Progressive difficulty scaling based on current level
+    console.log(`Updating difficulty for level ${this.currentLevel}`);
+    
+    if (this.currentLevel === 1) {
+        // Level 1: Tutorial mode - No Iranian attacks
+        this.iranianOffensive.enabled = false;
+        this.iranianOffensive.baseAttackChance = 0.0;
+        console.log('Level 1: Tutorial mode - No Iranian attacks');
+        
+    } else if (this.currentLevel === 2) {
+        // Level 2: Easy mode - Very weak attacks
+        this.iranianOffensive.enabled = true;
+        this.iranianOffensive.baseAttackChance = 0.05; // Very low attack chance
+        this.iranianOffensive.accuracy = 0.3;
+        this.iranianOffensive.missileSpeed = 2.0;
+        this.iranianOffensive.attackFrequency = 6000; // 6 seconds between attack attempts
+        console.log('Level 2: Easy mode - Weak Iranian attacks enabled');
+        
+    } else if (this.currentLevel === 3) {
+        // Level 3: Moderate difficulty
+        this.iranianOffensive.enabled = true;
+        this.iranianOffensive.baseAttackChance = 0.1;
+        this.iranianOffensive.accuracy = 0.5;
+        this.iranianOffensive.missileSpeed = 3.0;
+        this.iranianOffensive.attackFrequency = 4500;
+        console.log('Level 3: Moderate difficulty');
+        
+    } else if (this.currentLevel === 4) {
+        // Level 4: Getting harder
+        this.iranianOffensive.enabled = true;
+        this.iranianOffensive.baseAttackChance = 0.15;
+        this.iranianOffensive.accuracy = 0.65;
+        this.iranianOffensive.missileSpeed = 3.5;
+        this.iranianOffensive.attackFrequency = 3500;
+        console.log('Level 4: Increased difficulty');
+        
+    } else if (this.currentLevel === 5) {
+        // Level 5: Hard mode
+        this.iranianOffensive.enabled = true;
+        this.iranianOffensive.baseAttackChance = 0.2;
+        this.iranianOffensive.accuracy = 0.75;
+        this.iranianOffensive.missileSpeed = 4.0;
+        this.iranianOffensive.attackFrequency = 3000;
+        console.log('Level 5: Hard difficulty');
+        
+    } else if (this.currentLevel === 6) {
+        // Level 6: Very hard
+        this.iranianOffensive.enabled = true;
+        this.iranianOffensive.baseAttackChance = 0.25;
+        this.iranianOffensive.accuracy = 0.85;
+        this.iranianOffensive.missileSpeed = 4.5;
+        this.iranianOffensive.attackFrequency = 2500;
+        console.log('Level 6: Very hard difficulty');
+        
+    } else {
+        // Level 7+: Expert mode
+        this.iranianOffensive.enabled = true;
+        this.iranianOffensive.baseAttackChance = 0.3;
+        this.iranianOffensive.accuracy = 0.95;
+        this.iranianOffensive.missileSpeed = 5.0;
+        this.iranianOffensive.attackFrequency = 2000;
+        console.log('Level 7+: Expert difficulty');
+    }
+    
+    // Base difficulty increases with level for defense systems
+    this.difficultyMultiplier = 1.0 + (this.currentLevel - 1) * 0.2;
     
     // Speed increases with level and time
     const timeElapsed = 180 - this.timeLeft; // Total time elapsed
-    const timeBasedIncrease = timeElapsed / 60; // Increase every minute
-    this.speedMultiplier = 1.0 + (this.currentLevel - 1) * 0.2 + timeBasedIncrease * 0.1;
+    const timeBasedIncrease = timeElapsed / 120; // Slower increase every 2 minutes
+    this.speedMultiplier = 1.0 + (this.currentLevel - 1) * 0.15 + timeBasedIncrease * 0.05;
     
-    // Apply difficulty to defense systems
+    // Apply difficulty to defense systems (more gradually)
     this.defenseSystems.forEach(system => {
         if (system.originalCooldown === undefined) {
             system.originalCooldown = system.maxCooldown;
             system.originalAccuracy = system.accuracy;
         }
         
-        // Faster defense systems at higher levels
-        system.maxCooldown = Math.max(10, system.originalCooldown / this.difficultyMultiplier);
-        // More accurate defense systems
-        system.accuracy = Math.min(0.95, system.originalAccuracy * (1 + (this.currentLevel - 1) * 0.1));
+        // Gradually faster defense systems at higher levels
+        system.maxCooldown = Math.max(15, system.originalCooldown / (1 + (this.currentLevel - 1) * 0.1));
+        // Gradually more accurate defense systems
+        system.accuracy = Math.min(0.9, system.originalAccuracy * (1 + (this.currentLevel - 1) * 0.05));
     });
 };
 
@@ -2604,23 +2697,63 @@ OperationRisingLion.prototype.advanceLevel = function() {
 
 // Show level advancement notification
 OperationRisingLion.prototype.showLevelAdvanceNotification = function() {
+    // Determine difficulty level text and description
+    let difficultyInfo = {};
+    if (this.currentLevel === 1) {
+        difficultyInfo = {
+            name: 'Tutorial',
+            description: 'Learn the basics - No Iranian counterattacks'
+        };
+    } else if (this.currentLevel === 2) {
+        difficultyInfo = {
+            name: 'Easy',
+            description: 'Iranian forces begin weak counterattacks'
+        };
+    } else if (this.currentLevel === 3) {
+        difficultyInfo = {
+            name: 'Moderate',
+            description: 'Increased missile accuracy and frequency'
+        };
+    } else if (this.currentLevel === 4) {
+        difficultyInfo = {
+            name: 'Hard',
+            description: 'Faster missiles and better targeting'
+        };
+    } else if (this.currentLevel === 5) {
+        difficultyInfo = {
+            name: 'Very Hard',
+            description: 'Frequent accurate missile salvos'
+        };
+    } else if (this.currentLevel === 6) {
+        difficultyInfo = {
+            name: 'Expert',
+            description: 'Elite Iranian defense systems activated'
+        };
+    } else {
+        difficultyInfo = {
+            name: 'Master',
+            description: 'Maximum Iranian resistance - Stay alert!'
+        };
+    }
+    
     // Create notification element
     const notification = document.createElement('div');
     notification.className = 'level-notification';
     notification.innerHTML = `
-        <h2>LEVEL ${this.currentLevel}</h2>
+        <h2>LEVEL ${this.currentLevel} - ${difficultyInfo.name.toUpperCase()}</h2>
         <p>New target facility activated!</p>
-        <p>+${500 * this.currentLevel} Bonus Points</p>
+        <p class="difficulty-description">${difficultyInfo.description}</p>
+        <p class="bonus-points">+${500 * this.currentLevel} Bonus Points</p>
     `;
     
     document.body.appendChild(notification);
     
-    // Remove after 3 seconds
+    // Remove after 4 seconds (longer to read difficulty info)
     setTimeout(() => {
         if (notification.parentNode) {
             notification.parentNode.removeChild(notification);
         }
-    }, 3000);
+    }, 4000);
 };
 
 // Implement Sara Netanyahu image loading with proper fallback
