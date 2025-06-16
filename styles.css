@@ -65,9 +65,9 @@ body {
 /* Facility Destroyed Image Styles */
 .facility-destroyed-image {
     position: absolute;
-    top: 50%;
+    bottom: 10%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     z-index: 1000;
     text-align: center;
     pointer-events: none;
@@ -594,7 +594,7 @@ body {
 /* Level progression notification */
 .level-notification {
     position: fixed;
-    top: 50%;
+    top: 30%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: linear-gradient(45deg, #e74c3c, #c0392b);
@@ -778,6 +778,35 @@ body {
         flex-wrap: wrap;
     }
     
+    /* Mobile adjustments for level notification */
+    .level-notification {
+        top: 25%;
+        padding: 20px 25px;
+        max-width: 90%;
+    }
+    
+    .level-notification h2 {
+        font-size: 1.8rem;
+    }
+    
+    .level-notification p {
+        font-size: 1.0rem;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+    
+    /* Mobile adjustments for facility destroyed image */
+    .facility-destroyed-image {
+        bottom: 15%;
+    }
+    
+    .facility-destroyed-portrait {
+        max-width: 150px;
+    }
+    
     .stat-item {
         font-size: 10px !important;
         padding: 2px 4px !important;
@@ -918,7 +947,37 @@ body {
         font-size: 1.8rem !important;
     }
     
+    /* Smaller level notification for very small screens */
+    .level-notification {
+        top: 20%;
+        padding: 15px 20px;
+        max-width: 95%;
+    }
+    
+    .level-notification h2 {
+        font-size: 1.5rem;
+    }
+    
+    .level-notification p {
+        font-size: 0.9rem;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+    }
+    
+    /* Smaller facility destroyed image */
+    .facility-destroyed-image {
+        bottom: 20%;
+    }
+    
+    .facility-destroyed-portrait {
+        max-width: 120px;
+    }
+    
     .flag {
+        width: 70px !important;
         width: 70px !important;
         height: 45px !important;
     }
