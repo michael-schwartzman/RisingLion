@@ -594,46 +594,54 @@ body {
 /* Level progression notification */
 .level-notification {
     position: fixed;
-    top: 30%;
+    top: 90px;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     background: linear-gradient(45deg, #e74c3c, #c0392b);
     color: white;
-    padding: 30px 40px;
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
     z-index: 9999;
     text-align: center;
-    border: 3px solid #ffffff;
-    animation: levelNotificationPulse 0.5s ease-in-out;
+    border: 2px solid #ffffff;
+    animation: levelNotificationSlide 0.5s ease-in-out;
+    font-size: 0.9rem;
+    max-width: 400px;
 }
 
 .level-notification h2 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .level-notification p {
-    font-size: 1.2rem;
-    margin: 5px 0;
+    font-size: 0.9rem;
+    margin: 3px 0;
 }
 
 .level-notification .difficulty-description {
-    font-size: 1.0rem;
+    font-size: 0.8rem;
     color: #f39c12;
     font-style: italic;
     background: rgba(0, 0, 0, 0.3);
-    padding: 8px 12px;
-    border-radius: 8px;
-    margin: 10px 0;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin: 5px 0;
 }
 
 .level-notification .bonus-points {
-    font-size: 1.3rem;
+    font-size: 1.0rem;
     font-weight: bold;
     color: #2ecc71;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes levelNotificationSlide {
+    0% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+    50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
 @keyframes levelNotificationPulse {
@@ -780,22 +788,27 @@ body {
     
     /* Mobile adjustments for level notification */
     .level-notification {
-        top: 25%;
-        padding: 20px 25px;
+        top: 80px;
+        padding: 8px 15px;
         max-width: 90%;
+        font-size: 0.8rem;
     }
     
     .level-notification h2 {
-        font-size: 1.8rem;
+        font-size: 1.1rem;
     }
     
     .level-notification p {
-        font-size: 1.0rem;
+        font-size: 0.8rem;
     }
     
     .level-notification .difficulty-description {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    .level-notification .bonus-points {
         font-size: 0.9rem;
-        padding: 6px 10px;
     }
     
     /* Mobile adjustments for facility destroyed image */
@@ -949,22 +962,27 @@ body {
     
     /* Smaller level notification for very small screens */
     .level-notification {
-        top: 20%;
-        padding: 15px 20px;
+        top: 70px;
+        padding: 6px 12px;
         max-width: 95%;
+        font-size: 0.7rem;
     }
     
     .level-notification h2 {
-        font-size: 1.5rem;
+        font-size: 1.0rem;
     }
     
     .level-notification p {
-        font-size: 0.9rem;
+        font-size: 0.7rem;
     }
     
     .level-notification .difficulty-description {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+    }
+    
+    .level-notification .bonus-points {
         font-size: 0.8rem;
-        padding: 5px 8px;
     }
     
     /* Smaller facility destroyed image */

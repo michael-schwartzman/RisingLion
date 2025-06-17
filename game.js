@@ -670,8 +670,8 @@ class OperationRisingLion {
         if (this.weapons.aircraft.count <= 0) return;
         
         const aircraft = {
-            x: this.launchPlatform.x,
-            y: this.launchPlatform.y - 50,
+            x: this.launchPlatform.x + this.launchPlatform.width / 2,  // Center exactly on base
+            y: this.launchPlatform.y + this.launchPlatform.height / 2,  // Center exactly on base
             vx: 3,
             vy: -0.5 + Math.random() * 1,
             bombs: 2,
@@ -1688,21 +1688,73 @@ class OperationRisingLion {
     drawLaunchPlatform() {
         const platform = this.launchPlatform;
         
-        // Draw Israeli military aircraft with Sara Netanyahu
-        this.drawIsraeliAircraft(platform.x - 50, platform.y - 80);
-        
-        // Platform base
+        // Draw unified Israeli military base with integrated aircraft
+        this.drawUnifiedIsraeliBase(platform.x, platform.y, platform.width, platform.height);
+    }
+    
+    drawUnifiedIsraeliBase(x, y, width, height) {
+        // Main base structure
         this.ctx.fillStyle = '#666';
-        this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        this.ctx.fillRect(x, y, width, height);
         
-        // Launch tube
+        // Aircraft integrated into the base (positioned on top of the base)
+        const aircraftX = x + 10; // Slightly offset from left edge
+        const aircraftY = y - 15;  // Positioned on top of the base
+        
+        // Aircraft body (compact F-16 style integrated with base)
+        this.ctx.fillStyle = '#4a90e2';
+        this.ctx.fillRect(aircraftX, aircraftY, 60, 15);
+        
+        // Nose cone
+        this.ctx.beginPath();
+        this.ctx.moveTo(aircraftX + 60, aircraftY + 2);
+        this.ctx.lineTo(aircraftX + 75, aircraftY + 7);
+        this.ctx.lineTo(aircraftX + 60, aircraftY + 13);
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Wings integrated with base
+        this.ctx.fillStyle = '#3a7bd5';
+        this.ctx.fillRect(aircraftX + 15, aircraftY - 5, 30, 6);  // Top wing
+        this.ctx.fillRect(aircraftX + 15, aircraftY + 14, 30, 6);  // Bottom wing
+        
+        // Tail
+        this.ctx.fillRect(aircraftX - 3, aircraftY + 2, 10, 12);
+        
+        // Cockpit canopy
+        this.ctx.fillStyle = '#87CEEB';
+        this.ctx.fillRect(aircraftX + 35, aircraftY + 2, 15, 11);
+        
+        // Sara Netanyahu portrait in cockpit
+        this.drawSaraNetanyahu(aircraftX + 42, aircraftY + 7);
+        
+        // Israeli Air Force markings on aircraft
+        this.ctx.fillStyle = '#0038b8';
+        this.ctx.font = '8px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('IAF', aircraftX + 30, aircraftY + 25);
+        
+        // Star of David on wing
+        this.ctx.font = '10px Arial';
+        this.ctx.fillText('✡', aircraftX + 30, aircraftY - 2);
+        
+        // Launch tube (part of the base)
         this.ctx.fillStyle = '#444';
-        this.ctx.fillRect(platform.x + platform.width - 20, platform.y - 10, 15, 25);
+        this.ctx.fillRect(x + width - 20, y - 10, 15, 25);
         
-        // Details
+        // Base details and outline
         this.ctx.strokeStyle = '#333';
         this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
+        this.ctx.strokeRect(x, y, width, height);
+        
+        // Aircraft outline
+        this.ctx.strokeStyle = '#2c5aa0';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(aircraftX, aircraftY, 60, 15);
+        
+        // Base/aircraft connection details
+        this.ctx.fillStyle = '#555';
+        this.ctx.fillRect(aircraftX + 20, y - 2, 20, 4); // Connection strut
     }
     
     drawIsraeliAircraft(x, y) {
@@ -2748,12 +2800,12 @@ OperationRisingLion.prototype.showLevelAdvanceNotification = function() {
     
     document.body.appendChild(notification);
     
-    // Remove after 4 seconds (longer to read difficulty info)
+    // Remove after 2.5 seconds (shorter since it's less intrusive)
     setTimeout(() => {
         if (notification.parentNode) {
             notification.parentNode.removeChild(notification);
         }
-    }, 4000);
+    }, 2500);
 };
 
 // Implement Sara Netanyahu image loading with proper fallback
