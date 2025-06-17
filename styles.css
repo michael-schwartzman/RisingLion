@@ -819,20 +819,166 @@ body {
     .facility-destroyed-portrait {
         max-width: 150px;
     }
-    
-    .stat-item {
-        font-size: 10px !important;
-        padding: 2px 4px !important;
-        white-space: nowrap;
+}
+
+/* Mobile Landscape Mode Specific Adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    /* In landscape mode, move banner to top-right corner to avoid overlap */
+    .level-notification {
+        top: 10px;
+        right: 10px;
+        left: auto;
+        transform: none;
+        max-width: 280px;
+        padding: 5px 10px;
+        font-size: 0.7rem;
     }
     
-    .target-status {
+    .level-notification h2 {
+        font-size: 1.0rem;
+        margin-bottom: 3px;
+    }
+    
+    .level-notification p {
+        font-size: 0.7rem;
+        margin: 2px 0;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+        margin: 3px 0;
+    }
+    
+    .level-notification .bonus-points {
+        font-size: 0.8rem;
+    }
+    
+    /* Move Haminai image further down in landscape to ensure it's visible */
+    .facility-destroyed-image {
+        bottom: 25%;
+    }
+    
+    .facility-destroyed-portrait {
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile background for centered canvas */
+    #gameContainer {
+        background: #2c3e50;
+    }
+    
+    /* Let JavaScript handle canvas sizing for proper aspect ratio */
+    #gameCanvas {
+        border: 1px solid #e74c3c !important;
+        touch-action: none;
+        cursor: default;
+        /* Remove fixed sizing - let JS handle it */
+    }
+    
+    /* HUD adjustments for mobile */
+    .hud {
+        height: auto !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        /* Position handled by JS */
+        z-index: 10 !important;
+        right: 0 !important;
+        z-index: 1000 !important;
+    }
+    
+    .hud-left, .hud-center, .hud-right {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .stats {
         flex-direction: row !important;
         gap: 8px !important;
         font-size: 11px !important;
         flex-wrap: wrap;
     }
     
+    /* Mobile adjustments for level notification */
+    .level-notification {
+        top: 80px;
+        padding: 8px 15px;
+        max-width: 90%;
+        font-size: 0.8rem;
+    }
+    
+    .level-notification h2 {
+        font-size: 1.1rem;
+    }
+    
+    .level-notification p {
+        font-size: 0.8rem;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    .level-notification .bonus-points {
+        font-size: 0.9rem;
+    }
+    
+    /* Mobile adjustments for facility destroyed image */
+    .facility-destroyed-image {
+        bottom: 15%;
+    }
+     .facility-destroyed-portrait {
+        max-width: 150px;
+    }
+}
+
+/* Mobile Landscape Orientation - Prevent Overlap */
+@media (max-width: 768px) and (orientation: landscape) {
+    .level-notification {
+        top: 10px !important;
+        right: 10px !important;
+        left: auto !important;
+        transform: none !important;
+        max-width: 250px !important;
+        padding: 4px 8px !important;
+        font-size: 0.65rem !important;
+    }
+    
+    .level-notification h2 {
+        font-size: 0.85rem !important;
+        margin-bottom: 2px !important;
+    }
+    
+    .level-notification p {
+        font-size: 0.6rem !important;
+        margin: 1px 0 !important;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.5rem !important;
+        padding: 1px 3px !important;
+        margin: 1px 0 !important;
+    }
+    
+    .level-notification .bonus-points {
+        font-size: 0.65rem !important;
+    }
+    
+    /* Ensure Haminai image has clear space */
+    .facility-destroyed-image {
+        bottom: 25% !important;
+    }
+    
+    .facility-destroyed-portrait {
+        max-width: 120px !important;
+    }
+}
+
+/* Continue with original mobile styles for non-landscape */
+@media (max-width: 768px) {
     /* Menu adjustments */
     .menu-content {
         padding: 20px;
