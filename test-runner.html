@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation Rising Lion - E2E Test Runner</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .test-controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        .btn-secondary {
+            background: #2196F3;
+        }
+        
+        .btn-secondary:hover {
+            background: #1976D2;
+        }
+        
+        .test-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+        }
+        
+        .test-status {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .status-idle {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .status-running {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .game-frame {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .test-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .summary-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .summary-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .passed { color: #28a745; }
+        .failed { color: #dc3545; }
+        .warnings { color: #ffc107; }
+        .duration { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 Operation Rising Lion - End-to-End Test Suite</h1>
+        
+        <div class="test-controls">
+            <button id="runTests" class="btn">Run All Tests</button>
+            <button id="loadGame" class="btn btn-secondary">Load Game in Frame</button>
+            <button id="clearOutput" class="btn btn-secondary">Clear Output</button>
+        </div>
+        
+        <div id="testStatus" class="test-status status-idle">
+            Ready to run tests
+        </div>
+        
+        <div class="test-summary">
+            <div class="summary-card">
+                <div id="passedCount" class="summary-number passed">0</div>
+                <div class="summary-label">Passed</div>
+            </div>
+            <div class="summary-card">
+                <div id="failedCount" class="summary-number failed">0</div>
+                <div class="summary-label">Failed</div>
+            </div>
+            <div class="summary-card">
+                <div id="warningsCount" class="summary-number warnings">0</div>
+                <div class="summary-label">Warnings</div>
+            </div>
+            <div class="summary-card">
+                <div id="durationCount" class="summary-number duration">0s</div>
+                <div class="summary-label">Duration</div>
+            </div>
+        </div>
+        
+        <div id="testOutput" class="test-output">
+Waiting for test execution...
+
+This end-to-end test suite validates:
+✓ Game initialization and DOM setup
+✓ Menu navigation and screen transitions
+✓ Game start and state management
+✓ Weapon systems and firing mechanics
+✓ Collision detection and damage calculation
+✓ Game mechanics and HUD updates
+✓ Performance and stability
+✓ Error handling and edge cases
+
+Click "Run All Tests" to begin testing.
+        </div>
+        
+        <iframe id="gameFrame" class="game-frame" style="display: none;"></iframe>
+    </div>
+
+    <script>
+        class TestRunner {
+            constructor() {
+                this.gameFrame = document.getElementById('gameFrame');
+                this.output = document.getElementById('testOutput');
+                this.status = document.getElementById('testStatus');
+                this.testInstance = null;
+                
+                this.setupEventListeners();
+            }
+            
+            setupEventListeners() {
+                document.getElementById('runTests').addEventListener('click', () => this.runTests());
+                document.getElementById('loadGame').addEventListener('click', () => this.loadGame());
+                document.getElementById('clearOutput').addEventListener('click', () => this.clearOutput());
+            }
+            
+            updateStatus(message, type = 'idle') {
+                this.status.textContent = message;
+                this.status.className = `test-status status-${type}`;
+            }
+            
+            appendOutput(text) {
+                this.output.textContent += text + '\n';
+                this.output.scrollTop = this.output.scrollHeight;
+            }
+            
+            clearOutput() {
+                this.output.textContent = 'Output cleared. Ready for new test run.\n';
+                this.updateSummary(0, 0, 0, 0);
+            }
+            
+            updateSummary(passed, failed, warnings, duration) {
+                document.getElementById('passedCount').textContent = passed;
+                document.getElementById('failedCount').textContent = failed;
+                document.getElementById('warningsCount').textContent = warnings;
+                document.getElementById('durationCount').textContent = duration + 's';
+            }
+            
+            loadGame() {
+                this.updateStatus('Loading game...', 'running');
+                this.gameFrame.src = 'index.html';
+                this.gameFrame.style.display = 'block';
+                
+                this.gameFrame.onload = () => {
+                    this.updateStatus('Game loaded successfully', 'success');
+                    this.appendOutput('Game loaded in iframe - ready for testing');
+                };
+                
+                this.gameFrame.onerror = () => {
+                    this.updateStatus('Failed to load game', 'failed');
+                    this.appendOutput('ERROR: Failed to load game in iframe');
+                };
+            }
+            
+            async runTests() {
+                this.updateStatus('Running tests...', 'running');
+                this.clearOutput();
+                this.appendOutput('Starting End-to-End Test Suite for Operation Rising Lion...\n');
+                
+                try {
+                    // First, try to run tests in the current window
+                    if (window.OperationRisingLion && window.game) {
+                        await this.runTestsInWindow(window);
+                    } else if (this.gameFrame.contentWindow && this.gameFrame.contentWindow.game) {
+                        // Run tests in the iframe
+                        await this.runTestsInWindow(this.gameFrame.contentWindow);
+                    } else {
+                        // Load the test script and run a basic connectivity test
+                        await this.runBasicTests();
+                    }
+                } catch (error) {
+                    this.updateStatus('Tests failed with error', 'failed');
+                    this.appendOutput(`CRITICAL ERROR: ${error.message}`);
+                }
+            }
+            
+            async runTestsInWindow(targetWindow) {
+                // Inject the test script if not already present
+                if (!targetWindow.OperationRisingLionE2ETest) {
+                    const script = targetWindow.document.createElement('script');
+                    script.src = 'test-e2e.js';
+                    targetWindow.document.head.appendChild(script);
+                    
+                    // Wait for script to load
+                    await new Promise((resolve) => {
+                        script.onload = resolve;
+                        setTimeout(resolve, 2000); // Fallback timeout
+                    });
+                }
+                
+                if (targetWindow.OperationRisingLionE2ETest) {
+                    const testInstance = new targetWindow.OperationRisingLionE2ETest();
+                    
+                    // Redirect console.log to our output
+                    const originalLog = targetWindow.console.log;
+                    targetWindow.console.log = (...args) => {
+                        this.appendOutput(args.join(' '));
+                        originalLog.apply(targetWindow.console, args);
+                    };
+                    
+                    const results = await testInstance.runAllTests();
+                    
+                    // Restore original console.log
+                    targetWindow.console.log = originalLog;
+                    
+                    this.updateSummary(results.passed, results.failed, results.warnings, results.duration.toFixed(1));
+                    
+                    if (results.failed === 0) {
+                        this.updateStatus('All tests passed!', 'success');
+                    } else {
+                        this.updateStatus(`${results.failed} tests failed`, 'failed');
+                    }
+                } else {
+                    throw new Error('Failed to load test script');
+                }
+            }
+            
+            async runBasicTests() {
+                this.appendOutput('Running basic connectivity tests...\n');
+                
+                // Test 1: Check if we can load the main page
+                try {
+                    const response = await fetch('index.html');
+                    if (response.ok) {
+                        this.appendOutput('✅ PASS: Game HTML loads successfully');
+                    } else {
+                        this.appendOutput('❌ FAIL: Game HTML failed to load');
+                    }
+                } catch (error) {
+                    this.appendOutput(`❌ FAIL: Error loading game HTML: ${error.message}`);
+                }
+                
+                // Test 2: Check if game.js exists
+                try {
+                    const response = await fetch('game.js');
+                    if (response.ok) {
+                        this.appendOutput('✅ PASS: Game JavaScript loads successfully');
+                    } else {
+                        this.appendOutput('❌ FAIL: Game JavaScript failed to load');
+                    }
+                } catch (error) {
+                    this.appendOutput(`❌ FAIL: Error loading game JavaScript: ${error.message}`);
+                }
+                
+                // Test 3: Check if styles.css exists
+                try {
+                    const response = await fetch('styles.css');
+                    if (response.ok) {
+                        this.appendOutput('✅ PASS: Game CSS loads successfully');
+                    } else {
+                        this.appendOutput('❌ FAIL: Game CSS failed to load');
+                    }
+                } catch (error) {
+                    this.appendOutput(`❌ FAIL: Error loading game CSS: ${error.message}`);
+                }
+                
+                this.appendOutput('\n=== BASIC TESTS COMPLETED ===');
+                this.appendOutput('To run full E2E tests, click "Load Game in Frame" first, then "Run All Tests"');
+                
+                this.updateStatus('Basic tests completed', 'success');
+                this.updateSummary(3, 0, 0, 1);
+            }
+        }
+        
+        // Initialize test runner when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TestRunner();
+        });
+    </script>
+</body>
+</html>

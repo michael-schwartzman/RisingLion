@@ -1,0 +1,22 @@
+{
+  "name": "risinglion",
+  "version": "1.0.0",
+  "description": "A web-based arcade strategy game featuring classic Worms-style gameplay mechanics with a modern twist.",
+  "main": "game.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:browser": "python3 -m http.server 8080 & open test-runner.html",
+    "serve": "python3 -m http.server 8080",
+    "start": "python3 -m http.server 8080"
+  },
+  "keywords": ["game", "web-game", "javascript", "canvas", "arcade"],
+  "author": "Michael Schwartzman",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.53.2"
+  }
+}
