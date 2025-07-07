@@ -36,14 +36,35 @@ Operation Rising Lion is an interactive browser-based game where players control
    cd RisingLion
    ```
 
-2. **Open the game**:
-   - Simply open `index.html` in your web browser
-   - No build process or server required!
+2. **Launch the game** (multiple options):
+   
+   **Option A: Easy Launcher** (Recommended)
+   ```bash
+   # Linux/Mac
+   ./launch.sh
+   
+   # Windows
+   launch.bat
+   
+   # Or open launch.html in your browser
+   ```
+   
+   **Option B: Local Server**
+   ```bash
+   python3 -m http.server 8080
+   # Then open: http://localhost:8080/launch.html
+   ```
+   
+   **Option C: Direct File**
+   ```bash
+   # Simply open index.html in your web browser
+   # No build process or server required!
+   ```
 
 3. **Play the game**:
    - Use mouse to aim and set power
    - Select weapons from dropdown menu
-   - Destroy both nuclear facilities to win
+   - Destroy all nuclear facilities to win
    - Avoid interceptor missiles
 
 ## 🎯 Controls
@@ -59,6 +80,9 @@ Operation Rising Lion is an interactive browser-based game where players control
 ```
 RisingLion/
 ├── index.html              # Main game interface
+├── launch.html             # Browser launcher page
+├── launch.sh               # Linux/Mac launcher script
+├── launch.bat              # Windows launcher script
 ├── game.js                 # Core game logic (2000+ lines)
 ├── styles.css              # Visual styling and animations
 ├── image-converter.html    # Base64 conversion utility

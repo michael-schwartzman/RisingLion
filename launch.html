@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch Operation Rising Lion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .launcher {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 600px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 {
+            color: #ff6b35;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .description {
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
+        .launch-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+        .launch-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: left;
+        }
+        .instructions h3 {
+            color: #ff6b35;
+            margin-top: 0;
+        }
+        .instructions ul {
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        .flags {
+            font-size: 3em;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="launcher">
+        <h1>🦁 Operation Rising Lion</h1>
+        <div class="flags">🇮🇱 ⚔️ 🇮🇷</div>
+        <div class="description">
+            <p>A web-based arcade strategy game featuring classic Worms-style gameplay mechanics with a modern twist.</p>
+            <p>Command Israeli forces in tactical strikes against Iranian nuclear facilities using advanced weaponry while defending against AI-controlled interception systems.</p>
+        </div>
+        
+        <a href="index.html" class="launch-button">🚀 Launch Game</a>
+        <a href="image-converter.html" class="launch-button">🖼️ Image Converter</a>
+        
+        <div class="instructions">
+            <h3>🎮 Quick Start Guide</h3>
+            <ul>
+                <li><strong>Objective:</strong> Destroy all Iranian nuclear facilities</li>
+                <li><strong>Controls:</strong> Click and drag to aim and fire missiles</li>
+                <li><strong>Strategy:</strong> Use terrain and timing to avoid interceptors</li>
+                <li><strong>Weapons:</strong> Choose between standard missiles and cruise missiles</li>
+                <li><strong>Victory:</strong> Complete all objectives within 180 seconds</li>
+            </ul>
+            
+            <h3>🌐 Browser Requirements</h3>
+            <ul>
+                <li>Any modern web browser (Chrome, Firefox, Safari, Edge)</li>
+                <li>JavaScript enabled</li>
+                <li>Canvas/WebGL support</li>
+                <li>For best experience: Use desktop browser with mouse</li>
+                <li>Mobile support: Touch controls available</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Optional: Auto-launch after a delay or on specific conditions
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Operation Rising Lion Launcher Ready');
+            
+            // Check if we should auto-launch (e.g., if coming from a bookmark)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('autolaunch') === 'true') {
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        });
+        
+        // Track clicks for analytics (if needed)
+        document.querySelectorAll('.launch-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                console.log('Launching:', this.getAttribute('href'));
+            });
+        });
+    </script>
+</body>
+</html>
