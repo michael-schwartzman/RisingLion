@@ -37,6 +37,9 @@ class OperationRisingLion {
         this.loadSaraImage();
         this.loadHaminaiImage();
         
+        // Theme management
+        this.initializeTheme();
+        
         // Targets - Iranian Nuclear Facilities
         this.targets = {
             natanz: {
@@ -228,6 +231,24 @@ class OperationRisingLion {
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Settings button
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
+            // Back to menu from settings
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Theme toggle
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => this.toggleTheme());
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -3136,5 +3157,50 @@ OperationRisingLion.prototype.setupOrientationHandling = function() {
 OperationRisingLion.prototype.debugTouch = function(message, coords) {
     if (this.isMobile() && console && console.log) {
         console.log(`Touch Debug: ${message}`, coords);
+    }
+};
+
+// Theme management methods
+OperationRisingLion.prototype.initializeTheme = function() {
+    // Get saved theme from localStorage or default to dark
+    const savedTheme = localStorage.getItem('risingLionTheme') || 'dark';
+    this.currentTheme = savedTheme;
+    this.applyTheme(this.currentTheme);
+    this.updateThemeToggleButton();
+};
+
+OperationRisingLion.prototype.toggleTheme = function() {
+    this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+    this.applyTheme(this.currentTheme);
+    this.updateThemeToggleButton();
+    
+    // Save theme preference
+    localStorage.setItem('risingLionTheme', this.currentTheme);
+    
+    console.log(`Theme switched to: ${this.currentTheme}`);
+};
+
+OperationRisingLion.prototype.applyTheme = function(theme) {
+    const body = document.body;
+    if (theme === 'light') {
+        body.setAttribute('data-theme', 'light');
+    } else {
+        body.removeAttribute('data-theme');
+    }
+};
+
+OperationRisingLion.prototype.updateThemeToggleButton = function() {
+    const themeToggle = document.getElementById('themeToggle');
+    if (!themeToggle) return;
+    
+    const icon = themeToggle.querySelector('.theme-toggle-icon');
+    const text = themeToggle.querySelector('.theme-toggle-text');
+    
+    if (this.currentTheme === 'light') {
+        icon.textContent = '☀️';
+        text.textContent = 'Light Mode';
+    } else {
+        icon.textContent = '🌙';
+        text.textContent = 'Dark Mode';
     }
 };

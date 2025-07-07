@@ -4,10 +4,45 @@
     box-sizing: border-box;
 }
 
+/* CSS Custom Properties for Theme Support */
+:root {
+    /* Dark Theme (Default) */
+    --bg-primary: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    --bg-menu: linear-gradient(135deg, #2c3e50, #34495e);
+    --bg-menu-content: rgba(0, 0, 0, 0.7);
+    --text-primary: #333;
+    --text-secondary: white;
+    --accent-primary: #e74c3c;
+    --accent-secondary: #c0392b;
+    --btn-primary-bg: linear-gradient(45deg, #e74c3c, #c0392b);
+    --btn-primary-hover: linear-gradient(45deg, #c0392b, #e74c3c);
+    --btn-secondary-bg: linear-gradient(45deg, #34495e, #2c3e50);
+    --btn-secondary-hover: linear-gradient(45deg, #2c3e50, #34495e);
+    --border-color: #e74c3c;
+    --shadow-color: rgba(231, 76, 60, 0.4);
+}
+
+/* Light Theme */
+[data-theme="light"] {
+    --bg-primary: linear-gradient(180deg, #e8f4fd 0%, #f5f0e8 70%, #e8dcc0 100%);
+    --bg-menu: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    --bg-menu-content: rgba(255, 255, 255, 0.9);
+    --text-primary: #2c3e50;
+    --text-secondary: #2c3e50;
+    --accent-primary: #d63384;
+    --accent-secondary: #b02a5b;
+    --btn-primary-bg: linear-gradient(45deg, #d63384, #b02a5b);
+    --btn-primary-hover: linear-gradient(45deg, #b02a5b, #d63384);
+    --btn-secondary-bg: linear-gradient(45deg, #6c757d, #495057);
+    --btn-secondary-hover: linear-gradient(45deg, #495057, #6c757d);
+    --border-color: #d63384;
+    --shadow-color: rgba(214, 51, 132, 0.4);
+}
+
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
-    color: #333;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     overflow: hidden;
     height: 100vh;
     width: 100vw;
@@ -22,6 +57,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    transition: background 0.3s ease;
 }
 
 #gameContainer {
@@ -88,16 +124,17 @@ body {
 
 /* Main Menu Styles */
 #mainMenu {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    color: white;
+    background: var(--bg-menu);
+    color: var(--text-secondary);
 }
 
 .menu-content {
     text-align: center;
     padding: 40px;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--bg-menu-content);
     border-radius: 15px;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--border-color);
+}
 }
 
 .menu-content h1 {
@@ -252,44 +289,45 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    background: var(--btn-primary-bg);
     color: white;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(45deg, #c0392b, #e74c3c);
+    background: var(--btn-primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
+    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .btn-secondary {
-    background: linear-gradient(45deg, #34495e, #2c3e50);
+    background: var(--btn-secondary-bg);
     color: white;
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(45deg, #2c3e50, #34495e);
+    background: var(--btn-secondary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(52, 73, 94, 0.4);
 }
 
 /* Instructions Screen */
 #instructionsScreen, #gameOverScreen {
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--bg-menu);
 }
 
 .screen-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--bg-menu-content);
     padding: 40px;
     border-radius: 15px;
     max-width: 800px;
     max-height: 80vh;
     overflow-y: auto;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--border-color);
+    color: var(--text-secondary);
 }
 
 .screen-content h2 {
-    color: #e74c3c;
+    color: var(--accent-primary);
     font-size: 2.5rem;
     text-align: center;
     margin-bottom: 30px;
@@ -310,6 +348,71 @@ body {
 
 .objective {
     grid-column: span 2;
+}
+
+/* Settings Screen Styles */
+.settings-content {
+    margin-bottom: 30px;
+}
+
+.setting-group {
+    background: rgba(52, 73, 94, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.setting-group h3 {
+    color: var(--accent-primary);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.setting-item label {
+    font-weight: bold;
+    color: var(--text-secondary);
+}
+
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 2px solid var(--accent-primary);
+    border-radius: 25px;
+    background: var(--bg-menu-content);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.theme-toggle:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.theme-toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover .theme-toggle-icon {
+    transform: scale(1.1);
 }
 
 .instructions-content h3 {
