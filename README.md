@@ -139,3 +139,4 @@ This is a complete, functional game. Future enhancements could include:
 
 **Created**: June 13, 2025  
 **Repository**: https://github.com/michael-schwartzman/RisingLion
+# AKS Deployment Trigger - Sun Aug 24 15:02:20 IDT 2025
