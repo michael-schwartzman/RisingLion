@@ -1,0 +1,23 @@
+{
+  "name": "rising-lion",
+  "version": "1.0.0",
+  "description": "Operation Rising Lion - Browser-based Interactive Game",
+  "main": "index.html",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "serve": "python3 -m http.server 8000",
+    "install-browsers": "playwright install"
+  },
+  "keywords": ["game", "browser", "html5", "canvas"],
+  "author": "Operation Rising Lion Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
