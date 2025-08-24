@@ -10,7 +10,7 @@ on:
 env:
   REGISTRY_NAME: risinglionacr
   CLUSTER_NAME: games-multi-tenancy
-  CLUSTER_RESOURCE_GROUP: RisingLionAKS
+  CLUSTER_RESOURCE_GROUP: 3DKittyPongAKS
   NAMESPACE: risinglion
   APP_NAME: rising-lion-game
 

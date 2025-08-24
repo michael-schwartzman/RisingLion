@@ -6,7 +6,7 @@ on:
 
 env:
   AKS_CLUSTER_NAME: games-multi-tenancy
-  AKS_RESOURCE_GROUP: RisingLionAKS
+  AKS_RESOURCE_GROUP: 3DKittyPongAKS
 
 jobs:
   cleanup:
