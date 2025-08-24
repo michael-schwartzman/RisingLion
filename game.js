@@ -225,9 +225,19 @@ class OperationRisingLion {
                 showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -317,9 +327,60 @@ class OperationRisingLion {
                 });
             }
             
+            // Theme switching functionality
+            this.setupThemeHandling();
+            
             console.log('Event listeners setup complete');
         } catch (error) {
             console.error('Error setting up event listeners:', error);
+        }
+    }
+    
+    setupThemeHandling() {
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('risingLionTheme') || 'dark';
+        this.applyTheme(savedTheme);
+        
+        // Theme button event listeners
+        const darkThemeBtn = document.getElementById('darkTheme');
+        const lightThemeBtn = document.getElementById('lightTheme');
+        
+        if (darkThemeBtn) {
+            darkThemeBtn.addEventListener('click', () => this.setTheme('dark'));
+        }
+        
+        if (lightThemeBtn) {
+            lightThemeBtn.addEventListener('click', () => this.setTheme('light'));
+        }
+    }
+    
+    setTheme(theme) {
+        // Save theme preference
+        localStorage.setItem('risingLionTheme', theme);
+        this.applyTheme(theme);
+    }
+    
+    applyTheme(theme) {
+        const body = document.body;
+        const darkBtn = document.getElementById('darkTheme');
+        const lightBtn = document.getElementById('lightTheme');
+        
+        if (theme === 'light') {
+            body.setAttribute('data-theme', 'light');
+            if (lightBtn) {
+                lightBtn.classList.add('active');
+            }
+            if (darkBtn) {
+                darkBtn.classList.remove('active');
+            }
+        } else {
+            body.removeAttribute('data-theme');
+            if (darkBtn) {
+                darkBtn.classList.add('active');
+            }
+            if (lightBtn) {
+                lightBtn.classList.remove('active');
+            }
         }
     }
     

@@ -1,3 +1,27 @@
+/* Theme Variables */
+:root {
+    /* Dark Theme (Default) */
+    --bg-gradient: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    --menu-bg: linear-gradient(135deg, #2c3e50, #34495e);
+    --text-primary: #333;
+    --text-light: white;
+    --btn-primary-bg: linear-gradient(45deg, #e74c3c, #c0392b);
+    --btn-secondary-bg: linear-gradient(45deg, #34495e, #2c3e50);
+    --screen-content-bg: rgba(0, 0, 0, 0.7);
+    --border-color: #e74c3c;
+}
+
+[data-theme="light"] {
+    --bg-gradient: linear-gradient(180deg, #f0f8ff 0%, #fff8dc 70%, #f5deb3 100%);
+    --menu-bg: linear-gradient(135deg, #ffffff, #f8f9fa);
+    --text-primary: #333;
+    --text-light: #333;
+    --btn-primary-bg: linear-gradient(45deg, #e74c3c, #c0392b);
+    --btn-secondary-bg: linear-gradient(45deg, #6c757d, #495057);
+    --screen-content-bg: rgba(255, 255, 255, 0.95);
+    --border-color: #e74c3c;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,8 +30,8 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
-    color: #333;
+    background: var(--bg-gradient);
+    color: var(--text-primary);
     overflow: hidden;
     height: 100vh;
     width: 100vw;
@@ -88,16 +112,16 @@ body {
 
 /* Main Menu Styles */
 #mainMenu {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    color: white;
+    background: var(--menu-bg);
+    color: var(--text-light);
 }
 
 .menu-content {
     text-align: center;
     padding: 40px;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--screen-content-bg);
     border-radius: 15px;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--border-color);
 }
 
 .menu-content h1 {
@@ -252,7 +276,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    background: var(--btn-primary-bg);
     color: white;
 }
 
@@ -263,7 +287,7 @@ body {
 }
 
 .btn-secondary {
-    background: linear-gradient(45deg, #34495e, #2c3e50);
+    background: var(--btn-secondary-bg);
     color: white;
 }
 
@@ -1287,4 +1311,69 @@ body {
 .prompt-content p strong {
     color: #ffcc00;
     font-size: 1.2rem;
+}
+
+/* Settings Screen */
+#settingsScreen {
+    background: var(--menu-bg);
+    color: var(--text-light);
+}
+
+.settings-content {
+    margin-bottom: 30px;
+}
+
+.setting-group {
+    background: rgba(52, 73, 94, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.setting-group h3 {
+    color: #e74c3c;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+.setting-item label {
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+.theme-switcher {
+    display: flex;
+    gap: 10px;
+}
+
+.theme-btn {
+    padding: 8px 16px;
+    border: 2px solid #e74c3c;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.theme-btn:hover {
+    background: rgba(231, 76, 60, 0.2);
+    transform: translateY(-1px);
+}
+
+.theme-btn.active {
+    background: #e74c3c;
+    color: white;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
 }
