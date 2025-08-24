@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${APP_NAME}-config
+  labels:
+    app: ${APP_NAME}
+data:
+  game.config: |
+    {
+      "environment": "${DEPLOYMENT_TYPE}",
+      "version": "${IMAGE_TAG}",
+      "features": {
+        "debugging": "${DEPLOYMENT_TYPE}" != "production",
+        "analytics": "${DEPLOYMENT_TYPE}" == "production"
+      },
+      "performance": {
+        "maxEnemies": 50,
+        "effectsQuality": "high",
+        "soundEnabled": true
+      }
+    }
+  
+  nginx.config: |
+    # Additional nginx configuration if needed
+    client_max_body_size 10m;
+    keepalive_timeout 65;
+    
+  app.env: |
+    NODE_ENV=${DEPLOYMENT_TYPE:-production}
+    APP_VERSION=${IMAGE_TAG}
+    NAMESPACE=${NAMESPACE}
