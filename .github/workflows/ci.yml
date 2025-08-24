@@ -1,0 +1,102 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    name: Lint and Validate Code
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Validate HTML
+      run: |
+        echo "Validating HTML files..."
+        # Basic HTML validation - check for basic syntax
+        if command -v tidy >/dev/null 2>&1; then
+          find . -name "*.html" -not -path "./.git/*" -exec tidy -errors {} \;
+        else
+          echo "HTML Tidy not available, skipping HTML validation"
+        fi
+    
+    - name: Validate JavaScript syntax
+      run: |
+        echo "Validating JavaScript files..."
+        # Check JS syntax with Node.js
+        for file in $(find . -name "*.js" -not -path "./.git/*" -not -path "./node_modules/*"); do
+          echo "Checking $file..."
+          node -c "$file" || exit 1
+        done
+        echo "✅ All JavaScript files are syntactically valid"
+    
+    - name: Check file structure
+      run: |
+        echo "Verifying required files exist..."
+        required_files=("index.html" "game.js" "styles.css")
+        for file in "${required_files[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Required file missing: $file"
+            exit 1
+          else
+            echo "✅ Found: $file"
+          fi
+        done
+    
+    - name: Validate Docker build
+      run: |
+        echo "Testing Docker build..."
+        docker build -t rising-lion-test:latest .
+        echo "✅ Docker build successful"
+    
+    - name: Check Kubernetes manifests
+      run: |
+        echo "Validating Kubernetes manifests..."
+        # Install kubectl for validation
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+        
+        # Validate each manifest
+        for manifest in k8s/*.yaml; do
+          echo "Validating $manifest..."
+          # Set required environment variables for validation
+          export APP_NAME="test-app"
+          export REGISTRY_NAME="test-registry"
+          export IMAGE_TAG="test-tag"
+          export DEPLOYMENT_TYPE="test"
+          export NAMESPACE="test"
+          export INGRESS_HOST="test.example.com"
+          export INGRESS_PATH="/"
+          
+          envsubst < "$manifest" | kubectl apply --dry-run=client -f - || exit 1
+        done
+        echo "✅ All Kubernetes manifests are valid"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner in repo mode
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'

@@ -1,0 +1,145 @@
+name: Deploy to Azure Kubernetes Service
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY_NAME: risinglionacr
+  CLUSTER_NAME: games-multi-tenancy
+  CLUSTER_RESOURCE_GROUP: RisingLionAKS
+  NAMESPACE: risinglion
+  APP_NAME: rising-lion-game
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set deployment variables
+      run: |
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          echo "NAMESPACE=pr-${{ github.event.number }}" >> $GITHUB_ENV
+          echo "APP_NAME=rising-lion-game-pr-${{ github.event.number }}" >> $GITHUB_ENV
+          echo "DEPLOYMENT_TYPE=staging" >> $GITHUB_ENV
+          echo "IMAGE_TAG=pr-${{ github.event.number }}-${{ github.sha }}" >> $GITHUB_ENV
+        else
+          echo "NAMESPACE=risinglion" >> $GITHUB_ENV
+          echo "APP_NAME=rising-lion-game" >> $GITHUB_ENV
+          echo "DEPLOYMENT_TYPE=production" >> $GITHUB_ENV
+          echo "IMAGE_TAG=latest-${{ github.sha }}" >> $GITHUB_ENV
+        fi
+    
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    
+    - name: Build and push Docker image
+      run: |
+        # Login to Azure Container Registry
+        az acr login --name $REGISTRY_NAME
+        
+        # Build and tag the image
+        docker build -t $REGISTRY_NAME.azurecr.io/$APP_NAME:$IMAGE_TAG .
+        
+        # Push the image
+        docker push $REGISTRY_NAME.azurecr.io/$APP_NAME:$IMAGE_TAG
+        
+        echo "✅ Image built and pushed: $REGISTRY_NAME.azurecr.io/$APP_NAME:$IMAGE_TAG"
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group $CLUSTER_RESOURCE_GROUP --name $CLUSTER_NAME
+    
+    - name: Create namespace if it doesn't exist
+      run: |
+        kubectl create namespace $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+    
+    - name: Deploy to Kubernetes
+      run: |
+        echo "Deploying to Kubernetes..."
+        echo "Namespace: $NAMESPACE"
+        echo "App Name: $APP_NAME"
+        echo "Image Tag: $IMAGE_TAG"
+        
+        # Replace placeholders in Kubernetes manifests and apply
+        envsubst < k8s/deployment.yaml | kubectl apply -n $NAMESPACE -f -
+        envsubst < k8s/service.yaml | kubectl apply -n $NAMESPACE -f -
+        envsubst < k8s/configmap.yaml | kubectl apply -n $NAMESPACE -f -
+        
+        # Apply ingress with environment-specific configuration
+        if [ "$DEPLOYMENT_TYPE" == "staging" ]; then
+          export INGRESS_PATH="/pr-${{ github.event.number }}"
+          export INGRESS_HOST="games.risinglion.dev"
+        else
+          export INGRESS_PATH="/"
+          export INGRESS_HOST="risinglion.games"
+        fi
+        
+        envsubst < k8s/ingress.yaml | kubectl apply -n $NAMESPACE -f -
+    
+    - name: Wait for deployment
+      run: |
+        kubectl wait --for=condition=available --timeout=300s deployment/$APP_NAME -n $NAMESPACE
+        echo "✅ Deployment is ready!"
+    
+    - name: Get deployment info
+      run: |
+        echo "=== Deployment Information ==="
+        echo "Namespace: $NAMESPACE"
+        echo "App Name: $APP_NAME"
+        echo "Image: $REGISTRY_NAME.azurecr.io/$APP_NAME:$IMAGE_TAG"
+        echo ""
+        echo "=== Service Status ==="
+        kubectl get services -n $NAMESPACE
+        echo ""
+        echo "=== Pod Status ==="
+        kubectl get pods -n $NAMESPACE
+        echo ""
+        echo "=== Ingress Status ==="
+        kubectl get ingress -n $NAMESPACE
+    
+    - name: Install nginx ingress controller if needed
+      run: |
+        # Check if nginx ingress controller is installed
+        if ! kubectl get ingressclass nginx > /dev/null 2>&1; then
+          echo "Installing nginx ingress controller..."
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+          echo "Waiting for ingress controller to be ready..."
+          kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
+        else
+          echo "✅ Nginx ingress controller already installed"
+        fi
+    
+    - name: Deployment Summary
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "**Environment:** $DEPLOYMENT_TYPE" >> $GITHUB_STEP_SUMMARY
+        echo "**Namespace:** $NAMESPACE" >> $GITHUB_STEP_SUMMARY
+        echo "**Application:** $APP_NAME" >> $GITHUB_STEP_SUMMARY
+        echo "**Image Tag:** $IMAGE_TAG" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "$DEPLOYMENT_TYPE" == "staging" ]; then
+          echo "**🔗 Staging URL:** http://games.risinglion.dev/pr-${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "**🔗 Production URL:** http://risinglion.games" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Resource Status" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        kubectl get all -n $NAMESPACE >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

@@ -65,9 +65,9 @@ body {
 /* Facility Destroyed Image Styles */
 .facility-destroyed-image {
     position: absolute;
-    bottom: 10%;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     z-index: 1000;
     text-align: center;
     pointer-events: none;
@@ -382,56 +382,6 @@ body {
     border: 1px solid #e74c3c;
 }
 
-/* Difficulty color coding */
-.difficulty-tutorial {
-    background: rgba(46, 204, 113, 0.3) !important;
-    border-color: #2ecc71 !important;
-    color: #2ecc71;
-}
-
-.difficulty-easy {
-    background: rgba(52, 152, 219, 0.3) !important;
-    border-color: #3498db !important;
-    color: #3498db;
-}
-
-.difficulty-moderate {
-    background: rgba(241, 196, 15, 0.3) !important;
-    border-color: #f1c40f !important;
-    color: #f1c40f;
-}
-
-.difficulty-hard {
-    background: rgba(230, 126, 34, 0.3) !important;
-    border-color: #e67e22 !important;
-    color: #e67e22;
-}
-
-.difficulty-very-hard {
-    background: rgba(231, 76, 60, 0.3) !important;
-    border-color: #e74c3c !important;
-    color: #e74c3c;
-}
-
-.difficulty-expert {
-    background: rgba(155, 89, 182, 0.3) !important;
-    border-color: #9b59b6 !important;
-    color: #9b59b6;
-}
-
-.difficulty-master {
-    background: rgba(220, 20, 60, 0.3) !important;
-    border-color: #dc143c !important;
-    color: #dc143c;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
-}
-
 .target-status {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -594,54 +544,29 @@ body {
 /* Level progression notification */
 .level-notification {
     position: fixed;
-    top: 90px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     background: linear-gradient(45deg, #e74c3c, #c0392b);
     color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
     z-index: 9999;
     text-align: center;
-    border: 2px solid #ffffff;
-    animation: levelNotificationSlide 0.5s ease-in-out;
-    font-size: 0.9rem;
-    max-width: 400px;
+    border: 3px solid #ffffff;
+    animation: levelNotificationPulse 0.5s ease-in-out;
 }
 
 .level-notification h2 {
-    font-size: 1.4rem;
-    margin-bottom: 5px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .level-notification p {
-    font-size: 0.9rem;
-    margin: 3px 0;
-}
-
-.level-notification .difficulty-description {
-    font-size: 0.8rem;
-    color: #f39c12;
-    font-style: italic;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 4px 8px;
-    border-radius: 4px;
+    font-size: 1.2rem;
     margin: 5px 0;
-}
-
-.level-notification .bonus-points {
-    font-size: 1.0rem;
-    font-weight: bold;
-    color: #2ecc71;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-}
-
-@keyframes levelNotificationSlide {
-    0% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-    50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
-    100% { transform: translateX(-50%) translateY(0); opacity: 1; }
 }
 
 @keyframes levelNotificationPulse {
@@ -786,199 +711,19 @@ body {
         flex-wrap: wrap;
     }
     
-    /* Mobile adjustments for level notification */
-    .level-notification {
-        top: 80px;
-        padding: 8px 15px;
-        max-width: 90%;
-        font-size: 0.8rem;
+    .stat-item {
+        font-size: 10px !important;
+        padding: 2px 4px !important;
+        white-space: nowrap;
     }
     
-    .level-notification h2 {
-        font-size: 1.1rem;
-    }
-    
-    .level-notification p {
-        font-size: 0.8rem;
-    }
-    
-    .level-notification .difficulty-description {
-        font-size: 0.7rem;
-        padding: 3px 6px;
-    }
-    
-    .level-notification .bonus-points {
-        font-size: 0.9rem;
-    }
-    
-    /* Mobile adjustments for facility destroyed image */
-    .facility-destroyed-image {
-        bottom: 15%;
-    }
-    
-    .facility-destroyed-portrait {
-        max-width: 150px;
-    }
-}
-
-/* Mobile Landscape Mode Specific Adjustments */
-@media (max-width: 768px) and (orientation: landscape) {
-    /* In landscape mode, move banner to top-right corner to avoid overlap */
-    .level-notification {
-        top: 10px;
-        right: 10px;
-        left: auto;
-        transform: none;
-        max-width: 280px;
-        padding: 5px 10px;
-        font-size: 0.7rem;
-    }
-    
-    .level-notification h2 {
-        font-size: 1.0rem;
-        margin-bottom: 3px;
-    }
-    
-    .level-notification p {
-        font-size: 0.7rem;
-        margin: 2px 0;
-    }
-    
-    .level-notification .difficulty-description {
-        font-size: 0.6rem;
-        padding: 2px 4px;
-        margin: 3px 0;
-    }
-    
-    .level-notification .bonus-points {
-        font-size: 0.8rem;
-    }
-    
-    /* Move Haminai image further down in landscape to ensure it's visible */
-    .facility-destroyed-image {
-        bottom: 25%;
-    }
-    
-    .facility-destroyed-portrait {
-        max-width: 120px;
-    }
-}
-
-@media (max-width: 768px) {
-    /* Mobile background for centered canvas */
-    #gameContainer {
-        background: #2c3e50;
-    }
-    
-    /* Let JavaScript handle canvas sizing for proper aspect ratio */
-    #gameCanvas {
-        border: 1px solid #e74c3c !important;
-        touch-action: none;
-        cursor: default;
-        /* Remove fixed sizing - let JS handle it */
-    }
-    
-    /* HUD adjustments for mobile */
-    .hud {
-        height: auto !important;
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-        /* Position handled by JS */
-        z-index: 10 !important;
-        right: 0 !important;
-        z-index: 1000 !important;
-    }
-    
-    .hud-left, .hud-center, .hud-right {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .stats {
+    .target-status {
         flex-direction: row !important;
         gap: 8px !important;
         font-size: 11px !important;
         flex-wrap: wrap;
     }
     
-    /* Mobile adjustments for level notification */
-    .level-notification {
-        top: 80px;
-        padding: 8px 15px;
-        max-width: 90%;
-        font-size: 0.8rem;
-    }
-    
-    .level-notification h2 {
-        font-size: 1.1rem;
-    }
-    
-    .level-notification p {
-        font-size: 0.8rem;
-    }
-    
-    .level-notification .difficulty-description {
-        font-size: 0.7rem;
-        padding: 3px 6px;
-    }
-    
-    .level-notification .bonus-points {
-        font-size: 0.9rem;
-    }
-    
-    /* Mobile adjustments for facility destroyed image */
-    .facility-destroyed-image {
-        bottom: 15%;
-    }
-     .facility-destroyed-portrait {
-        max-width: 150px;
-    }
-}
-
-/* Mobile Landscape Orientation - Prevent Overlap */
-@media (max-width: 768px) and (orientation: landscape) {
-    .level-notification {
-        top: 10px !important;
-        right: 10px !important;
-        left: auto !important;
-        transform: none !important;
-        max-width: 250px !important;
-        padding: 4px 8px !important;
-        font-size: 0.65rem !important;
-    }
-    
-    .level-notification h2 {
-        font-size: 0.85rem !important;
-        margin-bottom: 2px !important;
-    }
-    
-    .level-notification p {
-        font-size: 0.6rem !important;
-        margin: 1px 0 !important;
-    }
-    
-    .level-notification .difficulty-description {
-        font-size: 0.5rem !important;
-        padding: 1px 3px !important;
-        margin: 1px 0 !important;
-    }
-    
-    .level-notification .bonus-points {
-        font-size: 0.65rem !important;
-    }
-    
-    /* Ensure Haminai image has clear space */
-    .facility-destroyed-image {
-        bottom: 25% !important;
-    }
-    
-    .facility-destroyed-portrait {
-        max-width: 120px !important;
-    }
-}
-
-/* Continue with original mobile styles for non-landscape */
-@media (max-width: 768px) {
     /* Menu adjustments */
     .menu-content {
         padding: 20px;
@@ -1106,42 +851,7 @@ body {
         font-size: 1.8rem !important;
     }
     
-    /* Smaller level notification for very small screens */
-    .level-notification {
-        top: 70px;
-        padding: 6px 12px;
-        max-width: 95%;
-        font-size: 0.7rem;
-    }
-    
-    .level-notification h2 {
-        font-size: 1.0rem;
-    }
-    
-    .level-notification p {
-        font-size: 0.7rem;
-    }
-    
-    .level-notification .difficulty-description {
-        font-size: 0.6rem;
-        padding: 2px 4px;
-    }
-    
-    .level-notification .bonus-points {
-        font-size: 0.8rem;
-    }
-    
-    /* Smaller facility destroyed image */
-    .facility-destroyed-image {
-        bottom: 20%;
-    }
-    
-    .facility-destroyed-portrait {
-        max-width: 120px;
-    }
-    
     .flag {
-        width: 70px !important;
         width: 70px !important;
         height: 45px !important;
     }

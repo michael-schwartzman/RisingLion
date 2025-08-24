@@ -1,0 +1,38 @@
+# Docker ignore file for RisingLion Game
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+node_modules
+npm-debug.log
+.DS_Store
+.vscode
+.idea
+
+# Temporary files
+*.log
+*.tmp
+
+# Build files
+build/
+dist/
+
+# iOS specific files
+iOS/
+RisingLionApps.xcworkspace/
+build-ios.sh
+iOS-APP-SETUP.md
+
+# Development files
+debug.html
+test-sounds.html
+image-converter.html
+memory-bank/
+*.json
+MEMORY_BANK.md
+PRD.md
+TECHNICAL_DETAILS.md
+
+# MacOS files
+.DS_Store

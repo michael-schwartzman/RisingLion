@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APP_NAME}-service
+  labels:
+    app: ${APP_NAME}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: ${APP_NAME}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${APP_NAME}-headless
+  labels:
+    app: ${APP_NAME}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: ${APP_NAME}

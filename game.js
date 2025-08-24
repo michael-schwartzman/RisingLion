@@ -123,14 +123,13 @@ class OperationRisingLion {
             name: 'Israeli Base'
         };
         
-        // Iranian offensive capabilities - progressive difficulty
+        // Iranian offensive capabilities - increased speed and accuracy
         this.iranianOffensive = {
             attackCooldown: 0,
-            missileSpeed: 2.0,     // Start slower, will increase with levels
-            accuracy: 0.3,         // Start less accurate, will increase with levels
-            attackFrequency: 5000, // Start with less frequent attacks
-            baseAttackChance: 0.0, // Start with no attacks (Level 1 tutorial)
-            enabled: false         // Disabled for tutorial level
+            missileSpeed: 5.5,     // Significantly faster (was 3)
+            accuracy: 0.95,        // Much more accurate (was 0.85)
+            attackFrequency: 2000, // More frequent attacks (was 3000ms)
+            baseAttackChance: 0.25 // Base chance of attack per cycle
         };
         
         // Defense systems - increased number and improved capabilities
@@ -498,11 +497,10 @@ class OperationRisingLion {
                 console.log('Resetting Iranian offensive systems');
                 this.iranianOffensive = {
                     attackCooldown: 0,
-                    missileSpeed: 2.0,     // Start slower
-                    accuracy: 0.3,         // Start less accurate
-                    attackFrequency: 5000, // Start with less frequent attacks
-                    baseAttackChance: 0.0, // Start with no attacks (Level 1 tutorial)
-                    enabled: false         // Disabled for tutorial level
+                    missileSpeed: 5.5,     // Significantly faster (was 3)
+                    accuracy: 0.95,        // Much more accurate (was 0.85)
+                    attackFrequency: 2000, // More frequent attacks (was 3000ms)
+                    baseAttackChance: 0.25 // Base chance of attack per cycle
                 };
             }
             
@@ -518,10 +516,6 @@ class OperationRisingLion {
             this.showScreen('gameScreen');
             this.startTimer();
             this.safelyUpdateHUD();
-            
-            // Initialize difficulty for level 1 (tutorial mode)
-            this.updateDifficulty();
-            
             console.log('Game started successfully');
         } catch (error) {
             console.error('Error starting game:', error);
@@ -670,8 +664,8 @@ class OperationRisingLion {
         if (this.weapons.aircraft.count <= 0) return;
         
         const aircraft = {
-            x: this.launchPlatform.x + this.launchPlatform.width / 2,  // Center exactly on base
-            y: this.launchPlatform.y + this.launchPlatform.height / 2,  // Center exactly on base
+            x: this.launchPlatform.x,
+            y: this.launchPlatform.y - 50,
             vx: 3,
             vy: -0.5 + Math.random() * 1,
             bombs: 2,
@@ -777,11 +771,6 @@ class OperationRisingLion {
     }
     
     updateIranianOffensive() {
-        // Skip Iranian attacks if not enabled (tutorial level)
-        if (!this.iranianOffensive.enabled) {
-            return;
-        }
-        
         if (this.iranianOffensive.attackCooldown > 0) {
             this.iranianOffensive.attackCooldown -= 16.67; // Approximately 60fps
         } else if (this.gameState === 'playing' && !this.launchPlatform.destroyed) {
@@ -1466,24 +1455,6 @@ class OperationRisingLion {
             levelDisplay.textContent = this.currentLevel || 1;
         }
         
-        // Update difficulty display
-        const difficultyDisplay = document.getElementById('difficultyDisplay');
-        if (difficultyDisplay) {
-            let difficultyText = 'Tutorial';
-            if (this.currentLevel === 1) difficultyText = 'Tutorial';
-            else if (this.currentLevel === 2) difficultyText = 'Easy';
-            else if (this.currentLevel === 3) difficultyText = 'Moderate';
-            else if (this.currentLevel === 4) difficultyText = 'Hard';
-            else if (this.currentLevel === 5) difficultyText = 'Very Hard';
-            else if (this.currentLevel === 6) difficultyText = 'Expert';
-            else difficultyText = 'Master';
-            
-            difficultyDisplay.textContent = difficultyText;
-            
-            // Add color coding for difficulty
-            difficultyDisplay.className = 'difficulty-' + difficultyText.toLowerCase().replace(' ', '-');
-        }
-        
         // Update target health bars only for active facilities
         const israeliBaseHealth = document.getElementById('israeliBaseHealth');
         const activeFacilities = this.getActiveFacilities();
@@ -1688,73 +1659,21 @@ class OperationRisingLion {
     drawLaunchPlatform() {
         const platform = this.launchPlatform;
         
-        // Draw unified Israeli military base with integrated aircraft
-        this.drawUnifiedIsraeliBase(platform.x, platform.y, platform.width, platform.height);
-    }
-    
-    drawUnifiedIsraeliBase(x, y, width, height) {
-        // Main base structure
+        // Draw Israeli military aircraft with Sara Netanyahu
+        this.drawIsraeliAircraft(platform.x - 50, platform.y - 80);
+        
+        // Platform base
         this.ctx.fillStyle = '#666';
-        this.ctx.fillRect(x, y, width, height);
+        this.ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
         
-        // Aircraft integrated into the base (positioned on top of the base)
-        const aircraftX = x + 10; // Slightly offset from left edge
-        const aircraftY = y - 15;  // Positioned on top of the base
-        
-        // Aircraft body (compact F-16 style integrated with base)
-        this.ctx.fillStyle = '#4a90e2';
-        this.ctx.fillRect(aircraftX, aircraftY, 60, 15);
-        
-        // Nose cone
-        this.ctx.beginPath();
-        this.ctx.moveTo(aircraftX + 60, aircraftY + 2);
-        this.ctx.lineTo(aircraftX + 75, aircraftY + 7);
-        this.ctx.lineTo(aircraftX + 60, aircraftY + 13);
-        this.ctx.closePath();
-        this.ctx.fill();
-        
-        // Wings integrated with base
-        this.ctx.fillStyle = '#3a7bd5';
-        this.ctx.fillRect(aircraftX + 15, aircraftY - 5, 30, 6);  // Top wing
-        this.ctx.fillRect(aircraftX + 15, aircraftY + 14, 30, 6);  // Bottom wing
-        
-        // Tail
-        this.ctx.fillRect(aircraftX - 3, aircraftY + 2, 10, 12);
-        
-        // Cockpit canopy
-        this.ctx.fillStyle = '#87CEEB';
-        this.ctx.fillRect(aircraftX + 35, aircraftY + 2, 15, 11);
-        
-        // Sara Netanyahu portrait in cockpit
-        this.drawSaraNetanyahu(aircraftX + 42, aircraftY + 7);
-        
-        // Israeli Air Force markings on aircraft
-        this.ctx.fillStyle = '#0038b8';
-        this.ctx.font = '8px Arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('IAF', aircraftX + 30, aircraftY + 25);
-        
-        // Star of David on wing
-        this.ctx.font = '10px Arial';
-        this.ctx.fillText('✡', aircraftX + 30, aircraftY - 2);
-        
-        // Launch tube (part of the base)
+        // Launch tube
         this.ctx.fillStyle = '#444';
-        this.ctx.fillRect(x + width - 20, y - 10, 15, 25);
+        this.ctx.fillRect(platform.x + platform.width - 20, platform.y - 10, 15, 25);
         
-        // Base details and outline
+        // Details
         this.ctx.strokeStyle = '#333';
         this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(x, y, width, height);
-        
-        // Aircraft outline
-        this.ctx.strokeStyle = '#2c5aa0';
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(aircraftX, aircraftY, 60, 15);
-        
-        // Base/aircraft connection details
-        this.ctx.fillStyle = '#555';
-        this.ctx.fillRect(aircraftX + 20, y - 2, 20, 4); // Connection strut
+        this.ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
     }
     
     drawIsraeliAircraft(x, y) {
@@ -2621,89 +2540,25 @@ OperationRisingLion.prototype.getActiveFacilities = function() {
 
 // Update difficulty based on level and time
 OperationRisingLion.prototype.updateDifficulty = function() {
-    // Progressive difficulty scaling based on current level
-    console.log(`Updating difficulty for level ${this.currentLevel}`);
-    
-    if (this.currentLevel === 1) {
-        // Level 1: Tutorial mode - No Iranian attacks
-        this.iranianOffensive.enabled = false;
-        this.iranianOffensive.baseAttackChance = 0.0;
-        console.log('Level 1: Tutorial mode - No Iranian attacks');
-        
-    } else if (this.currentLevel === 2) {
-        // Level 2: Easy mode - Very weak attacks
-        this.iranianOffensive.enabled = true;
-        this.iranianOffensive.baseAttackChance = 0.05; // Very low attack chance
-        this.iranianOffensive.accuracy = 0.3;
-        this.iranianOffensive.missileSpeed = 2.0;
-        this.iranianOffensive.attackFrequency = 6000; // 6 seconds between attack attempts
-        console.log('Level 2: Easy mode - Weak Iranian attacks enabled');
-        
-    } else if (this.currentLevel === 3) {
-        // Level 3: Moderate difficulty
-        this.iranianOffensive.enabled = true;
-        this.iranianOffensive.baseAttackChance = 0.1;
-        this.iranianOffensive.accuracy = 0.5;
-        this.iranianOffensive.missileSpeed = 3.0;
-        this.iranianOffensive.attackFrequency = 4500;
-        console.log('Level 3: Moderate difficulty');
-        
-    } else if (this.currentLevel === 4) {
-        // Level 4: Getting harder
-        this.iranianOffensive.enabled = true;
-        this.iranianOffensive.baseAttackChance = 0.15;
-        this.iranianOffensive.accuracy = 0.65;
-        this.iranianOffensive.missileSpeed = 3.5;
-        this.iranianOffensive.attackFrequency = 3500;
-        console.log('Level 4: Increased difficulty');
-        
-    } else if (this.currentLevel === 5) {
-        // Level 5: Hard mode
-        this.iranianOffensive.enabled = true;
-        this.iranianOffensive.baseAttackChance = 0.2;
-        this.iranianOffensive.accuracy = 0.75;
-        this.iranianOffensive.missileSpeed = 4.0;
-        this.iranianOffensive.attackFrequency = 3000;
-        console.log('Level 5: Hard difficulty');
-        
-    } else if (this.currentLevel === 6) {
-        // Level 6: Very hard
-        this.iranianOffensive.enabled = true;
-        this.iranianOffensive.baseAttackChance = 0.25;
-        this.iranianOffensive.accuracy = 0.85;
-        this.iranianOffensive.missileSpeed = 4.5;
-        this.iranianOffensive.attackFrequency = 2500;
-        console.log('Level 6: Very hard difficulty');
-        
-    } else {
-        // Level 7+: Expert mode
-        this.iranianOffensive.enabled = true;
-        this.iranianOffensive.baseAttackChance = 0.3;
-        this.iranianOffensive.accuracy = 0.95;
-        this.iranianOffensive.missileSpeed = 5.0;
-        this.iranianOffensive.attackFrequency = 2000;
-        console.log('Level 7+: Expert difficulty');
-    }
-    
-    // Base difficulty increases with level for defense systems
-    this.difficultyMultiplier = 1.0 + (this.currentLevel - 1) * 0.2;
+    // Base difficulty increases with level
+    this.difficultyMultiplier = 1.0 + (this.currentLevel - 1) * 0.3;
     
     // Speed increases with level and time
     const timeElapsed = 180 - this.timeLeft; // Total time elapsed
-    const timeBasedIncrease = timeElapsed / 120; // Slower increase every 2 minutes
-    this.speedMultiplier = 1.0 + (this.currentLevel - 1) * 0.15 + timeBasedIncrease * 0.05;
+    const timeBasedIncrease = timeElapsed / 60; // Increase every minute
+    this.speedMultiplier = 1.0 + (this.currentLevel - 1) * 0.2 + timeBasedIncrease * 0.1;
     
-    // Apply difficulty to defense systems (more gradually)
+    // Apply difficulty to defense systems
     this.defenseSystems.forEach(system => {
         if (system.originalCooldown === undefined) {
             system.originalCooldown = system.maxCooldown;
             system.originalAccuracy = system.accuracy;
         }
         
-        // Gradually faster defense systems at higher levels
-        system.maxCooldown = Math.max(15, system.originalCooldown / (1 + (this.currentLevel - 1) * 0.1));
-        // Gradually more accurate defense systems
-        system.accuracy = Math.min(0.9, system.originalAccuracy * (1 + (this.currentLevel - 1) * 0.05));
+        // Faster defense systems at higher levels
+        system.maxCooldown = Math.max(10, system.originalCooldown / this.difficultyMultiplier);
+        // More accurate defense systems
+        system.accuracy = Math.min(0.95, system.originalAccuracy * (1 + (this.currentLevel - 1) * 0.1));
     });
 };
 
@@ -2749,63 +2604,23 @@ OperationRisingLion.prototype.advanceLevel = function() {
 
 // Show level advancement notification
 OperationRisingLion.prototype.showLevelAdvanceNotification = function() {
-    // Determine difficulty level text and description
-    let difficultyInfo = {};
-    if (this.currentLevel === 1) {
-        difficultyInfo = {
-            name: 'Tutorial',
-            description: 'Learn the basics - No Iranian counterattacks'
-        };
-    } else if (this.currentLevel === 2) {
-        difficultyInfo = {
-            name: 'Easy',
-            description: 'Iranian forces begin weak counterattacks'
-        };
-    } else if (this.currentLevel === 3) {
-        difficultyInfo = {
-            name: 'Moderate',
-            description: 'Increased missile accuracy and frequency'
-        };
-    } else if (this.currentLevel === 4) {
-        difficultyInfo = {
-            name: 'Hard',
-            description: 'Faster missiles and better targeting'
-        };
-    } else if (this.currentLevel === 5) {
-        difficultyInfo = {
-            name: 'Very Hard',
-            description: 'Frequent accurate missile salvos'
-        };
-    } else if (this.currentLevel === 6) {
-        difficultyInfo = {
-            name: 'Expert',
-            description: 'Elite Iranian defense systems activated'
-        };
-    } else {
-        difficultyInfo = {
-            name: 'Master',
-            description: 'Maximum Iranian resistance - Stay alert!'
-        };
-    }
-    
     // Create notification element
     const notification = document.createElement('div');
     notification.className = 'level-notification';
     notification.innerHTML = `
-        <h2>LEVEL ${this.currentLevel} - ${difficultyInfo.name.toUpperCase()}</h2>
+        <h2>LEVEL ${this.currentLevel}</h2>
         <p>New target facility activated!</p>
-        <p class="difficulty-description">${difficultyInfo.description}</p>
-        <p class="bonus-points">+${500 * this.currentLevel} Bonus Points</p>
+        <p>+${500 * this.currentLevel} Bonus Points</p>
     `;
     
     document.body.appendChild(notification);
     
-    // Remove after 2.5 seconds (shorter since it's less intrusive)
+    // Remove after 3 seconds
     setTimeout(() => {
         if (notification.parentNode) {
             notification.parentNode.removeChild(notification);
         }
-    }, 2500);
+    }, 3000);
 };
 
 // Implement Sara Netanyahu image loading with proper fallback
