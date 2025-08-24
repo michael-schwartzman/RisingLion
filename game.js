@@ -191,6 +191,10 @@ class OperationRisingLion {
             this.showScreen('mainMenu');
             console.log('Main menu displayed');
             
+            // Initialize theme
+            this.initializeTheme();
+            console.log('Theme initialized');
+            
             // Start the game loop
             this.gameLoop();
             console.log('Game loop started');
@@ -225,9 +229,25 @@ class OperationRisingLion {
                 showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Theme toggle functionality
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => this.toggleTheme());
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -2567,6 +2587,41 @@ OperationRisingLion.prototype.checkOrientation = function() {
     }
 };
 
+// Theme Management Methods
+OperationRisingLion.prototype.initializeTheme = function() {
+    // Load saved theme or default to dark
+    const savedTheme = localStorage.getItem('risingLionTheme') || 'dark';
+    this.applyTheme(savedTheme);
+};
+
+OperationRisingLion.prototype.toggleTheme = function() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    this.applyTheme(newTheme);
+    
+    // Save to localStorage
+    localStorage.setItem('risingLionTheme', newTheme);
+};
+
+OperationRisingLion.prototype.applyTheme = function(theme) {
+    // Apply theme to document
+    if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+    }
+    
+    // Update toggle button text
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+        const themeLabel = themeToggle.querySelector('.theme-label');
+        if (themeLabel) {
+            themeLabel.textContent = theme === 'light' ? 'Light' : 'Dark';
+        }
+    }
+    
+    console.log('Theme applied:', theme);
+};
 OperationRisingLion.prototype.setupOrientationHandling = function() {
     if (!this.isMobile()) return;
     
