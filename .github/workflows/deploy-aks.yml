@@ -85,7 +85,7 @@ jobs:
           export INGRESS_HOST="games.risinglion.dev"
         else
           export INGRESS_PATH="/"
-          export INGRESS_HOST="risinglion.games"
+          export INGRESS_HOST="risinglion.schwartzman.org"
         fi
         
         envsubst < k8s/ingress.yaml | kubectl apply -n $NAMESPACE -f -
