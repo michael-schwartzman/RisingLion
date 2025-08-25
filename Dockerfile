@@ -13,8 +13,7 @@ RUN chmod -R 644 /usr/share/nginx/html/images/* || true
 RUN chmod -R 644 /usr/share/nginx/html/sounds/* || true
 RUN chmod -R 755 /usr/share/nginx/html/images/ /usr/share/nginx/html/sounds/
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Use default nginx configuration (custom config handled by ingress)
 
 # Expose port 80
 EXPOSE 80
