@@ -1,0 +1,1290 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    color: #333;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* Prevent zoom and scrolling on mobile */
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#gameContainer {
+    height: 100vh;
+    position: relative;
+    width: 100vw;
+}
+
+/* Screen Management */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.screen.hidden, .hidden {
+    display: none;
+}
+
+/* Victory Image Styles */
+.victory-image {
+    margin: 20px auto;
+    text-align: center;
+    transition: all 0.5s ease;
+    max-width: 100%;
+}
+
+.victory-portrait {
+    max-width: 250px;
+    border: 3px solid #ffcc00;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 204, 0, 0.7);
+    animation: victoryGlow 2s infinite alternate;
+}
+
+/* Facility Destroyed Image Styles */
+.facility-destroyed-image {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    text-align: center;
+    pointer-events: none;
+}
+
+.facility-destroyed-portrait {
+    max-width: 200px;
+    border: 3px solid #ff5500;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(255, 85, 0, 0.9);
+    animation: facilityDestroyedGlow 0.5s 4 alternate;
+}
+
+@keyframes facilityDestroyedGlow {
+    from { box-shadow: 0 0 20px rgba(255, 85, 0, 0.9); }
+    to { box-shadow: 0 0 30px rgba(255, 85, 0, 1); }
+}
+
+/* Main Menu Styles */
+#mainMenu {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+}
+
+.menu-content {
+    text-align: center;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    border: 3px solid #e74c3c;
+}
+
+.menu-content h1 {
+    font-size: 3rem;
+    color: #e74c3c;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Flag Styles */
+.flag-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px 0;
+    gap: 30px;
+}
+
+.flag {
+    width: 120px;
+    height: 80px;
+    border: 2px solid #333;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Israeli Flag */
+.israeli-flag {
+    background: white;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Blue stripes for Israeli flag using gradient */
+.israeli-flag::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom,
+        transparent 0%, transparent 15%,
+        #0038b8 15%, #0038b8 27%,
+        transparent 27%, transparent 73%,
+        #0038b8 73%, #0038b8 85%,
+        transparent 85%, transparent 100%);
+    z-index: 1;
+}
+
+/* Star of David - centered */
+.israeli-flag::after {
+    content: '✡';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    font-size: 24px;
+    line-height: 1;
+    color: #0038b8;
+    font-weight: bold;
+    text-shadow: 0 0 1px white, 0 0 2px white;
+}
+
+/* Iranian Flag */
+.iranian-flag {
+    background: linear-gradient(to bottom, #239f40 33%, white 33%, white 66%, #da0000 66%);
+}
+
+/* Mini flags for HUD */
+.flag-mini {
+    width: 40px;
+    height: 24px;
+    border: 1px solid #333;
+    margin-right: 10px;
+}
+
+.israeli-flag-mini {
+    background: 
+        /* Top blue stripe */
+        linear-gradient(to right, #0038b8 0%, #0038b8 100%) 0 3px / 100% 2px no-repeat,
+        /* Bottom blue stripe */
+        linear-gradient(to right, #0038b8 0%, #0038b8 100%) 0 calc(100% - 5px) / 100% 2px no-repeat,
+        /* White background */
+        white;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.israeli-flag-mini::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom,
+        transparent 0%, transparent 15%,
+        #0038b8 15%, #0038b8 27%,
+        transparent 27%, transparent 73%,
+        #0038b8 73%, #0038b8 85%,
+        transparent 85%, transparent 100%);
+    z-index: 1;
+}
+
+.israeli-flag-mini::after {
+    content: '✡';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    font-size: 12px;
+    line-height: 1;
+    color: #0038b8;
+    font-weight: bold;
+}
+
+.iranian-flag-mini {
+    background: linear-gradient(to bottom, #239f40 33%, white 33%, white 66%, #da0000 66%);
+}
+
+.vs {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #e74c3c;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Button Styles */
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #c0392b, #e74c3c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #34495e, #2c3e50);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(45deg, #2c3e50, #34495e);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(52, 73, 94, 0.4);
+}
+
+/* Instructions Screen */
+#instructionsScreen, #gameOverScreen {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.screen-content {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 15px;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 3px solid #e74c3c;
+}
+
+.screen-content h2 {
+    color: #e74c3c;
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.instructions-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.objective, .controls, .strategy {
+    background: rgba(52, 73, 94, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.objective {
+    grid-column: span 2;
+}
+
+.instructions-content h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.instructions-content ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.instructions-content li {
+    margin: 8px 0;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    border-left: 4px solid #e74c3c;
+}
+
+/* Game Screen */
+#gameScreen {
+    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+}
+
+/* HUD */
+#gameHUD {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 100;
+    border-bottom: 3px solid #e74c3c;
+}
+
+.hud-left, .hud-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.hud-right {
+    justify-content: flex-end;
+}
+
+.hud-center {
+    flex: 3;
+    display: flex;
+    justify-content: center;
+    max-height: 70px;
+}
+
+.stats {
+    color: white;
+    font-size: 1.1rem;
+    display: flex;
+    gap: 20px;
+}
+
+.stats div {
+    background: rgba(231, 76, 60, 0.3);
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #e74c3c;
+}
+
+/* Difficulty color coding */
+.difficulty-tutorial {
+    background: rgba(46, 204, 113, 0.3) !important;
+    border-color: #2ecc71 !important;
+    color: #2ecc71;
+}
+
+.difficulty-easy {
+    background: rgba(52, 152, 219, 0.3) !important;
+    border-color: #3498db !important;
+    color: #3498db;
+}
+
+.difficulty-moderate {
+    background: rgba(241, 196, 15, 0.3) !important;
+    border-color: #f1c40f !important;
+    color: #f1c40f;
+}
+
+.difficulty-hard {
+    background: rgba(230, 126, 34, 0.3) !important;
+    border-color: #e67e22 !important;
+    color: #e67e22;
+}
+
+.difficulty-very-hard {
+    background: rgba(231, 76, 60, 0.3) !important;
+    border-color: #e74c3c !important;
+    color: #e74c3c;
+}
+
+.difficulty-expert {
+    background: rgba(155, 89, 182, 0.3) !important;
+    border-color: #9b59b6 !important;
+    color: #9b59b6;
+}
+
+.difficulty-master {
+    background: rgba(220, 20, 60, 0.3) !important;
+    border-color: #dc143c !important;
+    color: #dc143c;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.target-status {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-height: 70px;
+    overflow-y: auto;
+}
+
+.target {
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.health-bar {
+    width: 70px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 2px;
+    border: 1px solid #333;
+}
+
+.health-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    transition: width 0.5s ease;
+    width: 100%;
+}
+
+.health-fill.damaged {
+    background: linear-gradient(90deg, #f39c12, #e67e22);
+}
+
+.health-fill.critical {
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.weapon-select {
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.weapon-select select {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid #e74c3c;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.weapon-select option {
+    background: #2c3e50;
+    color: white;
+}
+
+/* Game Canvas */
+#gameCanvas {
+    position: absolute;
+    top: 80px;
+    left: 0;
+    border: 2px solid #e74c3c;
+    cursor: crosshair;
+    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    /* Make canvas responsive */
+    max-width: 100%;
+    max-height: calc(100vh - 80px);
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Power Meter */
+#powerMeter {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: 2px solid #e74c3c;
+    color: white;
+    text-align: center;
+    min-width: 200px;
+}
+
+.power-label {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.power-bar {
+    width: 180px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+.power-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60, #f39c12, #e74c3c);
+    transition: width 0.1s ease;
+    width: 0%;
+}
+
+/* Game Over Screen */
+.mission-results {
+    background: rgba(52, 73, 94, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.mission-status {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.mission-status.victory {
+    background: rgba(39, 174, 96, 0.2);
+    color: #27ae60;
+    border: 2px solid #27ae60;
+}
+
+.mission-status.defeat {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+}
+
+.game-over-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Level progression notification */
+.level-notification {
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
+    z-index: 9999;
+    text-align: center;
+    border: 2px solid #ffffff;
+    animation: levelNotificationSlide 0.5s ease-in-out;
+    font-size: 0.9rem;
+    max-width: 400px;
+}
+
+.level-notification h2 {
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.level-notification p {
+    font-size: 0.9rem;
+    margin: 3px 0;
+}
+
+.level-notification .difficulty-description {
+    font-size: 0.8rem;
+    color: #f39c12;
+    font-style: italic;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin: 5px 0;
+}
+
+.level-notification .bonus-points {
+    font-size: 1.0rem;
+    font-weight: bold;
+    color: #2ecc71;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes levelNotificationSlide {
+    0% { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+    50% { transform: translateX(-50%) translateY(10px); opacity: 1; }
+    100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+@keyframes levelNotificationPulse {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* Animations */
+@keyframes explosion {
+    0% { transform: scale(0); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes missile-trail {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.explosion {
+    animation: explosion 0.8s ease-out;
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* Landscape Orientation Requirement */
+.landscape-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    color: white;
+}
+
+.prompt-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 350px;
+    background: rgba(231, 76, 60, 0.1);
+    border: 2px solid #e74c3c;
+    border-radius: 15px;
+}
+
+.rotate-icon {
+    font-size: 5rem;
+    margin-bottom: 25px;
+    animation: rotateDevice 2s ease-in-out infinite;
+}
+
+@keyframes rotateDevice {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+}
+
+.prompt-content h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.prompt-content p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+/* Hide the prompt by default */
+.landscape-prompt.hidden {
+    display: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .menu-content h1 {
+        font-size: 2rem;
+    }
+    
+    .flag {
+        width: 80px;
+        height: 53px;
+    }
+    
+    .instructions-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .objective {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile background for centered canvas */
+    #gameContainer {
+        background: #2c3e50;
+    }
+    
+    /* Let JavaScript handle canvas sizing for proper aspect ratio */
+    #gameCanvas {
+        border: 1px solid #e74c3c !important;
+        touch-action: none;
+        cursor: default;
+        /* Remove fixed sizing - let JS handle it */
+    }
+    
+    /* HUD adjustments for mobile */
+    .hud {
+        height: auto !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        /* Position handled by JS */
+        z-index: 10 !important;
+        right: 0 !important;
+        z-index: 1000 !important;
+    }
+    
+    .hud-left, .hud-center, .hud-right {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .stats {
+        flex-direction: row !important;
+        gap: 8px !important;
+        font-size: 11px !important;
+        flex-wrap: wrap;
+    }
+    
+    /* Mobile adjustments for level notification */
+    .level-notification {
+        top: 80px;
+        padding: 8px 15px;
+        max-width: 90%;
+        font-size: 0.8rem;
+    }
+    
+    .level-notification h2 {
+        font-size: 1.1rem;
+    }
+    
+    .level-notification p {
+        font-size: 0.8rem;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    .level-notification .bonus-points {
+        font-size: 0.9rem;
+    }
+    
+    /* Mobile adjustments for facility destroyed image */
+    .facility-destroyed-image {
+        bottom: 15%;
+    }
+    
+    .facility-destroyed-portrait {
+        max-width: 150px;
+    }
+}
+
+/* Mobile Landscape Mode Specific Adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    /* In landscape mode, move banner to top-right corner to avoid overlap */
+    .level-notification {
+        top: 10px;
+        right: 10px;
+        left: auto;
+        transform: none;
+        max-width: 280px;
+        padding: 5px 10px;
+        font-size: 0.7rem;
+    }
+    
+    .level-notification h2 {
+        font-size: 1.0rem;
+        margin-bottom: 3px;
+    }
+    
+    .level-notification p {
+        font-size: 0.7rem;
+        margin: 2px 0;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+        margin: 3px 0;
+    }
+    
+    .level-notification .bonus-points {
+        font-size: 0.8rem;
+    }
+    
+    /* Move Haminai image further down in landscape to ensure it's visible */
+    .facility-destroyed-image {
+        bottom: 25%;
+    }
+    
+    .facility-destroyed-portrait {
+        max-width: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile background for centered canvas */
+    #gameContainer {
+        background: #2c3e50;
+    }
+    
+    /* Let JavaScript handle canvas sizing for proper aspect ratio */
+    #gameCanvas {
+        border: 1px solid #e74c3c !important;
+        touch-action: none;
+        cursor: default;
+        /* Remove fixed sizing - let JS handle it */
+    }
+    
+    /* HUD adjustments for mobile */
+    .hud {
+        height: auto !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        /* Position handled by JS */
+        z-index: 10 !important;
+        right: 0 !important;
+        z-index: 1000 !important;
+    }
+    
+    .hud-left, .hud-center, .hud-right {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .stats {
+        flex-direction: row !important;
+        gap: 8px !important;
+        font-size: 11px !important;
+        flex-wrap: wrap;
+    }
+    
+    /* Mobile adjustments for level notification */
+    .level-notification {
+        top: 80px;
+        padding: 8px 15px;
+        max-width: 90%;
+        font-size: 0.8rem;
+    }
+    
+    .level-notification h2 {
+        font-size: 1.1rem;
+    }
+    
+    .level-notification p {
+        font-size: 0.8rem;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.7rem;
+        padding: 3px 6px;
+    }
+    
+    .level-notification .bonus-points {
+        font-size: 0.9rem;
+    }
+    
+    /* Mobile adjustments for facility destroyed image */
+    .facility-destroyed-image {
+        bottom: 15%;
+    }
+     .facility-destroyed-portrait {
+        max-width: 150px;
+    }
+}
+
+/* Mobile Landscape Orientation - Prevent Overlap */
+@media (max-width: 768px) and (orientation: landscape) {
+    .level-notification {
+        top: 10px !important;
+        right: 10px !important;
+        left: auto !important;
+        transform: none !important;
+        max-width: 250px !important;
+        padding: 4px 8px !important;
+        font-size: 0.65rem !important;
+    }
+    
+    .level-notification h2 {
+        font-size: 0.85rem !important;
+        margin-bottom: 2px !important;
+    }
+    
+    .level-notification p {
+        font-size: 0.6rem !important;
+        margin: 1px 0 !important;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.5rem !important;
+        padding: 1px 3px !important;
+        margin: 1px 0 !important;
+    }
+    
+    .level-notification .bonus-points {
+        font-size: 0.65rem !important;
+    }
+    
+    /* Ensure Haminai image has clear space */
+    .facility-destroyed-image {
+        bottom: 25% !important;
+    }
+    
+    .facility-destroyed-portrait {
+        max-width: 120px !important;
+    }
+}
+
+/* Continue with original mobile styles for non-landscape */
+@media (max-width: 768px) {
+    /* Menu adjustments */
+    .menu-content {
+        padding: 20px;
+        max-width: 90%;
+    }
+    
+    .menu-content h1 {
+        font-size: 2rem !important;
+        margin-bottom: 15px;
+    }
+    
+    .flag-container {
+        gap: 15px;
+        margin: 15px 0;
+    }
+    
+    .flag {
+        width: 80px !important;
+        height: 50px !important;
+    }
+    
+    .vs {
+        font-size: 1.2rem;
+    }
+    
+    .menu-buttons {
+        gap: 10px;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 15px 25px !important;
+        font-size: 16px !important;
+        min-width: 150px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    /* Screen content adjustments */
+    .screen-content {
+        padding: 15px;
+        margin: 10px;
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+    
+    .screen-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .instructions-content {
+        gap: 15px;
+        font-size: 14px;
+        grid-template-columns: 1fr !important;
+    }
+    
+    .objective {
+        grid-column: span 1 !important;
+    }
+    
+    .objective ul {
+        padding-left: 15px;
+    }
+    
+    .objective li {
+        margin-bottom: 5px;
+    }
+    
+    /* Controls section for mobile */
+    .controls {
+        font-size: 14px;
+    }
+    
+    .controls ul {
+        padding-left: 15px;
+    }
+    
+    /* Power meter mobile */
+    #powerMeter {
+        position: fixed !important;
+        bottom: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        width: 200px;
+        z-index: 10 !important;
+    }
+    
+    /* Victory/Game Over screens */
+    .victory-image, .defeat-image {
+        margin: 10px auto;
+    }
+    
+    .victory-portrait, .defeat-portrait {
+        max-width: 200px;
+    }
+    
+    /* Results display */
+    .results {
+        gap: 8px;
+        font-size: 14px;
+    }
+    
+    .result-item {
+        font-size: 13px;
+    }
+    
+    /* Weapon selector */
+    #weaponControls {
+        font-size: 12px;
+    }
+    
+    #weaponType {
+        font-size: 16px !important;
+        padding: 8px 12px !important;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra small screens (phones) */
+    .menu-content h1 {
+        font-size: 1.8rem !important;
+    }
+    
+    /* Smaller level notification for very small screens */
+    .level-notification {
+        top: 70px;
+        padding: 6px 12px;
+        max-width: 95%;
+        font-size: 0.7rem;
+    }
+    
+    .level-notification h2 {
+        font-size: 1.0rem;
+    }
+    
+    .level-notification p {
+        font-size: 0.7rem;
+    }
+    
+    .level-notification .difficulty-description {
+        font-size: 0.6rem;
+        padding: 2px 4px;
+    }
+    
+    .level-notification .bonus-points {
+        font-size: 0.8rem;
+    }
+    
+    /* Smaller facility destroyed image */
+    .facility-destroyed-image {
+        bottom: 20%;
+    }
+    
+    .facility-destroyed-portrait {
+        max-width: 120px;
+    }
+    
+    .flag {
+        width: 70px !important;
+        width: 70px !important;
+        height: 45px !important;
+    }
+    
+    .flag-container {
+        gap: 10px;
+    }
+    
+    .vs {
+        font-size: 1rem;
+    }
+    
+    .btn-primary, .btn-secondary {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+        min-width: 130px;
+    }
+    
+    .hud {
+        height: 50px !important;
+        font-size: 10px !important;
+        padding: 3px 8px !important;
+    }
+    
+    #gameCanvas {
+        height: calc(100vh - 100px) !important;
+        top: 50px !important;
+    }
+    
+    .stats {
+        gap: 5px !important;
+    }
+    
+    .stat-item {
+        font-size: 9px !important;
+        padding: 1px 3px !important;
+    }
+    
+    #powerMeter {
+        width: 180px !important;
+        padding: 6px 10px !important;
+        font-size: 11px !important;
+    }
+    
+    .screen-content {
+        padding: 10px;
+        margin: 5px;
+        font-size: 13px;
+    }
+    
+    .victory-portrait, .defeat-portrait {
+        max-width: 150px;
+    }
+}
+
+/* Touch-friendly interactive elements */
+@media (hover: none) and (pointer: coarse) {
+    /* Mobile touch devices */
+    .btn-primary:hover, .btn-secondary:hover {
+        transform: none;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+    
+    /* Remove cursor pointer on touch devices */
+    #gameCanvas {
+        cursor: default !important;
+    }
+    
+    /* Ensure touch targets are large enough */
+    button, select, input {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Flag improvements for mobile */
+.israeli-flag::before {
+    font-size: 28px !important;
+    font-weight: bold;
+}
+
+.flag {
+    border: 2px solid #333 !important;
+}
+
+.flag-container {
+    margin: 20px 0;
+}
+
+.flag-container .flag {
+    width: 80px;
+    height: 48px;
+}
+
+/* Landscape Orientation Requirement */
+.landscape-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    color: white;
+}
+
+.prompt-content {
+    text-align: center;
+    padding: 40px;
+    max-width: 350px;
+    background: rgba(231, 76, 60, 0.1);
+    border: 2px solid #e74c3c;
+    border-radius: 15px;
+}
+
+.rotate-icon {
+    font-size: 5rem;
+    margin-bottom: 25px;
+    animation: rotateDevice 2s ease-in-out infinite;
+}
+
+@keyframes rotateDevice {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+}
+
+.prompt-content h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.prompt-content p {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.prompt-content p strong {
+    color: #ffcc00;
+    font-size: 1.2rem;
+}
