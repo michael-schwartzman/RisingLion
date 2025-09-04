@@ -225,9 +225,19 @@ class OperationRisingLion {
                 showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -317,6 +327,21 @@ class OperationRisingLion {
                 });
             }
             
+            // Theme toggle
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                // Load saved theme preference
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                this.setTheme(savedTheme);
+                themeToggle.checked = savedTheme === 'light';
+                
+                themeToggle.addEventListener('change', (e) => {
+                    const newTheme = e.target.checked ? 'light' : 'dark';
+                    this.setTheme(newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            }
+            
             console.log('Event listeners setup complete');
         } catch (error) {
             console.error('Error setting up event listeners:', error);
@@ -340,6 +365,15 @@ class OperationRisingLion {
         // Check orientation when showing main menu
         if (screenId === 'mainMenu') {
             setTimeout(() => this.checkOrientation(), 100);
+        }
+    }
+    
+    setTheme(theme) {
+        console.log(`Setting theme to: ${theme}`);
+        if (theme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
         }
     }
     
