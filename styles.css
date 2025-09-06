@@ -1,3 +1,50 @@
+/* CSS Custom Properties for Theme Management */
+:root {
+    /* Light Theme (Default) */
+    --primary-bg: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    --primary-text: #333;
+    --menu-bg: linear-gradient(135deg, #2c3e50, #34495e);
+    --menu-text: white;
+    --menu-content-bg: rgba(0, 0, 0, 0.7);
+    --screen-content-bg: rgba(255, 255, 255, 0.95);
+    --screen-content-text: #333;
+    --button-primary-bg: linear-gradient(45deg, #e74c3c, #c0392b);
+    --button-primary-hover: linear-gradient(45deg, #c0392b, #e74c3c);
+    --button-secondary-bg: linear-gradient(45deg, #34495e, #2c3e50);
+    --button-secondary-hover: linear-gradient(45deg, #2c3e50, #34495e);
+    --border-color: #e74c3c;
+    --hud-bg: rgba(0, 0, 0, 0.8);
+    --hud-text: white;
+    --game-bg: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    --health-bar-bg: rgba(0, 0, 0, 0.7);
+    --health-good: #27ae60;
+    --health-medium: #f39c12;
+    --health-bad: #e74c3c;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --primary-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 70%, #0f3460 100%);
+    --primary-text: #e0e0e0;
+    --menu-bg: linear-gradient(135deg, #1a1a2e, #16213e);
+    --menu-text: #e0e0e0;
+    --menu-content-bg: rgba(0, 0, 0, 0.9);
+    --screen-content-bg: rgba(30, 30, 30, 0.95);
+    --screen-content-text: #e0e0e0;
+    --button-primary-bg: linear-gradient(45deg, #e74c3c, #c0392b);
+    --button-primary-hover: linear-gradient(45deg, #c0392b, #e74c3c);
+    --button-secondary-bg: linear-gradient(45deg, #4a4a4a, #3a3a3a);
+    --button-secondary-hover: linear-gradient(45deg, #3a3a3a, #4a4a4a);
+    --border-color: #e74c3c;
+    --hud-bg: rgba(0, 0, 0, 0.9);
+    --hud-text: #e0e0e0;
+    --game-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 70%, #0f3460 100%);
+    --health-bar-bg: rgba(0, 0, 0, 0.8);
+    --health-good: #27ae60;
+    --health-medium: #f39c12;
+    --health-bad: #e74c3c;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,8 +53,8 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
-    color: #333;
+    background: var(--primary-bg);
+    color: var(--primary-text);
     overflow: hidden;
     height: 100vh;
     width: 100vw;
@@ -88,16 +135,16 @@ body {
 
 /* Main Menu Styles */
 #mainMenu {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    color: white;
+    background: var(--menu-bg);
+    color: var(--menu-text);
 }
 
 .menu-content {
     text-align: center;
     padding: 40px;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--menu-content-bg);
     border-radius: 15px;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--border-color);
 }
 
 .menu-content h1 {
@@ -252,47 +299,101 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    background: var(--button-primary-bg);
     color: white;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(45deg, #c0392b, #e74c3c);
+    background: var(--button-primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
 }
 
 .btn-secondary {
-    background: linear-gradient(45deg, #34495e, #2c3e50);
+    background: var(--button-secondary-bg);
     color: white;
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(45deg, #2c3e50, #34495e);
+    background: var(--button-secondary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(52, 73, 94, 0.4);
 }
 
-/* Instructions Screen */
-#instructionsScreen, #gameOverScreen {
+/* Instructions Screen and Settings Screen */
+#instructionsScreen, #gameOverScreen, #settingsScreen {
     background: rgba(0, 0, 0, 0.9);
 }
 
 .screen-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--screen-content-bg);
+    color: var(--screen-content-text);
     padding: 40px;
     border-radius: 15px;
     max-width: 800px;
     max-height: 80vh;
     overflow-y: auto;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--border-color);
 }
 
 .screen-content h2 {
-    color: #e74c3c;
+    color: var(--border-color);
     font-size: 2.5rem;
     text-align: center;
     margin-bottom: 30px;
+}
+
+/* Settings Screen Specific Styles */
+.settings-content {
+    margin-bottom: 30px;
+}
+
+.setting-group {
+    margin-bottom: 30px;
+}
+
+.setting-group h3 {
+    color: var(--border-color);
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.setting-item label {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+.theme-select {
+    padding: 8px 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    background: var(--screen-content-bg);
+    color: var(--screen-content-text);
+    font-size: 1rem;
+    min-width: 150px;
+    cursor: pointer;
+}
+
+.theme-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
 }
 
 .instructions-content {
@@ -333,7 +434,7 @@ body {
 
 /* Game Screen */
 #gameScreen {
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    background: var(--game-bg);
 }
 
 /* HUD */
@@ -343,12 +444,12 @@ body {
     left: 0;
     right: 0;
     height: 80px;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--hud-bg);
     display: flex;
     align-items: center;
     padding: 0 20px;
     z-index: 100;
-    border-bottom: 3px solid #e74c3c;
+    border-bottom: 3px solid var(--border-color);
 }
 
 .hud-left, .hud-right {
@@ -369,7 +470,7 @@ body {
 }
 
 .stats {
-    color: white;
+    color: var(--hud-text);
     font-size: 1.1rem;
     display: flex;
     gap: 20px;

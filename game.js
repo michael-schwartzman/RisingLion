@@ -13,6 +13,10 @@ class OperationRisingLion {
         this.aimEndX = 0;
         this.aimEndY = 0;
         
+        // Initialize theme management
+        this.themeManager = new ThemeManager();
+        this.themeManager.initialize();
+        
         // Weapons inventory
         this.weapons = {
             missile: { count: Infinity, name: 'Missile' },
@@ -225,9 +229,19 @@ class OperationRisingLion {
                 showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -1584,7 +1598,25 @@ class OperationRisingLion {
             this.ctx.translate(shakeX, shakeY);
         }
         
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Clear canvas with theme-appropriate background
+        const actualTheme = this.themeManager.getActualTheme();
+        if (actualTheme === 'dark') {
+            // Dark theme game background
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+            gradient.addColorStop(0, '#1a1a2e');
+            gradient.addColorStop(0.7, '#16213e');
+            gradient.addColorStop(1, '#0f3460');
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        } else {
+            // Light theme game background
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.7, '#DEB887');
+            gradient.addColorStop(1, '#8B4513');
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
         
         if (this.gameState === 'playing') {
             this.drawBackground();
@@ -2412,6 +2444,13 @@ class OperationRisingLion {
         
         this.ctx.restore();
     }
+    
+    updateCanvasTheme() {
+        // This method is called when theme changes to update canvas immediately
+        if (this.gameState === 'playing') {
+            this.render();
+        }
+    }
 
     gameLoop() {
         this.update();
@@ -3138,3 +3177,127 @@ OperationRisingLion.prototype.debugTouch = function(message, coords) {
         console.log(`Touch Debug: ${message}`, coords);
     }
 };
+
+// Theme Management System
+class ThemeManager {
+    constructor() {
+        this.currentTheme = 'light';
+        this.systemPrefersDark = false;
+        this.themeSelect = null;
+    }
+    
+    initialize() {
+        console.log('Initializing Theme Manager...');
+        
+        // Check for system preference
+        this.systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // Load saved theme or use system preference
+        const savedTheme = localStorage.getItem('risingLionTheme');
+        if (savedTheme) {
+            this.currentTheme = savedTheme;
+        } else if (this.systemPrefersDark) {
+            this.currentTheme = 'auto';
+        }
+        
+        // Apply initial theme
+        this.applyTheme(this.currentTheme);
+        
+        // Set up theme selector when it becomes available
+        this.setupThemeSelector();
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                this.systemPrefersDark = e.matches;
+                if (this.currentTheme === 'auto') {
+                    this.applyTheme('auto');
+                }
+            });
+        }
+        
+        console.log(`Theme Manager initialized with theme: ${this.currentTheme}`);
+    }
+    
+    setupThemeSelector() {
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            this.themeSelect = document.getElementById('themeToggle');
+            if (this.themeSelect) {
+                console.log('Theme selector found, setting up event listener');
+                this.themeSelect.value = this.currentTheme;
+                this.themeSelect.addEventListener('change', (e) => {
+                    this.setTheme(e.target.value);
+                });
+            }
+        }, 100);
+    }
+    
+    setTheme(theme) {
+        console.log(`Setting theme to: ${theme}`);
+        this.currentTheme = theme;
+        localStorage.setItem('risingLionTheme', theme);
+        this.applyTheme(theme);
+        
+        // Update selector if available
+        if (this.themeSelect) {
+            this.themeSelect.value = theme;
+        }
+    }
+    
+    applyTheme(theme) {
+        const body = document.body;
+        const html = document.documentElement;
+        
+        // Remove existing theme classes
+        html.removeAttribute('data-theme');
+        body.classList.remove('light-theme', 'dark-theme');
+        
+        let actualTheme = theme;
+        
+        // Handle auto theme
+        if (theme === 'auto') {
+            actualTheme = this.systemPrefersDark ? 'dark' : 'light';
+        }
+        
+        // Apply theme
+        if (actualTheme === 'dark') {
+            html.setAttribute('data-theme', 'dark');
+            body.classList.add('dark-theme');
+            console.log('Applied dark theme');
+        } else {
+            body.classList.add('light-theme');
+            console.log('Applied light theme');
+        }
+        
+        // Update meta theme-color for mobile browsers
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+            if (actualTheme === 'dark') {
+                metaThemeColor.content = '#1a1a2e';
+            } else {
+                metaThemeColor.content = '#87CEEB';
+            }
+        }
+        
+        // Trigger canvas redraw if game is active
+        if (window.game && window.game.gameState === 'playing') {
+            // Force a render update by modifying game canvas context
+            if (window.game.ctx) {
+                // Update canvas background to match theme
+                window.game.updateCanvasTheme();
+            }
+        }
+    }
+    
+    getCurrentTheme() {
+        return this.currentTheme;
+    }
+    
+    getActualTheme() {
+        if (this.currentTheme === 'auto') {
+            return this.systemPrefersDark ? 'dark' : 'light';
+        }
+        return this.currentTheme;
+    }
+}
