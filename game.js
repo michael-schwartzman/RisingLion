@@ -254,6 +254,26 @@ class OperationRisingLion {
                 backToMainMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
             }
             
+            // Settings screen event listeners
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Theme toggle functionality
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => this.toggleTheme());
+            }
+            
+            // Initialize theme from localStorage
+            this.initializeTheme();
+            
             // Canvas events - Mouse and Touch support
             if (this.canvas) {
                 // Mouse events
@@ -340,6 +360,47 @@ class OperationRisingLion {
         // Check orientation when showing main menu
         if (screenId === 'mainMenu') {
             setTimeout(() => this.checkOrientation(), 100);
+        }
+    }
+    
+    // Theme Management Methods
+    initializeTheme() {
+        // Get saved theme from localStorage or default to 'dark'
+        const savedTheme = localStorage.getItem('risingLionTheme') || 'dark';
+        this.setTheme(savedTheme);
+    }
+    
+    toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        this.setTheme(newTheme);
+        
+        // Save to localStorage
+        localStorage.setItem('risingLionTheme', newTheme);
+    }
+    
+    setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        
+        // Update the theme toggle button
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = themeToggleBtn?.querySelector('.theme-icon');
+        const themeText = themeToggleBtn?.querySelector('.theme-text');
+        
+        if (themeIcon && themeText) {
+            if (theme === 'light') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+        
+        // Update meta theme-color for mobile browsers
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', theme === 'light' ? '#f0f8ff' : '#87CEEB');
         }
     }
     

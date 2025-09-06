@@ -1,89 +1,7 @@
-// Sound Manager Class
-class SoundManager {
-    constructor() {
-        this.sounds = {};
-        this.enabled = true;
-        this.volume = 0.5;
-        this.loadSounds();
-    }
-    
-    loadSounds() {
-        const soundFiles = {
-            'missile-launch': 'sounds/missile-launch.mp3',
-            'explosion': 'sounds/explosion.mp3',
-            'aircraft-deploy': 'sounds/aircraft-deploy.mp3',
-            'iranian-attack': 'sounds/iranian-attack.mp3',
-            'level-advance': 'sounds/level-advance.mp3',
-            'facility-destroyed': 'sounds/facility-destroyed.mp3',
-            'victory': 'sounds/victory.mp3',
-            'defeat': 'sounds/defeat.mp3',
-            'warning': 'sounds/warning.mp3',
-            'button-click': 'sounds/button-click.mp3',
-            'hit': 'sounds/hit.mp3',
-            'intercept': 'sounds/intercept.mp3'
-        };
-        
-        Object.entries(soundFiles).forEach(([key, path]) => {
-            this.sounds[key] = new Audio(path);
-            this.sounds[key].volume = this.volume;
-            this.sounds[key].preload = 'auto';
-            
-            // Handle loading errors gracefully
-            this.sounds[key].addEventListener('error', () => {
-                console.warn(`Could not load sound: ${path}`);
-            });
-        });
-    }
-    
-    play(soundKey, volume = null) {
-        if (!this.enabled || !this.sounds[soundKey]) return;
-        
-        try {
-            const sound = this.sounds[soundKey].cloneNode();
-            sound.volume = volume !== null ? volume : this.volume;
-            sound.play().catch(e => {
-                // Silently handle autoplay restrictions
-                console.debug(`Autoplay prevented for ${soundKey}`);
-            });
-        } catch (error) {
-            console.warn(`Error playing sound ${soundKey}:`, error);
-        }
-    }
-    
-    setVolume(volume) {
-        this.volume = Math.max(0, Math.min(1, volume));
-        Object.values(this.sounds).forEach(sound => {
-            sound.volume = this.volume;
-        });
-    }
-    
-    toggle() {
-        this.enabled = !this.enabled;
-        return this.enabled;
-    }
-    
-    stop(soundKey) {
-        if (this.sounds[soundKey]) {
-            this.sounds[soundKey].pause();
-            this.sounds[soundKey].currentTime = 0;
-        }
-    }
-    
-    stopAll() {
-        Object.values(this.sounds).forEach(sound => {
-            sound.pause();
-            sound.currentTime = 0;
-        });
-    }
-}
-
 class OperationRisingLion {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
-        
-        // Initialize Sound Manager
-        this.soundManager = new SoundManager();
         
         // Game state
         this.gameState = 'menu'; // menu, playing, gameOver
@@ -296,7 +214,6 @@ class OperationRisingLion {
                 newStartBtn.addEventListener('click', (event) => {
                     event.preventDefault();
                     console.log('Start game button clicked');
-                    this.soundManager.play('button-click');
                     this.startGame();
                 });
             } else {
@@ -305,18 +222,12 @@ class OperationRisingLion {
             
             const showInstructionsBtn = document.getElementById('showInstructions');
             if (showInstructionsBtn) {
-                showInstructionsBtn.addEventListener('click', () => {
-                    this.soundManager.play('button-click');
-                    this.showScreen('instructionsScreen');
-                });
+                showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
-                backToMenuBtn.addEventListener('click', () => {
-                    this.soundManager.play('button-click');
-                    this.showScreen('mainMenu');
-                });
+                backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -328,7 +239,6 @@ class OperationRisingLion {
                 // Create a bound handler for the click event
                 this.playAgainHandler = () => {
                     console.log('Play Again button clicked, starting new game');
-                    this.soundManager.play('button-click');
                     // Make sure to clear any existing timers
                     if (this.gameTimer) clearInterval(this.gameTimer);
                     if (this.defenseTimer) clearInterval(this.defenseTimer);
@@ -341,11 +251,28 @@ class OperationRisingLion {
             
             const backToMainMenuBtn = document.getElementById('backToMainMenu');
             if (backToMainMenuBtn) {
-                backToMainMenuBtn.addEventListener('click', () => {
-                    this.soundManager.play('button-click');
-                    this.showScreen('mainMenu');
-                });
+                backToMainMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
             }
+            
+            // Settings screen event listeners
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Theme toggle functionality
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => this.toggleTheme());
+            }
+            
+            // Initialize theme from localStorage
+            this.initializeTheme();
             
             // Canvas events - Mouse and Touch support
             if (this.canvas) {
@@ -406,7 +333,6 @@ class OperationRisingLion {
             const weaponTypeSelect = document.getElementById('weaponType');
             if (weaponTypeSelect) {
                 weaponTypeSelect.addEventListener('change', (e) => {
-                    this.soundManager.play('button-click', 0.3);
                     this.currentWeapon = e.target.value;
                 });
             }
@@ -434,6 +360,47 @@ class OperationRisingLion {
         // Check orientation when showing main menu
         if (screenId === 'mainMenu') {
             setTimeout(() => this.checkOrientation(), 100);
+        }
+    }
+    
+    // Theme Management Methods
+    initializeTheme() {
+        // Get saved theme from localStorage or default to 'dark'
+        const savedTheme = localStorage.getItem('risingLionTheme') || 'dark';
+        this.setTheme(savedTheme);
+    }
+    
+    toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        this.setTheme(newTheme);
+        
+        // Save to localStorage
+        localStorage.setItem('risingLionTheme', newTheme);
+    }
+    
+    setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        
+        // Update the theme toggle button
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const themeIcon = themeToggleBtn?.querySelector('.theme-icon');
+        const themeText = themeToggleBtn?.querySelector('.theme-text');
+        
+        if (themeIcon && themeText) {
+            if (theme === 'light') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+        
+        // Update meta theme-color for mobile browsers
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', theme === 'light' ? '#f0f8ff' : '#87CEEB');
         }
     }
     
@@ -752,9 +719,6 @@ class OperationRisingLion {
         this.projectiles.push(projectile);
         this.stats.shotsFired++;
         
-        // Play missile launch sound
-        this.soundManager.play('missile-launch');
-        
         if (weapon.count !== Infinity) {
             weapon.count--;
         }
@@ -778,10 +742,6 @@ class OperationRisingLion {
         
         this.aircrafts.push(aircraft);
         this.weapons.aircraft.count--;
-        
-        // Play aircraft deployment sound
-        this.soundManager.play('aircraft-deploy');
-        
         this.updateHUD();
     }
     
@@ -872,7 +832,6 @@ class OperationRisingLion {
         
         // Visual and audio feedback
         this.createLaunchEffect(system.x, system.y);
-        this.soundManager.play('iranian-attack');
         
         // Reset cooldown
         this.iranianOffensive.attackCooldown = this.iranianOffensive.attackFrequency;
@@ -996,17 +955,6 @@ class OperationRisingLion {
                 if (Math.random() < 0.1) {
                     interceptor.targetX += (Math.random() - 0.5) * 5;
                     interceptor.targetY += (Math.random() - 0.5) * 5;
-                }
-                
-                // Check proximity to launch platform for warning sounds
-                const dx = interceptor.x - (this.launchPlatform.x + this.launchPlatform.width/2);
-                const dy = interceptor.y - (this.launchPlatform.y + this.launchPlatform.height/2);
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // Play warning sound when missile gets close (only once per missile)
-                if (distance < 200 && !interceptor.warningPlayed) {
-                    this.soundManager.play('warning', 0.3); // Quieter warning
-                    interceptor.warningPlayed = true;
                 }
             }
             
@@ -1264,7 +1212,6 @@ class OperationRisingLion {
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance < 20) {
-                    this.soundManager.play('intercept');
                     this.createExplosion(projectile.x, projectile.y, 25);
                     this.interceptors.splice(iIndex, 1);
                     this.projectiles.splice(pIndex, 1);
@@ -1287,7 +1234,6 @@ class OperationRisingLion {
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance < 30) {
-                    this.soundManager.play('intercept');
                     this.createExplosion(aircraft.x, aircraft.y, 35);
                     this.interceptors.splice(iIndex, 1);
                     this.aircrafts.splice(aIndex, 1);
@@ -1311,13 +1257,11 @@ class OperationRisingLion {
             target.destroyed = true;
             this.stats.targetsDestroyed++;
             this.score += 500; // Destruction bonus
-            this.soundManager.play('facility-destroyed');
             this.createAtomicExplosion(target.x + target.width/2, target.y + target.height/2);
             
             // Show the Haminai image for 2 seconds when a facility is destroyed
             this.showHaminaiImage();
         } else {
-            this.soundManager.play('hit');
             this.createExplosion(projectile.x, projectile.y, 40);
         }
         
@@ -1359,9 +1303,6 @@ class OperationRisingLion {
             life: 30,
             alpha: 1
         });
-        
-        // Play explosion sound
-        this.soundManager.play('explosion');
         
         // Create particles
         for (let i = 0; i < 15; i++) {
@@ -1517,13 +1458,6 @@ class OperationRisingLion {
     endGame(victory = false) {
         console.log(`Ending game with victory=${victory}`);
         this.gameState = 'gameOver';
-        
-        // Play victory or defeat sound
-        if (victory) {
-            this.soundManager.play('victory');
-        } else {
-            this.soundManager.play('defeat');
-        }
         
         // Make sure timers are cleared
         if (this.gameTimer) {
@@ -2927,9 +2861,6 @@ OperationRisingLion.prototype.showLevelAdvanceNotification = function() {
     
     document.body.appendChild(notification);
     
-    // Play level advance sound
-    this.soundManager.play('level-advance');
-    
     // Remove after 2.5 seconds (shorter since it's less intrusive)
     setTimeout(() => {
         if (notification.parentNode) {
@@ -3128,9 +3059,6 @@ window.forceStartGame = function() {
 OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
     if (!this.launchPlatform || this.launchPlatform.destroyed) return;
     
-    // Play warning/hit sound
-    this.soundManager.play('warning');
-    
     // Apply increased damage to the Israeli base
     const damage = missile.damage || 20; // Increased base damage from 10 to 20
     this.launchPlatform.health -= damage;
@@ -3171,9 +3099,6 @@ OperationRisingLion.prototype.hitIsraeliBase = function(missile) {
     if (this.launchPlatform.health <= 0) {
         this.launchPlatform.health = 0;
         this.launchPlatform.destroyed = true;
-        
-        // Play facility destroyed sound for base destruction
-        this.soundManager.play('facility-destroyed');
         
         // Create a large explosion for base destruction
         this.createExplosion(
