@@ -44,6 +44,26 @@
             <img id="haminaiImage" src="images/haminai.png" alt="Haminai" class="facility-destroyed-portrait">
         </div>
 
+        <!-- Settings Screen -->
+        <div id="settingsScreen" class="screen hidden">
+            <div class="screen-content">
+                <h2>Settings</h2>
+                <div class="settings-content">
+                    <div class="setting-item">
+                        <label for="darkModeToggle" class="setting-label">
+                            <span class="setting-title">Dark Mode</span>
+                            <span class="setting-description">Switch between light and dark themes</span>
+                        </label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="darkModeToggle" class="toggle-input">
+                            <label for="darkModeToggle" class="toggle-slider"></label>
+                        </div>
+                    </div>
+                </div>
+                <button id="backToMenuFromSettings" class="btn-secondary">Back to Menu</button>
+            </div>
+        </div>
+
         <!-- Instructions Screen -->
         <div id="instructionsScreen" class="screen hidden">
             <div class="screen-content">

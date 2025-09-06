@@ -225,9 +225,34 @@ class OperationRisingLion {
                 showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                // Load saved preference
+                const isDarkMode = localStorage.getItem('darkMode') === 'true';
+                darkModeToggle.checked = isDarkMode;
+                this.applyDarkMode(isDarkMode);
+                
+                darkModeToggle.addEventListener('change', (e) => {
+                    const darkMode = e.target.checked;
+                    this.applyDarkMode(darkMode);
+                    localStorage.setItem('darkMode', darkMode.toString());
+                });
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -340,6 +365,15 @@ class OperationRisingLion {
         // Check orientation when showing main menu
         if (screenId === 'mainMenu') {
             setTimeout(() => this.checkOrientation(), 100);
+        }
+    }
+    
+    applyDarkMode(isDarkMode) {
+        const body = document.body;
+        if (isDarkMode) {
+            body.classList.add('dark-mode');
+        } else {
+            body.classList.remove('dark-mode');
         }
     }
     

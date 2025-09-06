@@ -4,10 +4,37 @@
     box-sizing: border-box;
 }
 
+/* CSS Variables for theming */
+:root {
+    /* Light theme variables */
+    --bg-gradient: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    --game-bg-gradient: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    --text-color: #333;
+    --menu-bg: linear-gradient(135deg, #2c3e50, #34495e);
+    --content-bg: rgba(255, 255, 255, 0.95);
+    --content-border: #e74c3c;
+    --section-bg: rgba(52, 73, 94, 0.1);
+    --list-item-bg: rgba(255, 255, 255, 0.7);
+    --hud-bg: rgba(0, 0, 0, 0.8);
+}
+
+/* Dark theme variables */
+body.dark-mode {
+    --bg-gradient: linear-gradient(180deg, #1a1a2e 0%, #16213e 70%, #0f0f1e 100%);
+    --game-bg-gradient: linear-gradient(180deg, #1a1a2e 0%, #16213e 70%, #0f0f1e 100%);
+    --text-color: #e0e0e0;
+    --menu-bg: linear-gradient(135deg, #0f0f1e, #1a1a2e);
+    --content-bg: rgba(30, 30, 45, 0.95);
+    --content-border: #e74c3c;
+    --section-bg: rgba(60, 70, 90, 0.3);
+    --list-item-bg: rgba(40, 40, 60, 0.7);
+    --hud-bg: rgba(0, 0, 0, 0.9);
+}
+
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
-    color: #333;
+    background: var(--bg-gradient);
+    color: var(--text-color);
     overflow: hidden;
     height: 100vh;
     width: 100vw;
@@ -22,6 +49,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 #gameContainer {
@@ -88,7 +116,7 @@ body {
 
 /* Main Menu Styles */
 #mainMenu {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
+    background: var(--menu-bg);
     color: white;
 }
 
@@ -273,19 +301,105 @@ body {
     box-shadow: 0 4px 8px rgba(52, 73, 94, 0.4);
 }
 
+/* Settings Screen */
+.settings-content {
+    margin-bottom: 30px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: var(--section-bg);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    transition: background 0.3s ease;
+}
+
+.setting-label {
+    flex: 1;
+    cursor: pointer;
+}
+
+.setting-title {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+.setting-description {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    transition: color 0.3s ease;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
+
+.toggle-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 30px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-input:checked + .toggle-slider {
+    background-color: #e74c3c;
+}
+
+.toggle-input:checked + .toggle-slider:before {
+    transform: translateX(30px);
+}
+
 /* Instructions Screen */
 #instructionsScreen, #gameOverScreen {
     background: rgba(0, 0, 0, 0.9);
 }
 
 .screen-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--content-bg);
     padding: 40px;
     border-radius: 15px;
     max-width: 800px;
     max-height: 80vh;
     overflow-y: auto;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--content-border);
+    color: var(--text-color);
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .screen-content h2 {
@@ -303,9 +417,10 @@ body {
 }
 
 .objective, .controls, .strategy {
-    background: rgba(52, 73, 94, 0.1);
+    background: var(--section-bg);
     padding: 20px;
     border-radius: 8px;
+    transition: background 0.3s ease;
 }
 
 .objective {
@@ -313,9 +428,10 @@ body {
 }
 
 .instructions-content h3 {
-    color: #2c3e50;
+    color: var(--text-color);
     margin-bottom: 15px;
     font-size: 1.3rem;
+    transition: color 0.3s ease;
 }
 
 .instructions-content ul {
@@ -326,14 +442,16 @@ body {
 .instructions-content li {
     margin: 8px 0;
     padding: 8px;
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--list-item-bg);
     border-radius: 4px;
     border-left: 4px solid #e74c3c;
+    transition: background 0.3s ease;
 }
 
 /* Game Screen */
 #gameScreen {
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    background: var(--game-bg-gradient);
+    transition: background 0.3s ease;
 }
 
 /* HUD */
@@ -343,12 +461,13 @@ body {
     left: 0;
     right: 0;
     height: 80px;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--hud-bg);
     display: flex;
     align-items: center;
     padding: 0 20px;
     z-index: 100;
     border-bottom: 3px solid #e74c3c;
+    transition: background 0.3s ease;
 }
 
 .hud-left, .hud-right {
