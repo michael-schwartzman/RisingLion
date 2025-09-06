@@ -13,6 +13,10 @@ class OperationRisingLion {
         this.aimEndX = 0;
         this.aimEndY = 0;
         
+        // Theme management
+        this.currentTheme = localStorage.getItem('theme') || 'light';
+        this.initializeTheme();
+        
         // Weapons inventory
         this.weapons = {
             missile: { count: Infinity, name: 'Missile' },
@@ -230,6 +234,24 @@ class OperationRisingLion {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
             }
             
+            // Settings button
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
+            // Back to menu from settings
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('change', () => this.toggleTheme());
+            }
+            
             const playAgainBtn = document.getElementById('playAgain');
             console.log('Play Again Button found:', playAgainBtn);
             if (playAgainBtn) {
@@ -341,6 +363,32 @@ class OperationRisingLion {
         if (screenId === 'mainMenu') {
             setTimeout(() => this.checkOrientation(), 100);
         }
+    }
+    
+    // Theme management methods
+    initializeTheme() {
+        this.applyTheme(this.currentTheme);
+        // Set the toggle switch state
+        setTimeout(() => {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.checked = this.currentTheme === 'dark';
+            }
+        }, 100);
+    }
+    
+    toggleTheme() {
+        this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        this.applyTheme(this.currentTheme);
+        this.saveTheme();
+    }
+    
+    applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+    
+    saveTheme() {
+        localStorage.setItem('theme', this.currentTheme);
     }
     
     startGame() {
