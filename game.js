@@ -225,6 +225,32 @@ class OperationRisingLion {
                 showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
+            // Settings functionality
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                // Load saved theme preference
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                this.applyTheme(savedTheme);
+                darkModeToggle.checked = savedTheme === 'dark';
+                
+                darkModeToggle.addEventListener('change', (e) => {
+                    const theme = e.target.checked ? 'dark' : 'light';
+                    this.applyTheme(theme);
+                    localStorage.setItem('theme', theme);
+                });
+            }
+            
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
@@ -2420,6 +2446,18 @@ class OperationRisingLion {
     }
 }
 
+// Theme management
+OperationRisingLion.prototype.applyTheme = function(theme) {
+    const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
+    
+    // Optional: Add visual feedback for theme change
+    document.body.style.transition = 'background 0.3s ease, color 0.3s ease';
+    setTimeout(() => {
+        document.body.style.transition = '';
+    }, 300);
+};
+
 // Mobile detection and responsive setup
 OperationRisingLion.prototype.isMobile = function() {
     return window.innerWidth <= 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -2875,6 +2913,10 @@ function initGame() {
     console.log('Initializing game...');
     try {
         window.game = new OperationRisingLion();
+        
+        // Initialize theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        window.game.applyTheme(savedTheme);
         
         // Perform a validation check on critical game objects
         if (!window.game.targets || Object.keys(window.game.targets).length === 0) {
