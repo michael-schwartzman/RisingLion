@@ -10,7 +10,7 @@
     <title>Operation Rising Lion</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="light-theme">
     <div id="gameContainer">
         <!-- Landscape orientation requirement for mobile -->
         <div id="landscapePrompt" class="landscape-prompt hidden">
@@ -180,6 +180,7 @@
                             <option value="cruise">Cruise Missile (2)</option>
                         </select>
                     </div>
+                    <button id="pauseButton" class="btn-pause" title="Pause Game">⏸️</button>
                 </div>
             </div>
 
@@ -191,6 +192,45 @@
                 <div class="power-label">Launch Power</div>
                 <div class="power-bar">
                     <div id="powerFill" class="power-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settingsScreen" class="screen hidden">
+            <div class="screen-content">
+                <h2>Settings</h2>
+                <div class="settings-content">
+                    <div class="setting-group">
+                        <h3>Display</h3>
+                        <div class="setting-item">
+                            <label for="themeToggle">Theme:</label>
+                            <div class="theme-toggle-container">
+                                <button id="themeToggle" class="btn-toggle">
+                                    <span class="toggle-icon">🌙</span>
+                                    <span class="toggle-text">Dark Mode</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="backToMenuFromSettings" class="btn-secondary">Back to Menu</button>
+            </div>
+        </div>
+
+        <!-- Pause Menu (shown during gameplay) -->
+        <div id="pauseMenu" class="pause-overlay hidden">
+            <div class="pause-content">
+                <h2>Game Paused</h2>
+                <div class="pause-buttons">
+                    <button id="resumeGame" class="btn-primary">Resume</button>
+                    <div class="pause-setting">
+                        <button id="themeTogglePause" class="btn-toggle">
+                            <span class="toggle-icon">🌙</span>
+                            <span class="toggle-text">Dark Mode</span>
+                        </button>
+                    </div>
+                    <button id="pauseToMenu" class="btn-secondary">Main Menu</button>
                 </div>
             </div>
         </div>

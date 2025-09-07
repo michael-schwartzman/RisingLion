@@ -1,3 +1,50 @@
+/* CSS Variables for Theming */
+:root {
+    /* Light Theme Colors */
+    --bg-primary: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    --bg-secondary: rgba(0, 0, 0, 0.7);
+    --bg-content: rgba(255, 255, 255, 0.95);
+    --text-primary: #333;
+    --text-secondary: white;
+    --text-accent: #e74c3c;
+    --border-primary: #e74c3c;
+    --border-secondary: rgba(52, 73, 94, 0.4);
+    --hud-bg: rgba(0, 0, 0, 0.8);
+    --button-primary-bg: #e74c3c;
+    --button-primary-hover: #c0392b;
+    --button-secondary-bg: #34495e;
+    --button-secondary-hover: #2c3e50;
+    --menu-shadow: rgba(52, 73, 94, 0.4);
+    --health-good: #4CAF50;
+    --health-warning: #FF9800;
+    --health-danger: #F44336;
+    --instruction-bg: rgba(52, 73, 94, 0.1);
+    --instruction-item-bg: rgba(255, 255, 255, 0.7);
+}
+
+/* Dark Theme Colors */
+.dark-theme {
+    --bg-primary: linear-gradient(180deg, #1a1a2e 0%, #16213e 70%, #0f3460 100%);
+    --bg-secondary: rgba(0, 0, 0, 0.9);
+    --bg-content: rgba(30, 30, 30, 0.95);
+    --text-primary: #e8e8e8;
+    --text-secondary: #ffffff;
+    --text-accent: #ff6b6b;
+    --border-primary: #ff6b6b;
+    --border-secondary: rgba(255, 255, 255, 0.2);
+    --hud-bg: rgba(0, 0, 0, 0.9);
+    --button-primary-bg: #ff6b6b;
+    --button-primary-hover: #ff5252;
+    --button-secondary-bg: #404040;
+    --button-secondary-hover: #505050;
+    --menu-shadow: rgba(0, 0, 0, 0.6);
+    --health-good: #66bb6a;
+    --health-warning: #ffa726;
+    --health-danger: #ef5350;
+    --instruction-bg: rgba(255, 255, 255, 0.05);
+    --instruction-item-bg: rgba(255, 255, 255, 0.1);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,8 +53,8 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
-    color: #333;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     overflow: hidden;
     height: 100vh;
     width: 100vw;
@@ -22,6 +69,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 #gameContainer {
@@ -88,23 +136,26 @@ body {
 
 /* Main Menu Styles */
 #mainMenu {
-    background: linear-gradient(135deg, #2c3e50, #34495e);
-    color: white;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
 }
 
 .menu-content {
     text-align: center;
     padding: 40px;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--bg-secondary);
     border-radius: 15px;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--border-primary);
+    box-shadow: 0 4px 8px var(--menu-shadow);
+    transition: all 0.3s ease;
 }
 
 .menu-content h1 {
     font-size: 3rem;
-    color: #e74c3c;
+    color: var(--text-accent);
     margin-bottom: 30px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    transition: color 0.3s ease;
 }
 
 /* Flag Styles */
@@ -252,47 +303,49 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    background: var(--button-primary-bg);
     color: white;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(45deg, #c0392b, #e74c3c);
+    background: var(--button-primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
 }
 
 .btn-secondary {
-    background: linear-gradient(45deg, #34495e, #2c3e50);
+    background: var(--button-secondary-bg);
     color: white;
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(45deg, #2c3e50, #34495e);
+    background: var(--button-secondary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(52, 73, 94, 0.4);
 }
 
 /* Instructions Screen */
-#instructionsScreen, #gameOverScreen {
-    background: rgba(0, 0, 0, 0.9);
+#instructionsScreen, #gameOverScreen, #settingsScreen {
+    background: var(--bg-secondary);
 }
 
 .screen-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--bg-content);
     padding: 40px;
     border-radius: 15px;
     max-width: 800px;
     max-height: 80vh;
     overflow-y: auto;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--border-primary);
+    transition: all 0.3s ease;
 }
 
 .screen-content h2 {
-    color: #e74c3c;
+    color: var(--text-accent);
     font-size: 2.5rem;
     text-align: center;
     margin-bottom: 30px;
+    transition: color 0.3s ease;
 }
 
 .instructions-content {
@@ -303,7 +356,7 @@ body {
 }
 
 .objective, .controls, .strategy {
-    background: rgba(52, 73, 94, 0.1);
+    background: var(--instruction-bg);
     padding: 20px;
     border-radius: 8px;
 }
@@ -313,9 +366,10 @@ body {
 }
 
 .instructions-content h3 {
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 15px;
     font-size: 1.3rem;
+    transition: color 0.3s ease;
 }
 
 .instructions-content ul {
@@ -326,14 +380,15 @@ body {
 .instructions-content li {
     margin: 8px 0;
     padding: 8px;
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--instruction-item-bg);
     border-radius: 4px;
-    border-left: 4px solid #e74c3c;
+    border-left: 4px solid var(--border-primary);
+    transition: all 0.3s ease;
 }
 
 /* Game Screen */
 #gameScreen {
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
+    background: var(--bg-primary);
 }
 
 /* HUD */
@@ -343,12 +398,13 @@ body {
     left: 0;
     right: 0;
     height: 80px;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--hud-bg);
     display: flex;
     align-items: center;
     padding: 0 20px;
     z-index: 100;
-    border-bottom: 3px solid #e74c3c;
+    border-bottom: 3px solid var(--border-primary);
+    transition: all 0.3s ease;
 }
 
 .hud-left, .hud-right {
@@ -1287,4 +1343,181 @@ body {
 .prompt-content p strong {
     color: #ffcc00;
     font-size: 1.2rem;
+}
+
+/* Settings Screen Styles */
+.settings-content {
+    padding: 20px 0;
+}
+
+.setting-group {
+    margin-bottom: 30px;
+}
+
+.setting-group h3 {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-primary);
+    padding-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--instruction-bg);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.setting-item label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+}
+
+/* Theme Toggle Button Styles */
+.btn-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border: 2px solid var(--border-primary);
+    border-radius: 25px;
+    background: var(--bg-content);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+    justify-content: center;
+}
+
+.btn-toggle:hover {
+    background: var(--button-secondary-bg);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--menu-shadow);
+}
+
+.btn-toggle .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-toggle .toggle-text {
+    transition: all 0.3s ease;
+}
+
+/* Dark theme active state */
+.dark-theme .btn-toggle .toggle-icon {
+    filter: brightness(1.2);
+}
+
+/* Pause Menu Styles */
+.pause-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.pause-content {
+    background: var(--bg-content);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    border: 3px solid var(--border-primary);
+    box-shadow: 0 8px 16px var(--menu-shadow);
+    transition: all 0.3s ease;
+    min-width: 300px;
+}
+
+.pause-content h2 {
+    color: var(--text-accent);
+    margin-bottom: 30px;
+    font-size: 2rem;
+    transition: color 0.3s ease;
+}
+
+.pause-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.pause-setting {
+    margin: 10px 0;
+    padding: 10px;
+    background: var(--instruction-bg);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Pause Button in HUD */
+.btn-pause {
+    background: var(--button-secondary-bg);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 15px;
+}
+
+.btn-pause:hover {
+    background: var(--button-secondary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--menu-shadow);
+}
+
+/* Health bar color updates */
+.health-fill {
+    transition: all 0.3s ease;
+}
+
+.health-fill:not(.critical):not(.damaged) {
+    background-color: var(--health-good) !important;
+}
+
+.health-fill.damaged {
+    background-color: var(--health-warning) !important;
+}
+
+.health-fill.critical {
+    background-color: var(--health-danger) !important;
+}
+
+/* Theme transition animations */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark theme specific overrides */
+.dark-theme .stats {
+    color: var(--text-secondary);
+}
+
+.dark-theme .hud-left, .dark-theme .hud-right, .dark-theme .hud-center {
+    color: var(--text-secondary);
+}
+
+.dark-theme .target span {
+    color: var(--text-secondary);
 }

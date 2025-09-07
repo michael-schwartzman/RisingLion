@@ -1,3 +1,65 @@
+// Theme Manager Class
+class ThemeManager {
+    constructor() {
+        this.currentTheme = this.getStoredTheme() || 'light';
+        this.applyTheme(this.currentTheme);
+        this.updateToggleButtons();
+    }
+    
+    getStoredTheme() {
+        try {
+            return localStorage.getItem('risingLionTheme');
+        } catch (error) {
+            console.warn('LocalStorage not available, using default theme');
+            return null;
+        }
+    }
+    
+    storeTheme(theme) {
+        try {
+            localStorage.setItem('risingLionTheme', theme);
+        } catch (error) {
+            console.warn('Could not store theme preference');
+        }
+    }
+    
+    toggleTheme() {
+        this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+        this.applyTheme(this.currentTheme);
+        this.storeTheme(this.currentTheme);
+        this.updateToggleButtons();
+    }
+    
+    applyTheme(theme) {
+        const body = document.body;
+        if (theme === 'dark') {
+            body.classList.remove('light-theme');
+            body.classList.add('dark-theme');
+        } else {
+            body.classList.remove('dark-theme');
+            body.classList.add('light-theme');
+        }
+    }
+    
+    updateToggleButtons() {
+        const toggleButtons = document.querySelectorAll('#themeToggle, #themeTogglePause');
+        toggleButtons.forEach(button => {
+            if (button) {
+                const icon = button.querySelector('.toggle-icon');
+                const text = button.querySelector('.toggle-text');
+                
+                if (this.currentTheme === 'dark') {
+                    if (icon) icon.textContent = '☀️';
+                    if (text) text.textContent = 'Light Mode';
+                } else {
+                    if (icon) icon.textContent = '🌙';
+                    if (text) text.textContent = 'Dark Mode';
+                }
+            }
+        });
+    }
+}
+
 class OperationRisingLion {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
@@ -30,6 +92,13 @@ class OperationRisingLion {
         this.particles = [];
         this.aircrafts = [];
         this.screenShake = null;
+        
+        // Pause functionality
+        this.isPaused = false;
+        this.previousGameState = null;
+        
+        // Initialize theme manager
+        this.themeManager = new ThemeManager();
         
         // Load images
         this.saraImage = null;
@@ -225,9 +294,50 @@ class OperationRisingLion {
                 showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
+            // Settings button
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Theme toggle buttons
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => this.themeManager.toggleTheme());
+            }
+            
+            const themeTogglePauseBtn = document.getElementById('themeTogglePause');
+            if (themeTogglePauseBtn) {
+                themeTogglePauseBtn.addEventListener('click', () => this.themeManager.toggleTheme());
+            }
+            
+            // Pause menu buttons
+            const pauseBtn = document.getElementById('pauseButton');
+            if (pauseBtn) {
+                pauseBtn.addEventListener('click', () => this.pauseGame());
+            }
+            
+            const resumeBtn = document.getElementById('resumeGame');
+            if (resumeBtn) {
+                resumeBtn.addEventListener('click', () => this.resumeGame());
+            }
+            
+            const pauseToMenuBtn = document.getElementById('pauseToMenu');
+            if (pauseToMenuBtn) {
+                pauseToMenuBtn.addEventListener('click', () => {
+                    this.resumeGame();
+                    this.showScreen('mainMenu');
+                });
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -584,7 +694,7 @@ class OperationRisingLion {
     }
     
     handleMouseDown(e) {
-        if (this.gameState !== 'playing') return;
+        if (this.gameState !== 'playing' || this.isPaused) return;
         
         const coords = this.getCanvasCoordinates(e.clientX, e.clientY);
         this.aimStartX = coords.x;
@@ -595,7 +705,7 @@ class OperationRisingLion {
     }
     
     handleMouseMove(e) {
-        if (!this.isAiming) return;
+        if (!this.isAiming || this.isPaused) return;
         
         const coords = this.getCanvasCoordinates(e.clientX, e.clientY);
         this.aimEndX = coords.x;
@@ -611,7 +721,7 @@ class OperationRisingLion {
     }
     
     handleMouseUp(e) {
-        if (!this.isAiming) return;
+        if (!this.isAiming || this.isPaused) return;
         
         this.isAiming = false;
         document.getElementById('powerMeter').classList.add('hidden');
@@ -620,7 +730,19 @@ class OperationRisingLion {
     }
     
     handleKeyDown(e) {
-        if (this.gameState !== 'playing') return;
+        // Handle escape key for pause/resume
+        if (e.key === 'Escape') {
+            if (this.gameState === 'playing') {
+                if (this.isPaused) {
+                    this.resumeGame();
+                } else {
+                    this.pauseGame();
+                }
+            }
+            return;
+        }
+        
+        if (this.gameState !== 'playing' || this.isPaused) return;
         
         switch(e.key) {
             case '1':
@@ -2414,9 +2536,41 @@ class OperationRisingLion {
     }
 
     gameLoop() {
-        this.update();
+        if (!this.isPaused) {
+            this.update();
+        }
         this.render();
         requestAnimationFrame(() => this.gameLoop());
+    }
+    
+    pauseGame() {
+        if (this.gameState === 'playing') {
+            this.isPaused = true;
+            this.previousGameState = this.gameState;
+            console.log('Game paused');
+            
+            // Show pause menu
+            const pauseMenu = document.getElementById('pauseMenu');
+            if (pauseMenu) {
+                pauseMenu.classList.remove('hidden');
+            }
+            
+            // Update theme toggle button in pause menu
+            this.themeManager.updateToggleButtons();
+        }
+    }
+    
+    resumeGame() {
+        if (this.isPaused) {
+            this.isPaused = false;
+            console.log('Game resumed');
+            
+            // Hide pause menu
+            const pauseMenu = document.getElementById('pauseMenu');
+            if (pauseMenu) {
+                pauseMenu.classList.add('hidden');
+            }
+        }
     }
 }
 
