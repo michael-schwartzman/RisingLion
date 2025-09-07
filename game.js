@@ -225,9 +225,30 @@ class OperationRisingLion {
                 showInstructionsBtn.addEventListener('click', () => this.showScreen('instructionsScreen'));
             }
             
+            const showSettingsBtn = document.getElementById('showSettings');
+            if (showSettingsBtn) {
+                showSettingsBtn.addEventListener('click', () => this.showScreen('settingsScreen'));
+            }
+            
             const backToMenuBtn = document.getElementById('backToMenu');
             if (backToMenuBtn) {
                 backToMenuBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            const backToMenuFromSettingsBtn = document.getElementById('backToMenuFromSettings');
+            if (backToMenuFromSettingsBtn) {
+                backToMenuFromSettingsBtn.addEventListener('click', () => this.showScreen('mainMenu'));
+            }
+            
+            // Dark mode toggle event listeners
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            if (darkModeToggle) {
+                darkModeToggle.addEventListener('change', (e) => this.toggleDarkMode(e.target.checked));
+            }
+            
+            const inGameDarkModeToggle = document.getElementById('inGameDarkModeToggle');
+            if (inGameDarkModeToggle) {
+                inGameDarkModeToggle.addEventListener('click', () => this.toggleDarkModeFromGame());
             }
             
             const playAgainBtn = document.getElementById('playAgain');
@@ -2418,6 +2439,59 @@ class OperationRisingLion {
         this.render();
         requestAnimationFrame(() => this.gameLoop());
     }
+
+    // Dark mode functionality
+    initializeDarkMode() {
+        // Load dark mode preference from localStorage
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        this.setDarkMode(isDarkMode);
+        
+        // Update toggle states
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.checked = isDarkMode;
+        }
+        
+        // Update in-game toggle icon
+        this.updateInGameToggleIcon(isDarkMode);
+    }
+    
+    toggleDarkMode(isDarkMode) {
+        this.setDarkMode(isDarkMode);
+        localStorage.setItem('darkMode', isDarkMode.toString());
+        this.updateInGameToggleIcon(isDarkMode);
+    }
+    
+    toggleDarkModeFromGame() {
+        const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+        const newMode = !isDarkMode;
+        this.setDarkMode(newMode);
+        localStorage.setItem('darkMode', newMode.toString());
+        
+        // Update settings toggle if settings screen is available
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+            darkModeToggle.checked = newMode;
+        }
+        
+        this.updateInGameToggleIcon(newMode);
+    }
+    
+    setDarkMode(isDarkMode) {
+        if (isDarkMode) {
+            document.body.setAttribute('data-theme', 'dark');
+        } else {
+            document.body.removeAttribute('data-theme');
+        }
+    }
+    
+    updateInGameToggleIcon(isDarkMode) {
+        const inGameToggle = document.getElementById('inGameDarkModeToggle');
+        if (inGameToggle) {
+            inGameToggle.textContent = isDarkMode ? '☀️' : '🌙';
+            inGameToggle.title = isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+        }
+    }
 }
 
 // Mobile detection and responsive setup
@@ -2941,9 +3015,15 @@ function initGame() {
                     name: 'Tehran Research Reactor'
                 }
             };
-        }
         
         console.log('Game initialized successfully');
+        
+        // Initialize dark mode after everything else is set up
+        setTimeout(() => {
+            if (window.game && window.game.initializeDarkMode) {
+                window.game.initializeDarkMode();
+            }
+        }, 100);
     } catch (error) {
         console.error('Error initializing game:', error);
     }
