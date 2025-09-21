@@ -1,0 +1,28 @@
+apiVersion: karpenter.azure.com/v1beta1
+kind: AKSNodeClass
+metadata:
+  name: games-spot-nodeclass
+spec:
+  # VM Image reference
+  imageFamily: Ubuntu2204
+  
+  # OS Disk size in GB
+  osDiskSizeGB: 128
+  
+  # Maximum pods per node (for gaming workloads)
+  maxPods: 100
+  
+  # Kubelet configuration for gaming performance
+  kubelet:
+    podPidsLimit: 4096
+    imageGCHighThresholdPercent: 85
+    imageGCLowThresholdPercent: 80
+    cpuCFSQuota: true
+  
+  # Tags for cost management and identification
+  tags:
+    Environment: "gaming"
+    WorkloadType: "games"
+    ProvisioningMode: "spot-preferred"
+    CostCenter: "gaming-infrastructure"
+    AutoScaling: "karpenter"

@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kittypong-game
+  namespace: default
+  labels:
+    app: kittypong-game
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kittypong-game
+  template:
+    metadata:
+      labels:
+        app: kittypong-game
+        version: v1
+    spec:
+      # Node selection to target Karpenter-managed spot nodes
+      nodeSelector:
+        workload-type: "games"
+        provisioning-type: "spot-preferred"
+      
+      # Toleration for the game workload taint
+      tolerations:
+        - key: "workload-type"
+          value: "games"
+          effect: NoSchedule
+        - key: "games.io/initializing"
+          value: "true"
+          effect: NoSchedule
+      
+      # Prefer spot nodes, but allow scheduling on regular nodes if needed
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: karpenter.sh/capacity-type
+                    operator: In
+                    values: ["spot"]
+            - weight: 50
+              preference:
+                matchExpressions:
+                  - key: node.kubernetes.io/instance-type
+                    operator: In
+                    values: ["Standard_B2s", "Standard_B2ms", "Standard_D2s_v3", "Standard_D2s_v4", "Standard_D2s_v5"]
+      
+      containers:
+        - name: kittypong-game
+          image: kittypongacr.azurecr.io/3dkittypong-game:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          
+          # Resource requests (keep them low for this game)
+          resources:
+            requests:
+              cpu: "50m"        # 0.05 CPU
+              memory: "64Mi"    # 64 MB RAM
+            limits:
+              cpu: "100m"       # 0.1 CPU max
+              memory: "128Mi"   # 128 MB RAM max
+          
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          
+          # Volume mounts for the HTML content
+          volumeMounts:
+            - name: inline-html
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+      
+      # Volumes
+      volumes:
+        - name: inline-html
+          configMap:
+            name: kittypong-inline-html

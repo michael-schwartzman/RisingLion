@@ -1,0 +1,87 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: games-spot-nodepool
+spec:
+  # Template for nodes that will be created
+  template:
+    metadata:
+      labels:
+        workload-type: "games"
+        provisioning-type: "spot-preferred"
+      annotations:
+        node.kubernetes.io/exclude-from-external-load-balancers: "false"
+    spec:
+      # Reference to the NodeClass (defined separately)
+      nodeClassRef:
+        group: karpenter.azure.com
+        kind: AKSNodeClass
+        name: games-spot-nodeclass
+      
+      # Node requirements
+      requirements:
+        # VM sizes - B and D series with minimum 2 vCPUs
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values: 
+            # B-series (Burstable) - 2+ vCPUs
+            - "Standard_B2s"      # 2 vCPUs, 4 GB RAM
+            - "Standard_B2ms"     # 2 vCPUs, 8 GB RAM
+            - "Standard_B4ms"     # 4 vCPUs, 16 GB RAM
+            - "Standard_B8ms"     # 8 vCPUs, 32 GB RAM
+            # D-series (General Purpose) - 2+ vCPUs
+            - "Standard_D2s_v3"   # 2 vCPUs, 8 GB RAM
+            - "Standard_D4s_v3"   # 4 vCPUs, 16 GB RAM
+            - "Standard_D8s_v3"   # 8 vCPUs, 32 GB RAM
+            - "Standard_D2s_v4"   # 2 vCPUs, 8 GB RAM
+            - "Standard_D4s_v4"   # 4 vCPUs, 16 GB RAM
+            - "Standard_D8s_v4"   # 8 vCPUs, 32 GB RAM
+            - "Standard_D2s_v5"   # 2 vCPUs, 8 GB RAM
+            - "Standard_D4s_v5"   # 4 vCPUs, 16 GB RAM
+            - "Standard_D8s_v5"   # 8 vCPUs, 32 GB RAM
+        
+        # Prefer spot instances, but allow on-demand as fallback
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot", "on-demand"]
+        
+        # Architecture requirement
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        
+        # Operating System
+        - key: kubernetes.io/os
+          operator: In
+          values: ["linux"]
+      
+      # Startup and shutdown taints
+      startupTaints:
+        - key: "games.io/initializing"
+          value: "true"
+          effect: NoSchedule
+      
+      # Node taints to identify game nodes
+      taints:
+        - key: "workload-type"
+          value: "games"
+          effect: NoSchedule
+
+  # Disruption settings
+  disruption:
+    # Consolidation policy
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 30s
+
+  # Scaling limits
+  limits:
+    cpu: "100"    # Maximum 100 vCPUs across all nodes in this pool
+    memory: "400Gi" # Maximum 400 GB RAM across all nodes in this pool
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: karpenter
+  labels:
+    name: karpenter

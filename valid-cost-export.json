@@ -1,0 +1,108 @@
+{
+  "summary": {
+    "title": "Azure Cost Management Reports - Hourly Analysis",
+    "dateGenerated": "2025-07-09",
+    "subscription": "ME-MngEnvMCAP885969-mschwartzman-1",
+    "subscriptionId": "3826a0a7-3ab7-4d51-88f5-810685e17cb0"
+  },
+  "exports": {
+    "dailyCostExport": {
+      "name": "daily-cost-export",
+      "status": "Active",
+      "granularity": "Daily",
+      "schedule": "Daily",
+      "nextRun": "2025-07-10T00:00:00Z",
+      "destination": {
+        "storageAccount": "mystorageacct7892",
+        "container": "focus",
+        "folder": "cost-reports"
+      },
+      "columns": [
+        "Date",
+        "ResourceGroup", 
+        "ConsumedService",
+        "CostInBillingCurrency",
+        "BillingCurrencyCode",
+        "Quantity",
+        "UnitOfMeasure"
+      ]
+    }
+  },
+  "currentDayCosts": {
+    "date": "2025-07-09",
+    "totalCost": "$12.28",
+    "currency": "USD",
+    "topServices": [
+      {
+        "service": "Microsoft Fabric",
+        "cost": "$1.44",
+        "resourceGroup": "fabric"
+      },
+      {
+        "service": "Virtual WAN", 
+        "cost": "$1.50",
+        "resourceGroup": "vwan"
+      },
+      {
+        "service": "Virtual Machines",
+        "cost": "$0.672",
+        "resourceGroup": "vm2_group"
+      },
+      {
+        "service": "Azure App Service",
+        "cost": "$0.30",
+        "resourceGroup": "3dkittyponggroup"
+      },
+      {
+        "service": "API Management",
+        "cost": "$0.329",
+        "resourceGroup": "rg-openai-apim"
+      }
+    ],
+    "topResourceGroups": [
+      {
+        "resourceGroup": "fabric",
+        "cost": "$1.44"
+      },
+      {
+        "resourceGroup": "vwan", 
+        "cost": "$1.50"
+      },
+      {
+        "resourceGroup": "vm2_group",
+        "cost": "$2.09"
+      },
+      {
+        "resourceGroup": "3dkittyponggroup",
+        "cost": "$0.44"
+      },
+      {
+        "resourceGroup": "rg-openai-apim",
+        "cost": "$0.48"
+      }
+    ]
+  },
+  "usageDetails": {
+    "note": "Hourly granularity is available in usage details with unitOfMeasure '1 Hour'",
+    "hourlyServices": [
+      {
+        "service": "Virtual Network - IP Addresses",
+        "unitOfMeasure": "1 Hour",
+        "quantity": 24,
+        "costPerHour": "$0.005",
+        "dailyCost": "$0.12"
+      }
+    ]
+  },
+  "limitations": {
+    "hourlyReports": "True hourly granularity is only supported in API version 2023-12-01-preview for reports, but this API version is not available for the reports resource type.",
+    "workaround": "Use the Usage Details API which provides hourly data for services that are billed hourly (like IP addresses, VMs, etc.)",
+    "recommendation": "The daily export combined with usage details API calls provides the most comprehensive cost data."
+  },
+  "nextSteps": [
+    "Monitor the daily export in the storage account container 'focus/cost-reports'",
+    "Use the Cost Management Query API for ad-hoc analysis",
+    "Use Usage Details API for hourly-level granular data",
+    "Set up alerts based on cost thresholds"
+  ]
+}

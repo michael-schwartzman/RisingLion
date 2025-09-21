@@ -1,0 +1,47 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: combined-games-ingress
+  labels:
+    app: combined-games
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  # KittyPong route (keep existing domain)
+  - host: kittie.schwartzman.org
+    http:
+      paths:
+      - backend:
+          service:
+            name: combined-games-service
+            port:
+              number: 8080
+        path: /
+        pathType: Prefix
+  # Rising Lion route (you can add a domain here if needed)
+  # For now, it will still be accessible via the LoadBalancer
+  tls:
+  - hosts:
+    - kittie.schwartzman.org
+    secretName: kittie-schwartzman-org-tls
+---
+# Keep Rising Lion accessible via LoadBalancer for now
+apiVersion: v1
+kind: Service
+metadata:
+  name: combined-games-rising-lion-lb
+  labels:
+    app: combined-games
+spec:
+  selector:
+    app: combined-games
+  ports:
+  - name: rising-lion
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  type: LoadBalancer

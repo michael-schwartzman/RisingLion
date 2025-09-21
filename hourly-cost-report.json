@@ -1,0 +1,47 @@
+{
+  "properties": {
+    "definition": {
+      "type": "Usage",
+      "timeframe": "Custom",
+      "timePeriod": {
+        "from": "2025-07-09T00:00:00Z",
+        "to": "2025-07-09T23:59:59Z"
+      },
+      "dataset": {
+        "granularity": "Hourly",
+        "aggregation": {
+          "totalCost": {
+            "name": "Cost",
+            "function": "Sum"
+          }
+        },
+        "grouping": [
+          {
+            "type": "Dimension",
+            "name": "ResourceGroupName"
+          },
+          {
+            "type": "Dimension", 
+            "name": "ServiceName"
+          }
+        ]
+      }
+    },
+    "deliveryInfo": {
+      "destination": {
+        "resourceId": "/subscriptions/3826a0a7-3ab7-4d51-88f5-810685e17cb0/resourceGroups/myResourceGroup/providers/Microsoft.Storage/storageAccounts/mystorageacct7892",
+        "container": "focus",
+        "rootFolderPath": "hourly-reports"
+      }
+    },
+    "format": "Csv",
+    "schedule": {
+      "status": "Active",
+      "recurrence": "Daily",
+      "recurrencePeriod": {
+        "from": "2025-07-10T00:00:00Z",
+        "to": "2025-12-31T23:59:59Z"
+      }
+    }
+  }
+}

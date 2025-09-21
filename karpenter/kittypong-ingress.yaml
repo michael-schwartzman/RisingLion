@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kittypong-game-main-ingress
+  labels:
+    app: kittypong-game
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: kittie.schwartzman.org
+    http:
+      paths:
+      - backend:
+          service:
+            name: kittypong-game-service
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - kittie.schwartzman.org
+    secretName: kittie-schwartzman-org-tls
