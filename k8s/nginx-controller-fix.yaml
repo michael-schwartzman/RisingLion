@@ -1,0 +1,19 @@
+# Patch to ensure nginx ingress controller doesn't have restrictive node selectors
+# Apply this after installing nginx ingress controller
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/os: linux
+      tolerations:
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/control-plane
+        operator: Equal
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Equal

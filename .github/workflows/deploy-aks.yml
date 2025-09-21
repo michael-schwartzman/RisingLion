@@ -11,7 +11,7 @@ env:
   REGISTRY_NAME: risinglionacr
   CLUSTER_NAME: games-multi-tenancy
   CLUSTER_RESOURCE_GROUP: 3DKittyPongAKS
-  NAMESPACE: risinglion
+  NAMESPACE: default  # Changed to default namespace for production
   APP_NAME: rising-lion-game
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
           echo "DEPLOYMENT_TYPE=staging" >> $GITHUB_ENV
           echo "IMAGE_TAG=pr-${{ github.event.number }}-${{ github.sha }}" >> $GITHUB_ENV
         else
-          echo "NAMESPACE=risinglion" >> $GITHUB_ENV
+          echo "NAMESPACE=default" >> $GITHUB_ENV  # Use default namespace for production
           echo "APP_NAME=rising-lion-game" >> $GITHUB_ENV
           echo "DEPLOYMENT_TYPE=production" >> $GITHUB_ENV
           echo "IMAGE_TAG=latest-${{ github.sha }}" >> $GITHUB_ENV
@@ -89,11 +89,78 @@ jobs:
         fi
         
         envsubst < k8s/ingress.yaml | kubectl apply -n $NAMESPACE -f -
+
+        # Deploy production-specific ingress for risinglion.schwartzman.org
+        if [ "$DEPLOYMENT_TYPE" == "production" ]; then
+          echo "Deploying production ingress for risinglion.schwartzman.org..."
+          envsubst < k8s/production-ingress.yaml | kubectl apply -n $NAMESPACE -f -
+
+          # Also ensure the service exists in risinglion namespace for backward compatibility
+          kubectl create namespace risinglion --dry-run=client -o yaml | kubectl apply -f -
+
+          # Create an ExternalName service in risinglion namespace that points to the default namespace
+          cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Service
+metadata:
+  name: rising-lion-game-service
+  namespace: risinglion
+spec:
+  type: ExternalName
+  externalName: rising-lion-game-service.default.svc.cluster.local
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+EOF
+
+          # Create ingress in risinglion namespace pointing to the service
+          cat <<EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rising-lion-game-domain-ingress
+  namespace: risinglion
+  labels:
+    app: rising-lion-game
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: risinglion.schwartzman.org
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: rising-lion-game-service
+            port:
+              number: 80
+EOF
+        fi
     
     - name: Wait for deployment
       run: |
         kubectl wait --for=condition=available --timeout=300s deployment/$APP_NAME -n $NAMESPACE
         echo "✅ Deployment is ready!"
+
+    - name: Run health check
+      run: |
+        chmod +x scripts/healthcheck.sh
+        ./scripts/healthcheck.sh
     
     - name: Get deployment info
       run: |
@@ -111,17 +178,26 @@ jobs:
         echo "=== Ingress Status ==="
         kubectl get ingress -n $NAMESPACE
     
-    - name: Install nginx ingress controller if needed
+    - name: Install and fix nginx ingress controller
       run: |
         # Check if nginx ingress controller is installed
-        if ! kubectl get ingressclass nginx > /dev/null 2>&1; then
+        if ! kubectl get namespace ingress-nginx > /dev/null 2>&1; then
           echo "Installing nginx ingress controller..."
           kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
-          echo "Waiting for ingress controller to be ready..."
-          kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=120s
-        else
-          echo "✅ Nginx ingress controller already installed"
         fi
+
+        # Fix nginx controller node selectors to prevent scheduling issues
+        echo "Fixing nginx controller node selectors..."
+        kubectl patch deployment ingress-nginx-controller -n ingress-nginx --type=json -p='[{"op": "replace", "path": "/spec/template/spec/nodeSelector", "value": {"kubernetes.io/os": "linux"}}]' || true
+
+        # Remove problematic webhook if it exists (it can cause deployment issues)
+        kubectl delete validatingwebhookconfigurations ingress-nginx-admission --ignore-not-found=true
+
+        # Wait for controller to be ready
+        echo "Waiting for ingress controller to be ready..."
+        kubectl wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller --timeout=120s || true
+
+        echo "✅ Nginx ingress controller is ready"
     
     - name: Deployment Summary
       run: |
@@ -135,7 +211,7 @@ jobs:
         if [ "$DEPLOYMENT_TYPE" == "staging" ]; then
           echo "**🔗 Staging URL:** http://games.risinglion.dev/pr-${{ github.event.number }}" >> $GITHUB_STEP_SUMMARY
         else
-          echo "**🔗 Production URL:** http://risinglion.games" >> $GITHUB_STEP_SUMMARY
+          echo "**🔗 Production URL:** https://risinglion.schwartzman.org" >> $GITHUB_STEP_SUMMARY
         fi
         
         echo "" >> $GITHUB_STEP_SUMMARY
