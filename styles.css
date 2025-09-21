@@ -1,3 +1,39 @@
+:root {
+    /* Light theme colors */
+    --bg-gradient-start: #87CEEB;
+    --bg-gradient-middle: #DEB887;
+    --bg-gradient-end: #8B4513;
+    --text-color: #333;
+    --menu-bg: rgba(0, 0, 0, 0.8);
+    --menu-border: #e74c3c;
+    --btn-primary: linear-gradient(45deg, #e74c3c, #c0392b);
+    --btn-primary-hover: linear-gradient(45deg, #c0392b, #e74c3c);
+    --btn-secondary: linear-gradient(45deg, #34495e, #2c3e50);
+    --btn-secondary-hover: linear-gradient(45deg, #2c3e50, #34495e);
+    --hud-bg: rgba(0, 0, 0, 0.7);
+    --health-good: #4CAF50;
+    --health-medium: #FF9800;
+    --health-bad: #F44336;
+}
+
+[data-theme="dark"] {
+    /* Dark theme colors */
+    --bg-gradient-start: #1a1a2e;
+    --bg-gradient-middle: #16213e;
+    --bg-gradient-end: #0f0f23;
+    --text-color: #e0e0e0;
+    --menu-bg: rgba(20, 20, 30, 0.9);
+    --menu-border: #ff6b6b;
+    --btn-primary: linear-gradient(45deg, #ff6b6b, #ff5252);
+    --btn-primary-hover: linear-gradient(45deg, #ff5252, #ff6b6b);
+    --btn-secondary: linear-gradient(45deg, #4a5568, #2d3748);
+    --btn-secondary-hover: linear-gradient(45deg, #2d3748, #4a5568);
+    --hud-bg: rgba(10, 10, 20, 0.8);
+    --health-good: #68d391;
+    --health-medium: #f6ad55;
+    --health-bad: #fc8181;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,8 +42,8 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(180deg, #87CEEB 0%, #DEB887 70%, #8B4513 100%);
-    color: #333;
+    background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-middle) 70%, var(--bg-gradient-end) 100%);
+    color: var(--text-color);
     overflow: hidden;
     height: 100vh;
     width: 100vw;
@@ -22,6 +58,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    transition: background 0.3s ease;
 }
 
 #gameContainer {
@@ -95,14 +132,15 @@ body {
 .menu-content {
     text-align: center;
     padding: 40px;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--menu-bg);
     border-radius: 15px;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--menu-border);
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .menu-content h1 {
     font-size: 3rem;
-    color: #e74c3c;
+    color: var(--menu-border);
     margin-bottom: 30px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
@@ -252,47 +290,132 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    background: var(--btn-primary);
     color: white;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(45deg, #c0392b, #e74c3c);
+    background: var(--btn-primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(231, 76, 60, 0.4);
 }
 
 .btn-secondary {
-    background: linear-gradient(45deg, #34495e, #2c3e50);
+    background: var(--btn-secondary);
     color: white;
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(45deg, #2c3e50, #34495e);
+    background: var(--btn-secondary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(52, 73, 94, 0.4);
 }
 
 /* Instructions Screen */
-#instructionsScreen, #gameOverScreen {
+#instructionsScreen, #gameOverScreen, #settingsScreen {
     background: rgba(0, 0, 0, 0.9);
 }
 
 .screen-content {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--menu-bg);
     padding: 40px;
     border-radius: 15px;
     max-width: 800px;
     max-height: 80vh;
     overflow-y: auto;
-    border: 3px solid #e74c3c;
+    border: 3px solid var(--menu-border);
+    color: var(--text-color);
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .screen-content h2 {
-    color: #e74c3c;
+    color: var(--menu-border);
     font-size: 2.5rem;
     text-align: center;
     margin-bottom: 30px;
+}
+
+/* Settings Screen Styles */
+.settings-content {
+    margin: 20px 0;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    border: 1px solid var(--menu-border);
+}
+
+.setting-item label {
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+/* Toggle Switch Styles */
+.toggle-container {
+    position: relative;
+}
+
+.toggle-input {
+    display: none;
+}
+
+.toggle-label {
+    display: block;
+    width: 60px;
+    height: 30px;
+    background: #ccc;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    position: relative;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-input:checked + .toggle-label {
+    background: var(--menu-border);
+}
+
+.toggle-input:checked + .toggle-label .toggle-slider {
+    transform: translateX(30px);
+}
+
+/* In-Game Toggle Button */
+.in-game-controls {
+    margin-top: 10px;
+}
+
+.toggle-btn {
+    background: var(--hud-bg);
+    border: 2px solid var(--menu-border);
+    color: var(--text-color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    background: var(--menu-border);
+    color: white;
+    transform: scale(1.05);
 }
 
 .instructions-content {
@@ -343,12 +466,13 @@ body {
     left: 0;
     right: 0;
     height: 80px;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--hud-bg);
     display: flex;
     align-items: center;
     padding: 0 20px;
     z-index: 100;
-    border-bottom: 3px solid #e74c3c;
+    border-bottom: 3px solid var(--menu-border);
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .hud-left, .hud-right {
@@ -459,17 +583,17 @@ body {
 
 .health-fill {
     height: 100%;
-    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    background: linear-gradient(90deg, var(--health-good), var(--health-good));
     transition: width 0.5s ease;
     width: 100%;
 }
 
 .health-fill.damaged {
-    background: linear-gradient(90deg, #f39c12, #e67e22);
+    background: linear-gradient(90deg, var(--health-medium), var(--health-medium));
 }
 
 .health-fill.critical {
-    background: linear-gradient(90deg, #e74c3c, #c0392b);
+    background: linear-gradient(90deg, var(--health-bad), var(--health-bad));
 }
 
 .weapon-select {

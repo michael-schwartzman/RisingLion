@@ -3015,7 +3015,6 @@ function initGame() {
                     name: 'Tehran Research Reactor'
                 }
             };
-        }
         
         console.log('Game initialized successfully');
         

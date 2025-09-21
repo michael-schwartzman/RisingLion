@@ -44,6 +44,25 @@
             <img id="haminaiImage" src="images/haminai.png" alt="Haminai" class="facility-destroyed-portrait">
         </div>
 
+        <!-- Settings Screen -->
+        <div id="settingsScreen" class="screen hidden">
+            <div class="screen-content">
+                <h2>Settings</h2>
+                <div class="settings-content">
+                    <div class="setting-item">
+                        <label for="darkModeToggle">Dark Mode:</label>
+                        <div class="toggle-container">
+                            <input type="checkbox" id="darkModeToggle" class="toggle-input">
+                            <label for="darkModeToggle" class="toggle-label">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button id="backToMenuFromSettings" class="btn-secondary">Back to Menu</button>
+            </div>
+        </div>
+
         <!-- Instructions Screen -->
         <div id="instructionsScreen" class="screen hidden">
             <div class="screen-content">
@@ -102,6 +121,9 @@
                         <div>Difficulty: <span id="difficultyDisplay">Tutorial</span></div>
                         <div>Score: <span id="score">0</span></div>
                         <div>Time: <span id="timer">180</span>s</div>
+                    </div>
+                    <div class="in-game-controls">
+                        <button id="inGameDarkModeToggle" class="toggle-btn" title="Toggle Dark Mode">🌙</button>
                     </div>
                     <!-- Adding Israeli base health bar -->
                     <div class="target">
